@@ -1,8 +1,13 @@
-"""Couche IA optionnelle.
+"""Couche IA optionnelle via OpenRouter (API compatible OpenAI).
 
 L'IA ne reçoit que des faits déjà validés dans la base GeoCapital.
 Sans clé API, l'application reste entièrement fonctionnelle grâce aux
 contenus éditoriaux et aux explications déterministes.
+
+Configuration :
+- OPENROUTER_API_KEY : clé OpenRouter (variables d'environnement, fichier .env,
+  puis secrets Streamlit).
+- GEOCAPITAL_MODEL : identifiant du modèle, par exemple "openai/gpt-4o".
 """
 
 from __future__ import annotations
@@ -13,9 +18,11 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-API_URL = "https://api.anthropic.com/v1/messages"
-DEFAULT_MODEL = os.getenv("GEOCAPITAL_MODEL", "claude-haiku-4-5-20251001")
+API_URL = "https://openrouter.ai/api/v1/chat/completions"
+DEFAULT_MODEL = "openai/gpt-4o"
 MAX_TOKENS = 700
+
+_ENV_LOADED = False
 
 SYSTEM_RULES = """Tu es l'analyste pédagogique de GeoCapital.
 Règles absolues :
@@ -28,17 +35,69 @@ Règles absolues :
 """
 
 
-def api_key() -> str | None:
-    key = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    if key:
-        return key
+def _parse_env(text: str) -> dict[str, str]:
+    """Analyse un contenu type .env : lignes CLÉ=VALEUR, commentaires ignorés."""
+    values: dict[str, str] = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key:
+            values[key] = value
+    return values
+
+
+def _load_dotenv(path: str | None = None) -> None:
+    """Charge un fichier .env depuis la racine du projet.
+
+    Les variables déjà présentes dans l'environnement ont la priorité
+    (os.environ.setdefault ne les écrase pas).
+    """
+    global _ENV_LOADED
+    if _ENV_LOADED and path is None:
+        return
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    candidates = [path, os.path.join(root, ".env")]
+    for candidate in candidates:
+        if not candidate or not os.path.isfile(candidate):
+            continue
+        try:
+            with open(candidate, encoding="utf-8") as handle:
+                values = _parse_env(handle.read())
+        except OSError:
+            continue
+        for key, value in values.items():
+            os.environ.setdefault(key, value)
+    _ENV_LOADED = True
+
+
+def _from_secrets(name: str) -> str:
     try:
         import streamlit as st
 
-        secret = st.secrets.get("ANTHROPIC_API_KEY", "")
-        return str(secret).strip() or None
+        secret = st.secrets.get(name, "")
+        return str(secret).strip()
     except Exception:
-        return None
+        return ""
+
+
+def api_model() -> str:
+    """Identifiant du modèle : env > secrets > défaut (openai/gpt-4o)."""
+    _load_dotenv()
+    value = os.getenv("GEOCAPITAL_MODEL", "").strip()
+    return value or _from_secrets("GEOCAPITAL_MODEL") or DEFAULT_MODEL
+
+
+def api_key() -> str | None:
+    """Clé OpenRouter : env (ou .env) > secrets Streamlit, sinon None."""
+    _load_dotenv()
+    key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    if key:
+        return key
+    return _from_secrets("OPENROUTER_API_KEY") or None
 
 
 def is_available() -> bool:
@@ -50,29 +109,32 @@ def _call(prompt: str, max_tokens: int = MAX_TOKENS) -> str | None:
     if not key:
         return None
     payload = {
-        "model": DEFAULT_MODEL,
+        "model": api_model(),
         "max_tokens": max_tokens,
         "temperature": 0.2,
-        "system": SYSTEM_RULES,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [
+            {"role": "system", "content": SYSTEM_RULES},
+            {"role": "user", "content": prompt},
+        ],
     }
     request = urllib.request.Request(
         API_URL,
         data=json.dumps(payload).encode("utf-8"),
         headers={
-            "x-api-key": key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://github.com/IDER04/GeoCapp",
+            "X-Title": "GeoCapital",
         },
         method="POST",
     )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             data = json.loads(response.read().decode("utf-8"))
-        blocks = data.get("content", [])
-        text = " ".join(block.get("text", "") for block in blocks if block.get("type") == "text")
-        return text.strip() or None
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, KeyError):
+        choices = data.get("choices", [])
+        content = choices[0].get("message", {}).get("content", "") if choices else ""
+        return str(content).strip() or None
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, KeyError, IndexError, TypeError):
         return None
 
 
@@ -172,3 +234,6 @@ def explain_quiz(country: dict[str, Any], question: dict[str, Any], correct: boo
         + json.dumps(facts, ensure_ascii=False, indent=2)
     )
     return _call(prompt, max_tokens=350)
+
+
+_load_dotenv()

@@ -290,11 +290,11 @@ def render() -> None:
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
     ai_col, dl_col = st.columns([1, 1])
     with ai_col:
-        with st.expander("Commenter avec Claude Haiku", expanded=False):
+        with st.expander("Commenter avec OpenRouter", expanded=False):
             if not ai.is_available():
                 st.caption(
                     "Le diagnostic ci-dessus est déterministe et fonctionne sans API. "
-                    "Ajoutez `ANTHROPIC_API_KEY` pour obtenir une reformulation pédagogique de cette même allocation."
+                    "Ajoutez `OPENROUTER_API_KEY` pour obtenir une reformulation pédagogique de cette même allocation."
                 )
             else:
                 st.caption("L'IA reçoit uniquement l'allocation et les métriques calculées.")
