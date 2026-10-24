@@ -41,16 +41,20 @@ L'application s'ouvre sur <http://localhost:8501>.
 
 L'application fonctionne **entièrement sans IA** grâce aux contenus éditoriaux et aux calculs déterministes.
 
-Pour activer Claude Haiku :
+Pour activer l'IA (OpenRouter, modèle `openai/gpt-4o` par défaut) :
 
-```powershell
-$env:ANTHROPIC_API_KEY = "votre_cle"
+1. Créer un fichier `.env` à la racine du projet (jamais commité, exclus par `.gitignore`) :
+
+```env
+OPENROUTER_API_KEY = "votre_cle"
+GEOCAPITAL_MODEL = "openai/gpt-4o"
 ```
 
-ou, sur Streamlit Community Cloud, ajoutez la clé dans les *secrets* :
+2. ou, sur Streamlit Community Cloud, ajouter la clé dans les *secrets* :
 
 ```toml
-ANTHROPIC_API_KEY = "votre_cle"
+OPENROUTER_API_KEY = "votre_cle"
+GEOCAPITAL_MODEL = "openai/gpt-4o"
 ```
 
 L'IA reçoit uniquement les faits déjà validés dans la base. Elle explique, reformule et relie ; elle ne crée aucun chiffre, aucune date et aucune notation.
@@ -62,7 +66,7 @@ app.py                     # point d'entrée, navigation, session_state
 geocapital/
   scoring.py               # score, Ke, verdicts, métriques de portefeuille
   data.py                  # chargement JSON, formats, comparaisons
-  ai.py                    # couche Claude Haiku optionnelle
+  ai.py                    # couche IA optionnelle via OpenRouter
   ui.py                    # composants HTML/CSS
 views/                     # une vue par module
 data/
@@ -77,7 +81,7 @@ assets/styles.css          # thème sombre et composants
 
 1. Pousser le dépôt sur GitHub.
 2. Sur [Streamlit Community Cloud](https://share.streamlit.io), créer une app avec `app.py` comme fichier principal.
-3. Ajouter éventuellement `ANTHROPIC_API_KEY` dans les secrets.
+3. Ajouter éventuellement `OPENROUTER_API_KEY` dans les secrets.
 4. Aucune base de données, aucun service payant, aucune connexion bancaire n'est nécessaire.
 
 ## Limites

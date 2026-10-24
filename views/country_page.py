@@ -99,11 +99,11 @@ def _render_reasons(country: dict[str, Any], profile: str) -> None:
 
 
 def _ai_country_block(country: dict[str, Any], result: dict[str, Any], suffix: str = "story") -> None:
-    with st.expander("Approfondir avec Claude Haiku", expanded=False):
+    with st.expander("Approfondir avec OpenRouter", expanded=False):
         if not ai.is_available():
             st.caption(
                 "Mode éditorial : la synthèse GeoCapital ci-dessus fonctionne sans IA. "
-                "Pour activer l'analyse générative, ajoutez `ANTHROPIC_API_KEY` dans les secrets Streamlit. "
+                "Pour activer l'analyse générative, ajoutez `OPENROUTER_API_KEY` dans le fichier .env ou les secrets Streamlit. "
                 "L'IA ne reçoit que les données validées de cette fiche."
             )
             return

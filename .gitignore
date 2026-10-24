@@ -13,6 +13,12 @@ env/
 # Streamlit
 .streamlit/secrets.toml
 
+# Secrets et variables d'environnement (on garde .env.example suivi)
+.env
+.env.*
+.env.rtf
+!.env.example
+
 # Outils et système
 .vscode/
 .idea/

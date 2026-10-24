@@ -88,11 +88,11 @@ def render() -> None:
                     f"**{ui.esc(concept['term'])}** — {ui.esc(concept['definition'])}"
                 )
 
-        with st.expander("Décoder avec Claude Haiku", expanded=False):
+        with st.expander("Décoder avec OpenRouter", expanded=False):
             if not ai.is_available():
                 st.caption(
                     "Le décodage éditorial ci-dessus est complet et ne dépend pas d'une API. "
-                    "Ajoutez `ANTHROPIC_API_KEY` pour faire reformuler la chaîne causale par l'IA, à partir des mêmes faits."
+                    "Ajoutez `OPENROUTER_API_KEY` pour faire reformuler la chaîne causale par l'IA, à partir des mêmes faits."
                 )
             else:
                 st.caption("L'IA reçoit uniquement l'événement, la chaîne et l'écho historique préparés.")
