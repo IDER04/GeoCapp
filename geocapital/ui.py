@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import html
+import re
 from pathlib import Path
 from typing import Any
 
 import streamlit as st
 
-from geocapital.scoring import status_label
+from geocapital import i18n
+from geocapital.i18n import t
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "styles.css"
 TONE_COLORS = {
@@ -31,6 +33,64 @@ def inject_css() -> None:
 
 def esc(value: Any) -> str:
     return html.escape(str(value if value is not None else ""))
+
+
+_PRE_BLOCK = re.compile(r"(<pre\b[^>]*>.*?</pre>)", re.DOTALL | re.IGNORECASE)
+
+
+def flatten_html(markup: str) -> str:
+    """Aplatit un fragment HTML pour le rendu st.markdown de Streamlit.
+
+    Le rendu HTML passe par le parseur Markdown côté client : une chaîne dont
+    les lignes vides sont suivies de lignes indentées d'au moins 4 espaces est
+    interprétée comme un bloc de code indenté, et des pans du HTML s'affichent
+    alors en texte brut. Supprimer l'indentation parasite et les lignes
+    vides neutralise le problème sans toucher au contenu ni aux classes CSS.
+    Le contenu des blocs <pre> est préservé tel quel.
+    """
+    if "<pre" not in markup.lower():
+        return "\n".join(line.strip() for line in markup.splitlines() if line.strip())
+    parts = _PRE_BLOCK.split(markup)
+    flattened = []
+    for part in parts:
+        if part.lower().startswith("<pre"):
+            flattened.append(part)
+        else:
+            flattened.append(
+                "\n".join(line.strip() for line in part.splitlines() if line.strip())
+            )
+    return "".join(flattened)
+
+
+def install_markdown_normalizer() -> None:
+    """Fait en sorte que st.markdown(unsafe_allow_html=True) reçoive un HTML aplati.
+
+    Installe une fois, de façon transparente, un wrapper autour de st.markdown :
+    seules les chaînes HTML sont aplaties, rien d'autre ne change. Les appels
+    sans unsafe_allow_html (texte, réponses IA en Markdown) ne sont pas altérés.
+    """
+    import streamlit as st
+
+    current = getattr(st, "markdown", None)
+    if current is None:
+        return
+    if getattr(current, "_geocapital_normalized", False):
+        return
+    original = getattr(current, "_geocapital_original", current)
+
+    def markdown(body, *args, **kwargs):
+        allow = kwargs.get("unsafe_allow_html")
+        if allow is None and args:
+            positional = [arg for arg in args if isinstance(arg, bool)]
+            if positional:
+                allow = positional[-1]
+        if allow and isinstance(body, str):
+            body = flatten_html(body)
+        return original(body, *args, **kwargs)
+
+    markdown._geocapital_original = original
+    markdown._geocapital_normalized = True
+    st.markdown = markdown
 
 
 def hero(eyebrow: str, title: str, subtitle: str, chips: list[str] | None = None) -> None:
@@ -121,7 +181,7 @@ def verdict_badge(verdict: str, tone: str) -> str:
 
 
 def country_hero(country: dict[str, Any], score_payload: dict[str, Any]) -> None:
-    verdict = score_payload["verdict"]
+    verdict_label = t(f"verdict.{i18n.verdict_key(score_payload['verdict'])}")
     tone = score_payload.get("verdict_tone", "gold")
     st.markdown(
         f"""
@@ -135,16 +195,16 @@ def country_hero(country: dict[str, Any], score_payload: dict[str, Any]) -> None
               <div class="gc-country-meta">
                 <span class="gc-chip">{esc(country.get('official_name', ''))}</span>
                 <span class="gc-chip">ISO {esc(country.get('iso3', ''))}</span>
-                <span class="gc-verdict {esc(tone)}">{esc(verdict)}</span>
+                <span class="gc-verdict {esc(tone)}">{esc(verdict_label)}</span>
               </div>
             </div>
           </div>
           <div class="gc-score-row">
-            {ring(score_payload['score'], 'score / 100')}
+            {ring(score_payload['score'], t('ring.scale'))}
             <div>
-              <div class="gc-kpi-label">Rendement exigé</div>
-              <div class="gc-ke"><strong>{score_payload['ke']['ke']:.1f} %</strong><span>Ke annuel</span></div>
-              <div class="gc-small">Risque : {score_payload['risk']:.0f}/100 · {risk_word(score_payload['risk'])}</div>
+              <div class="gc-kpi-label">{t('ui.hero.ke_label')}</div>
+              <div class="gc-ke"><strong>{score_payload['ke']['ke']:.1f} %</strong><span>{t('ui.hero.ke_annual')}</span></div>
+              <div class="gc-small">{t('ui.hero.risk_prefix')} {score_payload['risk']:.0f}/100 · {risk_word(score_payload['risk'])}</div>
             </div>
           </div>
         </div>
@@ -167,7 +227,7 @@ def indicator_card(
         <div class="gc-ind {esc(status)}">
           <div class="gc-ind-top">
             <div class="gc-ind-label">{esc(label)}</div>
-            <div class="gc-status {esc(status)}">{esc(status_label(status))}</div>
+            <div class="gc-status {esc(status)}">{esc(t(f"status.{status}"))}</div>
           </div>
           <div class="gc-ind-value">{esc(value)}<small>{esc(unit)}</small></div>
           <div class="gc-ind-note">{esc(note)}</div>
@@ -217,10 +277,10 @@ def component_bars(rows: list[dict[str, Any]]) -> None:
             <div class="gc-bar-row">
               <div class="gc-bar-head">
                 <strong>{esc(row['label'])}</strong>
-                <span>{score:.0f}/100 · poids {row['weight']*100:.0f}%</span>
+                <span>{t("ui.bars.head", score=f"{score:.0f}", pct=f"{row['weight']*100:.0f}")}</span>
               </div>
               <div class="gc-bar-track"><div class="gc-bar-fill {tone}" style="width:{max(2, min(100, score)):.1f}%"></div></div>
-              <div class="gc-weight">Contribution au score : {row['contribution']:.1f} pts sur {row['max']:.0f}</div>
+              <div class="gc-weight">{t("ui.bars.contribution", points=f"{row['contribution']:.1f}", max=f"{row['max']:.0f}")}</div>
             </div>
             """
         )
@@ -260,12 +320,12 @@ def winners_losers(winners: list[str], losers: list[str]) -> None:
 
 def footer() -> None:
     st.markdown(
-        """
+        f"""
         <div class="gc-footer">
-          <div><strong>GeoCapital</strong> · Connaître le passé pour anticiper le futur.<br>
-          Prototype pédagogique. Données indicatives, non actualisées en temps réel.</div>
-          <div>Pas un conseil en investissement · Les chiffres sont sourcés dans la base GeoCapital.<br>
-          L'IA explique les données, elle ne les invente pas.</div>
+          <div><strong>GeoCapital</strong> · {t('ui.footer.tagline')}<br>
+          {t('ui.footer.disclaimer')}</div>
+          <div>{t('ui.footer.not_advice')}<br>
+          {t('ui.footer.ai_line')}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -274,12 +334,12 @@ def footer() -> None:
 
 def risk_word(risk: float) -> str:
     if risk < 30:
-        return "faible"
+        return t("risk.faible").lower()
     if risk < 50:
-        return "modéré"
+        return t("risk.modere").lower()
     if risk < 70:
-        return "élevé"
-    return "très élevé"
+        return t("risk.eleve").lower()
+    return t("risk.tres_eleve").lower()
 
 
 def eur(value: float, decimals: int = 0) -> str:

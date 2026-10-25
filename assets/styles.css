@@ -32,8 +32,39 @@ html, body, [class*="css"] {
   background: transparent;
 }
 
+/* Header natif : on ne le masque PAS. Il abrite le contrôle natif de
+   réouverture de la sidebar (bouton flèche rendu par Streamlit quand la
+   barre est repliée, testid stExpandSidebarButton). On le rend simplement
+   transparent pour préserver le design, et on neutralise ses éléments
+   d'outils inutiles un par un. Le header ne doit pas détourner les clics
+   hors du contrôle : pointer-events none partout, réactivé sur la toolbar. */
 [data-testid="stHeader"] {
-  display: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+[data-testid="stHeader"] [data-testid="stToolbar"] {
+  pointer-events: auto;
+}
+
+[data-testid="stAppDeployButton"],
+[data-testid="stStatusWidget"] {
+  display: none !important;
+}
+
+/* Filet de sécurité : le contrôle natif d'agrandissement reste visible,
+   cliquable et au-dessus de tout élément qui pourrait le recouvrir. */
+[data-testid="stExpandSidebarButton"] {
+  visibility: visible;
+  opacity: 1;
+  position: relative;
+  z-index: 100000;
+}
+
+[data-testid="stSidebarCollapseButton"] {
+  opacity: .75;
 }
 
 .block-container {
@@ -46,7 +77,11 @@ html, body, [class*="css"] {
   visibility: hidden;
 }
 
-[data-testid="stAppDeployButton"], [data-testid="stToolbar"] {
+footer {
+  display: none;
+}
+
+#MainMenu {
   display: none !important;
 }
 

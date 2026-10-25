@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import streamlit as st
 
-from geocapital import ui
+from geocapital import i18n, ui
+from geocapital.i18n import t
 from geocapital.data import countries
 from geocapital.scoring import VERDICT_STYLES, overall_score
 
 
 def _go_country(country_id: str) -> None:
     st.session_state["country_id"] = country_id
-    st.session_state["nav"] = "Fiche pays"
+    st.session_state["nav"] = "country"
 
 
 def _reset_progress() -> None:
@@ -30,9 +31,9 @@ def render() -> None:
     profile = st.session_state.get("profile", "Équilibré")
 
     ui.page_head(
-        "Ma progression",
-        "Une carte mentale se remplit pays après pays.",
-        "GeoCapital ne récompense pas le temps passé : il récompense la compréhension. Chaque fiche lue et chaque quiz réussi ajoute un pays à votre carte mentale.",
+        t("pr.eyebrow"),
+        t("pr.title"),
+        t("pr.subtitle"),
     )
 
     completion = len(explored) / len(all_countries) * 100 if all_countries else 0
@@ -43,35 +44,35 @@ def render() -> None:
 
     top_cols = st.columns([1.1, 1, 1, 1])
     with top_cols[0]:
-        ui.kpi(f"{len(explored)}<small>/10</small>", "pays explorés", f"{completion:.0f} % de la carte")
+        ui.kpi(f"{len(explored)}<small>/10</small>", t("pr.kpi.explored"), t("pr.kpi.explored_desc", pct=f"{completion:.0f}"))
     with top_cols[1]:
-        ui.kpi(f"{correct_count}<small>/10</small>", "quiz réussis", "Une notion par pays")
+        ui.kpi(f"{correct_count}<small>/10</small>", t("pr.kpi.quiz"), t("pr.kpi.quiz_desc"))
     with top_cols[2]:
-        ui.kpi(f"{average:.0f}<small>/100</small>", "score moyen exploré", f"Profil {profile}")
+        ui.kpi(f"{average:.0f}<small>/100</small>", t("pr.kpi.average"), t("pr.kpi.average_desc", profile=i18n.profile_label(profile)))
     with top_cols[3]:
-        ui.kpi(f"{len(all_countries) - len(explored)}", "pays restants", "À vous de choisir le prochain")
+        ui.kpi(f"{len(all_countries) - len(explored)}", t("pr.kpi.remaining"), t("pr.kpi.remaining_desc"))
 
     st.markdown(
         f"""
         <div class="gc-card" style="margin-top:14px">
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
-            <div><div class="gc-eyebrow">Votre carte mentale</div><h4 style="font-size:1rem">Progression globale</h4></div>
+            <div><div class="gc-eyebrow">{t("pr.card.eyebrow")}</div><h4 style="font-size:1rem">{t("pr.card.title")}</h4></div>
             <div style="color:#e6b86b;font-weight:800">{completion:.0f} %</div>
           </div>
           <div class="gc-progress"><div style="width:{completion:.1f}%"></div></div>
-          <div class="gc-small">Comprendre un pays ne veut pas dire l'aimer. L'objectif est de savoir pourquoi vous l'incluez ou l'excluez.</div>
+          <div class="gc-small">{t("pr.card.note")}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    ui.section_title("Badges", "la progression, pas la performance")
+    ui.section_title(t("pr.section.badges"), t("pr.section.badges_sub"))
     badges = [
-        ("Premier pas", len(explored) >= 1, "1 pays exploré"),
-        ("Curieux", len(explored) >= 3, "3 pays explorés"),
-        ("Cartographe", len(explored) >= 5, "5 pays explorés"),
-        ("Tour du monde", len(explored) >= 10, "10 pays explorés"),
-        ("Quiz solide", correct_count >= 5, "5 quiz réussis"),
+        (t("pr.badge.first"), len(explored) >= 1, t("pr.badge_note.first")),
+        (t("pr.badge.curious"), len(explored) >= 3, t("pr.badge_note.curious")),
+        (t("pr.badge.cartographer"), len(explored) >= 5, t("pr.badge_note.cartographer")),
+        (t("pr.badge.world"), len(explored) >= 10, t("pr.badge_note.world")),
+        (t("pr.badge.quiz"), correct_count >= 5, t("pr.badge_note.quiz")),
     ]
     badge_cols = st.columns(5)
     for col, (label, active, note) in zip(badge_cols, badges):
@@ -81,18 +82,18 @@ def render() -> None:
                 unsafe_allow_html=True,
             )
 
-    ui.section_title("Les 10 pays", "votre état d'avancement")
+    ui.section_title(t("pr.section.countries"), t("pr.section.countries_sub"))
     groups = ["Développé", "Émergent", "Golfe", "Frontière"]
     group_cols = st.columns(4)
     for col, group in zip(group_cols, groups):
         with col:
-            st.markdown(f'<div class="gc-eyebrow" style="margin-bottom:8px">{ui.esc(group)}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="gc-eyebrow" style="margin-bottom:8px">{ui.esc(t(f"group.{i18n.group_key(group)}"))}</div>', unsafe_allow_html=True)
             for country in [c for c in all_countries if c["group"] == group]:
                 done = country["id"] in explored
                 quiz = quiz_correct.get(country["id"])
                 result = overall_score(country, profile)
-                status = "Exploré" if done else "À découvrir"
-                quiz_text = "Quiz réussi" if quiz else "Quiz à faire" if done else "Fiche à ouvrir"
+                status = t("pr.status.explored") if done else t("pr.status.to_discover")
+                quiz_text = t("pr.quiz.done") if quiz else t("pr.quiz.todo") if done else t("pr.quiz.to_open")
                 st.markdown(
                     f"""
                     <div class="gc-tile {'done' if done else ''}" style="min-height:132px;padding:13px">
@@ -101,13 +102,13 @@ def render() -> None:
                         <span class="gc-chip {'green' if done else ''}" style="font-size:.6rem">{'✓' if done else '○'} {ui.esc(status)}</span>
                       </div>
                       <h4 style="font-size:.86rem">{ui.esc(country['name'])}</h4>
-                      <p>{ui.esc(quiz_text)} · score {result['score']:.0f}/100</p>
+                      <p>{ui.esc(quiz_text)} · {t("pr.tile.score", value=f"{result['score']:.0f}")}</p>
                     </div>
                     """,
                     unsafe_allow_html=True,
                 )
                 st.button(
-                    "Revoir" if done else "Ouvrir",
+                    t("pr.btn.revisit") if done else t("pr.btn.open"),
                     key=f"progress_open_{country['id']}",
                     width="stretch",
                     on_click=_go_country,
@@ -115,7 +116,7 @@ def render() -> None:
                 )
 
     unvisited = [c for c in all_countries if c["id"] not in explored]
-    ui.section_title("Prochaine étape", "une suggestion, pas une obligation")
+    ui.section_title(t("pr.section.next"), t("pr.section.next_sub"))
     if unvisited:
         ranked = sorted(unvisited, key=lambda c: overall_score(c, profile)["score"], reverse=True)
         next_country = ranked[0]
@@ -124,7 +125,7 @@ def render() -> None:
             st.markdown(
                 f"""
                 <div class="gc-card gc-card-gold">
-                  <div class="gc-eyebrow">À explorer ensuite</div>
+                  <div class="gc-eyebrow">{t("pr.next.eyebrow")}</div>
                   <h4 style="font-size:1.05rem">{next_country['flag']} {ui.esc(next_country['name'])} · {overall_score(next_country, profile)['score']:.0f}/100</h4>
                   <p>{ui.esc(next_country.get('headline', ''))}</p>
                 </div>
@@ -134,7 +135,7 @@ def render() -> None:
         with button_col:
             st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
             st.button(
-                "Ouvrir la fiche",
+                t("pr.btn.open_full"),
                 key="progress_next",
                 type="primary",
                 width="stretch",
@@ -142,21 +143,24 @@ def render() -> None:
                 args=(next_country["id"],),
             )
     else:
-        ui.callout("Vous avez parcouru les dix pays. Revenez sur les fiches pour comparer les trajectoires et tester les trois profils.", "green")
+        ui.callout(t("pr.done_callout"), "green")
 
-    with st.expander("Réinitialiser ma progression", expanded=False):
-        st.caption("Cette action efface uniquement les pays explorés et les quiz de cette session. Le portefeuille n'est pas modifié.")
-        confirm = st.checkbox("Je confirme la réinitialisation.", key="confirm_reset_progress")
+    with st.expander(t("pr.reset.expander"), expanded=False):
+        st.caption(t("pr.reset.caption"))
+        confirm = st.checkbox(t("pr.reset.confirm"), key="confirm_reset_progress")
         st.button(
-            "Réinitialiser",
+            t("pr.reset.button"),
             key="reset_progress",
             disabled=not confirm,
             on_click=_reset_progress,
         )
 
     ui.callout(
-        "La note d'un pays dépend de votre profil. Un pays peut être « Investir » pour un profil audacieux et « Attendre » pour un profil prudent. "
-        "La progression ne mesure donc pas une vérité absolue, mais votre capacité à lire le compromis risque/rendement.",
+        t(
+            "pr.callout.verdicts",
+            invest=t("verdict.invest"),
+            wait=t("verdict.wait"),
+        ),
         "blue",
     )
     ui.footer()

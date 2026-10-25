@@ -104,19 +104,11 @@ def is_available() -> bool:
     return bool(api_key())
 
 
-def _call(prompt: str, max_tokens: int = MAX_TOKENS) -> str | None:
+def _post(payload: dict[str, Any]) -> str | None:
+    """Transport partagé : requête OpenRouter, parse compatible OpenAI, erreurs → None."""
     key = api_key()
     if not key:
         return None
-    payload = {
-        "model": api_model(),
-        "max_tokens": max_tokens,
-        "temperature": 0.2,
-        "messages": [
-            {"role": "system", "content": SYSTEM_RULES},
-            {"role": "user", "content": prompt},
-        ],
-    }
     request = urllib.request.Request(
         API_URL,
         data=json.dumps(payload).encode("utf-8"),
@@ -136,6 +128,32 @@ def _call(prompt: str, max_tokens: int = MAX_TOKENS) -> str | None:
         return str(content).strip() or None
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, KeyError, IndexError, TypeError):
         return None
+
+
+def _call(prompt: str, max_tokens: int = MAX_TOKENS) -> str | None:
+    payload = {
+        "model": api_model(),
+        "max_tokens": max_tokens,
+        "temperature": 0.2,
+        "messages": [
+            {"role": "system", "content": SYSTEM_RULES},
+            {"role": "user", "content": prompt},
+        ],
+    }
+    return _post(payload)
+
+
+def chat(messages: list[dict[str, str]], max_tokens: int = MAX_TOKENS) -> str | None:
+    """Conversation multi-tours pour l'analyste (messages OpenAI-compatibles)."""
+    if not messages:
+        return None
+    payload = {
+        "model": api_model(),
+        "max_tokens": max_tokens,
+        "temperature": 0.2,
+        "messages": messages,
+    }
+    return _post(payload)
 
 
 def country_brief(country: dict[str, Any], score_payload: dict[str, Any]) -> str | None:
