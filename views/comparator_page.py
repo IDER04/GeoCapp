@@ -5,7 +5,8 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import streamlit as st
 
-from geocapital import ui
+from geocapital import i18n, ui
+from geocapital.i18n import t
 from geocapital.data import (
     INDICATOR_LABELS,
     comparison_frame,
@@ -28,7 +29,7 @@ COLORS = ["#e6b86b", "#7dd3fc", "#a3e635"]
 
 def _go_country(country_id: str) -> None:
     st.session_state["country_id"] = country_id
-    st.session_state["nav"] = "Fiche pays"
+    st.session_state["nav"] = "country"
 
 
 def _set_comparison(pair: tuple[str, str]) -> None:
@@ -37,7 +38,7 @@ def _set_comparison(pair: tuple[str, str]) -> None:
 
 def _radar(selected: list[dict], profile: str) -> go.Figure:
     fig = go.Figure()
-    categories = [COMPONENT_LABELS[key] for key in COMPONENT_LABELS]
+    categories = [t(f"component.{key}") for key in COMPONENT_LABELS]
     for index, country in enumerate(selected):
         scores = component_scores(country)
         values = [scores[key] for key in COMPONENT_LABELS]
@@ -102,7 +103,7 @@ def _ke_chart(selected: list[dict], profile: str) -> go.Figure:
             text=[f"{row[1]:.1f} %" for row in rows],
             textposition="outside",
             textfont=dict(color="#cbd5e1", size=11),
-            hovertemplate="<b>%{y}</b><br>Rendement exigé : %{x:.1f} %<extra></extra>",
+            hovertemplate=f"<b>%{{y}}</b><br>{t('map.hover.ke')} %{{x:.1f}} %<extra></extra>",
         )
     )
     fig.update_layout(
@@ -133,7 +134,7 @@ def _table(selected: list[dict]) -> None:
             )
         rows_html.append(f"<tr><td class='gc-table-label'>{ui.esc(INDICATOR_LABELS[key])}</td>{''.join(cells)}</tr>")
     st.markdown(
-        f'<div style="overflow-x:auto"><table class="gc-table"><thead><tr><th>Indicateur</th>{header}</tr></thead><tbody>{"".join(rows_html)}</tbody></table></div>',
+        f'<div style="overflow-x:auto"><table class="gc-table"><thead><tr><th>{t("comp.table.indicator")}</th>{header}</tr></thead><tbody>{"".join(rows_html)}</tbody></table></div>',
         unsafe_allow_html=True,
     )
 
@@ -141,18 +142,18 @@ def _table(selected: list[dict]) -> None:
 def render() -> None:
     profile = st.session_state.get("profile", "Équilibré")
     ui.page_head(
-        "Comparateur · 2 à 3 pays",
-        "Deux histoires, deux risques, deux prix.",
-        "Comparez la trajectoire, les institutions et le rendement exigé. Un score plus élevé ne signifie pas automatiquement un meilleur investissement : regardez aussi ce que le marché vous fait payer.",
+        t("comp.eyebrow"),
+        t("comp.title"),
+        t("comp.subtitle"),
     )
 
     preset_cols = st.columns(5)
     presets = [
-        ("USA vs Chine", ("usa", "china")),
-        ("Arabie vs Émirats", ("saudi", "uae")),
-        ("Liban vs Syrie", ("lebanon", "syria")),
-        ("France vs Japon", ("france", "japan")),
-        ("Maroc vs Afrique du Sud", ("morocco", "south_africa")),
+        (t("comp.preset.usa_china"), ("usa", "china")),
+        (t("comp.preset.saudi_uae"), ("saudi", "uae")),
+        (t("comp.preset.lebanon_syria"), ("lebanon", "syria")),
+        (t("comp.preset.france_japan"), ("france", "japan")),
+        (t("comp.preset.morocco_sa"), ("morocco", "south_africa")),
     ]
     for col, (label, pair) in zip(preset_cols, presets):
         with col:
@@ -161,19 +162,19 @@ def render() -> None:
     control_a, control_b = st.columns([2.2, 1])
     with control_a:
         selected_ids = st.multiselect(
-            "Pays à comparer",
+            t("comp.select"),
             [c["id"] for c in countries()],
             format_func=lambda cid: f"{country_by_id(cid)['flag']} {country_by_id(cid)['name']}",
             max_selections=3,
             key="compare_ids",
-            help="Sélectionnez 2 ou 3 pays.",
+            help=t("comp.select_help"),
         )
     with control_b:
-        profile = st.radio("Profil", list(PROFILES.keys()), horizontal=True, key="profile")
+        profile = st.radio(t("comp.profile_radio"), list(PROFILES.keys()), horizontal=True, key="profile", format_func=i18n.profile_label)
 
     selected = [country_by_id(cid) for cid in selected_ids if country_by_id(cid)]
     if len(selected) < 2:
-        ui.callout("Sélectionnez au moins deux pays pour lancer la comparaison.", "blue")
+        ui.callout(t("comp.min_two"), "blue")
         return
 
     cards = st.columns(len(selected))
@@ -188,17 +189,17 @@ def render() -> None:
                   <div style="display:flex;align-items:center;gap:10px">
                     <span style="font-size:1.8rem">{country['flag']}</span>
                     <div><div style="color:#f1f5fb;font-weight:750;font-size:.94rem">{ui.esc(country['name'])}</div>
-                    <div style="color:#7f8fa5;font-size:.68rem">{ui.esc(country['group'])}</div></div>
+                    <div style="color:#7f8fa5;font-size:.68rem">{ui.esc(t(f"group.{i18n.group_key(country['group'])}"))}</div></div>
                   </div>
                   <div style="display:flex;align-items:center;gap:14px;margin-top:16px">
-                    {ui.ring(result['score'], 'score')}
+                    {ui.ring(result['score'], t('comp.ring_label'))}
                     <div>
-                      {ui.verdict_badge(result['verdict'], tone)}
+                      {ui.verdict_badge(t(f"verdict.{i18n.verdict_key(result['verdict'])}"), tone)}
                       <div style="color:#e6b86b;font-size:1.45rem;font-weight:800;margin-top:10px;letter-spacing:-.04em">{ke['ke']:.1f} %</div>
-                      <div class="gc-small">Ke · risque {result['risk']:.0f}/100</div>
+                      <div class="gc-small">{t("comp.card_ke_risk", value=f"{result['risk']:.0f}")}</div>
                     </div>
                   </div>
-                  <div class="gc-small" style="margin-top:12px">{ui.esc(result['verdict_reason'])}</div>
+                  <div class="gc-small" style="margin-top:12px">{ui.esc(t(f"verdict.copy.{i18n.verdict_key(result['verdict'])}"))}</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -206,20 +207,20 @@ def render() -> None:
 
     chart_left, chart_right = st.columns([1.2, 1], gap="large")
     with chart_left:
-        ui.section_title("Profil de risque", "les cinq briques du score")
+        ui.section_title(t("comp.section.radar"), t("comp.section.radar_sub"))
         st.plotly_chart(_radar(selected, profile), width="stretch", config={"displayModeBar": False})
     with chart_right:
-        ui.section_title("Rendement exigé", "plus le risque est perçu, plus Ke monte")
+        ui.section_title(t("comp.section.ke"), t("comp.section.ke_sub"))
         st.plotly_chart(_ke_chart(selected, profile), width="stretch", config={"displayModeBar": False})
         st.markdown(
-            '<div class="gc-small">Le rendement exigé intègre le risque de crédit, pas seulement la croissance. Un pays peut croître vite et rester cher à financer.</div>',
+            f'<div class="gc-small">{t("comp.ke_note")}</div>',
             unsafe_allow_html=True,
         )
 
-    ui.section_title("Tableau de bord comparé", "vert / orange / rouge")
+    ui.section_title(t("comp.section.table"), t("comp.section.table_sub"))
     _table(selected)
 
-    ui.section_title("Lecture GeoCapital", "ce que le comparatif raconte")
+    ui.section_title(t("comp.section.reading"), t("comp.section.reading_sub"))
     best = max(selected, key=lambda c: overall_score(c, profile)["score"])
     safest = min(selected, key=lambda c: overall_score(c, profile)["risk"])
     cheapest = min(selected, key=lambda c: required_return(c)["ke"])
@@ -228,12 +229,7 @@ def render() -> None:
         f"""
         <div class="gc-card gc-card-gold">
           <p style="font-size:.87rem;line-height:1.75">
-            Avec le profil <strong>{ui.esc(profile)}</strong>, <strong>{ui.esc(best['name'])}</strong> obtient le meilleur score
-            ({overall_score(best, profile)['score']:.0f}/100). Le pays au risque le plus faible est <strong>{ui.esc(safest['name'])}</strong>
-            (risque {overall_score(safest, profile)['risk']:.0f}/100). Le rendement exigé va de
-            <strong>{required_return(cheapest)['ke']:.1f} %</strong> pour {ui.esc(cheapest['name'])} à
-            <strong>{required_return(most_expensive)['ke']:.1f} %</strong> pour {ui.esc(most_expensive['name'])}.
-            L'écart mesure le prix que le marché demande pour accepter l'incertitude.
+            {t("comp.reading", profile=ui.esc(i18n.profile_label(profile)), best=ui.esc(best['name']), best_score=f"{overall_score(best, profile)['score']:.0f}", safest=ui.esc(safest['name']), safest_risk=f"{overall_score(safest, profile)['risk']:.0f}", ke_min=f"{required_return(cheapest)['ke']:.1f} %", cheapest=ui.esc(cheapest['name']), ke_max=f"{required_return(most_expensive)['ke']:.1f} %", most_expensive=ui.esc(most_expensive['name']))}
           </p>
         </div>
         """,
@@ -245,7 +241,7 @@ def render() -> None:
         frame = comparison_frame(selected)
         csv = frame.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
-            "Exporter en CSV",
+            t("comp.export_csv"),
             data=csv,
             file_name="geocapital_comparaison.csv",
             mime="text/csv",
@@ -254,7 +250,7 @@ def render() -> None:
     for index, country in enumerate(selected):
         with download_cols[index + 1]:
             st.button(
-                f"Fiche {country['flag']}",
+                t("comp.open_sheet", flag=country['flag']),
                 key=f"compare_open_{country['id']}",
                 width="stretch",
                 on_click=_go_country,
@@ -262,8 +258,7 @@ def render() -> None:
             )
 
     ui.callout(
-        "Un rendement exigé élevé n'est pas une promesse de gain. Il signifie que l'investisseur doit être compensé pour un risque plus grand. "
-        "Si le rendement attendu d'un actif est inférieur à Ke, la décision rationnelle est de ne pas l'acheter.",
+        t("comp.callout.ke"),
         "blue",
     )
     ui.footer()

@@ -11,9 +11,10 @@ Application Streamlit pédagogique qui relie **l'histoire d'un pays**, **ses ind
 3. **Tableau de bord** — 11 indicateurs avec feu vert / orange / rouge, source, millésime et explication simple.
 4. **Score & verdict** — décomposition transparente en 5 composantes, Ke, verdict et trois raisons.
 5. **Décodeur d'actualité** — chaîne causale fait → économie → finance → gagnants/perdants, avec écho historique.
-6. **Portefeuille mondial** — 100 000 € fictifs, rendement exigé pondéré, volatilité, diversification, diagnostic.
-7. **Progression** — carte mentale, quiz éclair, badges.
-8. **Sources & méthode** — formules, pondérations, limites et avertissements.
+6. **Analyste IA** — posez vos questions en français ou en anglais ; la réponse suit la langue de votre question et s'appuie uniquement sur les faits validés de la base.
+7. **Portefeuille mondial** — 100 000 € fictifs, rendement exigé pondéré, volatilité, diversification, diagnostic.
+8. **Progression** — carte mentale, quiz éclair, badges.
+9. **Sources & méthode** — formules, pondérations, limites et avertissements.
 
 ## Les 10 pays du MVP
 
@@ -57,6 +58,16 @@ OPENROUTER_API_KEY = "votre_cle"
 GEOCAPITAL_MODEL = "openai/gpt-4o"
 ```
 
+## Analyste IA (OpenRouter)
+
+La page « Analyste » propose une interface conversationnelle bilingue : la réponse suit la langue de la question posée (français ou anglais), indépendamment de la langue d'affichage de l'interface. Elle combine :
+
+1. **Récupération locale** : fiches pays, comparateur, verdicts, coût du capital (Damodaran), événements du décodeur et portefeuille. Les calculs restent déterministes (Python) ; le modèle ne calcule rien.
+2. **Cadrage strict** : chaque question n'envoie qu'un ensemble de faits validés (avec sources et dates) pour l'intention choisie ; les données absentes sont listées comme « donnée non disponible ».
+3. **Trois registres rendus visibles** : ● Faits validés, ◆ Interprétation IA, ○ Hypothèse. Le modèle doit qualifier ses phrases (« Interprétation : … », « Hypothèse : … »).
+4. **Mémoire locale** : la conversation vit dans `session_state` Streamlit (aucune persistance, aucune fuite entre sessions) ; le bouton « Effacer la conversation » la réinitialise, et seuls les 6 derniers échanges sont renvoyés à l'API.
+5. **Repli sans API** : sans clé ou en cas d'échec OpenRouter, la page affiche le même contexte factuel et l'analyse déterministe (dans la langue de la question) avec une notice explicite.
+
 L'IA reçoit uniquement les faits déjà validés dans la base. Elle explique, reformule et relie ; elle ne crée aucun chiffre, aucune date et aucune notation.
 
 ## Structure
@@ -66,9 +77,11 @@ app.py                     # point d'entrée, navigation, session_state
 geocapital/
   scoring.py               # score, Ke, verdicts, métriques de portefeuille
   data.py                  # chargement JSON, formats, comparaisons
+  i18n.py                  # libellés FR/EN centralisés, t(), store de langue
   ai.py                    # couche IA optionnelle via OpenRouter
+  analyst.py               # faits validés et cadrage de l'analyste IA
   ui.py                    # composants HTML/CSS
-views/                     # une vue par module
+views/                     # 8 pages, dont l'Analyste
 data/
   countries/*.json         # 10 fiches pays
   meta.json                # sources, paramètres, méthode

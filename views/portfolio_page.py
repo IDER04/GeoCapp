@@ -7,7 +7,8 @@ from typing import Any
 import plotly.graph_objects as go
 import streamlit as st
 
-from geocapital import ai, ui
+from geocapital import ai, i18n, ui
+from geocapital.i18n import t
 from geocapital.data import countries
 from geocapital.scoring import overall_score, portfolio_metrics, required_return
 
@@ -65,7 +66,7 @@ def _donut(holdings: list[dict[str, Any]], portfolio: dict[str, Any]) -> go.Figu
         showlegend=False,
         annotations=[
             dict(
-                text=f"<b>{portfolio['expected_return']:.1f} %</b><br><span style='font-size:10px;color:#8fa0b6'>Ke moyen</span>",
+                text=f"<b>{portfolio['expected_return']:.1f} %</b><br><span style='font-size:10px;color:#8fa0b6'>{t('pf.donut.ke_mean')}</span>",
                 x=0.5,
                 y=0.5,
                 showarrow=False,
@@ -89,7 +90,7 @@ def _risk_contribution_chart(holdings: list[dict[str, Any]]) -> go.Figure:
             y=labels,
             orientation="h",
             marker=dict(color=["#fb7185" if value > 8 else "#e6b86b" if value > 4 else "#4ade80" for value in values]),
-            hovertemplate="<b>%{y}</b><br>Contribution approx. : %{x:.1f}<extra></extra>",
+            hovertemplate=f"<b>%{{y}}</b><br>{t('pf.hover.contrib')} %{{x:.1f}}<extra></extra>",
         )
     )
     fig.update_layout(
@@ -98,7 +99,7 @@ def _risk_contribution_chart(holdings: list[dict[str, Any]]) -> go.Figure:
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Manrope, sans-serif", color="#94a3b8"),
-        xaxis=dict(title="Poids × volatilité", gridcolor="rgba(148,163,184,.09)"),
+        xaxis=dict(title=t("pf.chart.weight_vol"), gridcolor="rgba(148,163,184,.09)"),
         yaxis=dict(gridcolor="rgba(0,0,0,0)"),
         showlegend=False,
     )
@@ -129,7 +130,7 @@ def _table(holdings: list[dict[str, Any]], total: float) -> None:
     st.markdown(
         f"""
         <div style="overflow-x:auto"><table class="gc-table">
-          <thead><tr><th>Pays</th><th>Poids normalisé</th><th>Montant</th><th>Ke</th><th>Volatilité</th><th>Contribution risque</th></tr></thead>
+          <thead><tr><th>{t("pf.th.country")}</th><th>{t("pf.th.weight")}</th><th>{t("pf.th.amount")}</th><th>{t("pf.th.ke")}</th><th>{t("pf.th.vol")}</th><th>{t("pf.th.contrib")}</th></tr></thead>
           <tbody>{''.join(rows)}</tbody>
         </table></div>
         """,
@@ -140,22 +141,28 @@ def _table(holdings: list[dict[str, Any]], total: float) -> None:
 def _commentary(holdings: list[dict[str, Any]], metrics: dict[str, Any]) -> str:
     active = [h for h in holdings if h["weight"] > 0]
     if not active:
-        return "Aucune allocation : le portefeuille ne peut pas être analysé."
+        return t("pf.commentary.empty")
     top = max(active, key=lambda h: h["weight"])
     riskiest = max(active, key=lambda h: overall_score(h["country"])["volatility"])
     concentration = (
-        "très concentré" if metrics["hhi"] > 0.30 else "modérément concentré" if metrics["hhi"] > 0.20 else "relativement diversifié"
+        t("pf.concentration.high") if metrics["hhi"] > 0.30
+        else t("pf.concentration.medium") if metrics["hhi"] > 0.20
+        else t("pf.concentration.low")
     )
     diversification_text = (
-        "La diversification réduit la volatilité estimée par rapport à la moyenne pondérée des pays."
+        t("pf.diversification.good")
         if metrics["diversification"] > 0.5
-        else "La diversification apporte peu : les pays choisis évoluent de façon trop proche."
+        else t("pf.diversification.poor")
     )
-    return (
-        f"Votre allocation est {concentration} : {top['country']['name']} pèse {metrics['top_weight']:.0f} % du portefeuille. "
-        f"Le rendement exigé pondéré s'élève à {metrics['expected_return']:.1f} % par an, pour une volatilité estimée de {metrics['volatility']:.1f} %. "
-        f"{diversification_text} Le pays qui contribue le plus au risque est {riskiest['country']['name']}. "
-        f"Le portefeuille n'est pas une recommandation : c'est une manière de voir que le rendement et le risque se paient ensemble."
+    return t(
+        "pf.commentary",
+        concentration=concentration,
+        top=top["country"]["name"],
+        top_weight=f"{metrics['top_weight']:.0f}",
+        ke=f"{metrics['expected_return']:.1f}",
+        vol=f"{metrics['volatility']:.1f}",
+        diversification=diversification_text,
+        riskiest=riskiest["country"]["name"],
     )
 
 
@@ -165,25 +172,25 @@ def render() -> None:
 
     profile = st.session_state.get("profile", "Équilibré")
     ui.page_head(
-        "Portefeuille mondial",
-        "100 000 €, dix pays, une leçon de risque.",
-        "Répartissez un capital fictif entre les pays. Le simulateur calcule le rendement exigé pondéré, la volatilité et l'effet réel de la diversification. Aucun ordre n'est passé, aucun rendement n'est garanti.",
+        t("pf.eyebrow"),
+        t("pf.title"),
+        t("pf.subtitle"),
     )
 
     preset_cols = st.columns([1, 1, 1, 2.2])
     with preset_cols[0]:
-        st.button("Défensif", key="preset_defensive", width="stretch", on_click=_apply_preset, args=("Défensif",))
+        st.button(t("pf.preset.defensive"), key="preset_defensive", width="stretch", on_click=_apply_preset, args=("Défensif",))
     with preset_cols[1]:
-        st.button("Équilibré", key="preset_balanced", width="stretch", on_click=_apply_preset, args=("Équilibré",))
+        st.button(t("pf.preset.balanced"), key="preset_balanced", width="stretch", on_click=_apply_preset, args=("Équilibré",))
     with preset_cols[2]:
-        st.button("Offensif", key="preset_offensive", width="stretch", on_click=_apply_preset, args=("Offensif",))
+        st.button(t("pf.preset.offensive"), key="preset_offensive", width="stretch", on_click=_apply_preset, args=("Offensif",))
     with preset_cols[3]:
         st.markdown(
-            '<div class="gc-small" style="text-align:right;margin-top:9px">Les presets sont pédagogiques. Modifiez ensuite librement chaque poche.</div>',
+            f'<div class="gc-small" style="text-align:right;margin-top:9px">{t("pf.presets_hint")}</div>',
             unsafe_allow_html=True,
         )
 
-    ui.section_title("Votre allocation", "montants en euros")
+    ui.section_title(t("pf.section.allocation"), t("pf.section.allocation_sub"))
     allocations = {}
     cols = st.columns(5)
     for index, country in enumerate(countries()):
@@ -194,7 +201,7 @@ def render() -> None:
                 unsafe_allow_html=True,
             )
             allocations[country["id"]] = st.number_input(
-                f"Montant {country['name']}",
+                t("pf.amount_of", name=country["name"]),
                 min_value=0,
                 max_value=100000,
                 step=1000,
@@ -206,19 +213,19 @@ def render() -> None:
     total_col, action_col = st.columns([2, 1])
     with total_col:
         if total == 100000:
-            st.markdown('<span class="gc-chip green">Total saisi : 100 000 € · allocation exacte</span>', unsafe_allow_html=True)
+            st.markdown(f'<span class="gc-chip green">{t("pf.total_exact")}</span>', unsafe_allow_html=True)
         elif total > 0:
             st.markdown(
-                f'<span class="gc-chip orange">Total saisi : {ui.eur(total)} · normalisé à 100 000 € pour la simulation</span>',
+                f'<span class="gc-chip orange">{t("pf.total_normalized", amount=ui.eur(total))}</span>',
                 unsafe_allow_html=True,
             )
         else:
-            st.markdown('<span class="gc-chip red">Total saisi : 0 €</span>', unsafe_allow_html=True)
+            st.markdown(f'<span class="gc-chip red">{t("pf.total_zero")}</span>', unsafe_allow_html=True)
     with action_col:
-        st.button("Tout réinitialiser", key="reset_portfolio", width="stretch", on_click=_reset)
+        st.button(t("pf.reset_all"), key="reset_portfolio", width="stretch", on_click=_reset)
 
     if total <= 0:
-        ui.callout("Ajoutez au moins un montant pour lancer la simulation.", "red")
+        ui.callout(t("pf.need_amount"), "red")
         ui.footer()
         return
 
@@ -237,31 +244,31 @@ def render() -> None:
     with kpi_cols[0]:
         ui.kpi(
             f"{metrics['expected_return']:.1f}<small> %</small>",
-            "Rendement espéré",
-            "Proxy : Ke moyen pondéré",
+            t("pf.kpi.return"),
+            t("pf.kpi.return_desc"),
         )
     with kpi_cols[1]:
         ui.kpi(
             f"{metrics['volatility']:.1f}<small> %</small>",
-            "Volatilité estimée",
-            "Risque annualisé du portefeuille",
+            t("pf.kpi.volatility"),
+            t("pf.kpi.volatility_desc"),
         )
     with kpi_cols[2]:
         ui.kpi(
             f"{metrics['diversification']:.1f}<small> pts</small>",
-            "Gain de diversification",
-            "Moins de volatilité grâce aux corrélations",
+            t("pf.kpi.diversification"),
+            t("pf.kpi.diversification_desc"),
         )
     with kpi_cols[3]:
         ui.kpi(
             f"{metrics['effective_countries']:.1f}",
-            "Pays effectifs",
-            f"Concentration HHI {metrics['hhi']:.2f}",
+            t("pf.kpi.effective"),
+            t("pf.kpi.effective_desc", hhi=f"{metrics['hhi']:.2f}"),
         )
 
     chart_col, diagnosis_col = st.columns([1.15, 1], gap="large")
     with chart_col:
-        ui.section_title("Répartition normalisée", "100 000 €")
+        ui.section_title(t("pf.section.chart"), t("pf.section.chart_sub"))
         st.plotly_chart(_donut(holdings, metrics), width="stretch", config={"displayModeBar": False})
         legend = "".join(
             f'<div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid rgba(148,163,184,.10);font-size:.72rem"><span style="color:#aab7c9">{ui.esc(h["country"]["flag"])} {ui.esc(h["country"]["name"])}</span><span style="color:#7f8fa5">{h["weight"]*100:.1f} %</span></div>'
@@ -271,7 +278,7 @@ def render() -> None:
         st.markdown(legend, unsafe_allow_html=True)
 
     with diagnosis_col:
-        ui.section_title("Diagnostic", "ce que votre allocation raconte")
+        ui.section_title(t("pf.section.diagnosis"), t("pf.section.diagnosis_sub"))
         st.markdown(
             f"""
             <div class="gc-card gc-card-gold">
@@ -281,24 +288,21 @@ def render() -> None:
             unsafe_allow_html=True,
         )
         st.markdown("<div style='height:9px'></div>", unsafe_allow_html=True)
-        ui.section_title("Contribution au risque", "poids × volatilité")
+        ui.section_title(t("pf.section.risk"), t("pf.section.risk_sub"))
         st.plotly_chart(_risk_contribution_chart(holdings), width="stretch", config={"displayModeBar": False})
 
-    ui.section_title("Détail du portefeuille", "montants normalisés à 100 000 €")
+    ui.section_title(t("pf.section.detail"), t("pf.section.detail_sub"))
     _table(holdings, total)
 
     st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
     ai_col, dl_col = st.columns([1, 1])
     with ai_col:
-        with st.expander("Commenter avec OpenRouter", expanded=False):
+        with st.expander(t("pf.expander.ai"), expanded=False):
             if not ai.is_available():
-                st.caption(
-                    "Le diagnostic ci-dessus est déterministe et fonctionne sans API. "
-                    "Ajoutez `OPENROUTER_API_KEY` pour obtenir une reformulation pédagogique de cette même allocation."
-                )
+                st.caption(t("pf.ai.editorial_caption"))
             else:
-                st.caption("L'IA reçoit uniquement l'allocation et les métriques calculées.")
-                if st.button("Générer le commentaire", key="ai_portfolio", type="primary"):
+                st.caption(t("pf.ai.receive"))
+                if st.button(t("pf.ai.button"), key="ai_portfolio", type="primary"):
                     facts = [
                         {
                             "pays": h["country"]["name"],
@@ -309,12 +313,12 @@ def render() -> None:
                         for h in holdings
                         if h["weight"] > 0
                     ]
-                    with st.spinner("Analyse de l'allocation..."):
+                    with st.spinner(t("pf.ai.spinner")):
                         text = ai.portfolio_commentary(facts, metrics)
                     if text:
                         st.markdown(text)
                     else:
-                        st.warning("L'appel IA n'a pas abouti. Le diagnostic déterministe reste disponible.")
+                        st.warning(t("pf.ai.unavailable"))
     with dl_col:
         import pandas as pd
 
@@ -324,16 +328,16 @@ def render() -> None:
                 continue
             export_rows.append(
                 {
-                    "Pays": h["country"]["name"],
-                    "Poids (%)": round(h["weight"] * 100, 2),
-                    "Montant (€)": round(h["weight"] * 100000, 0),
-                    "Ke (%)": required_return(h["country"])["ke"],
-                    "Volatilité (%)": overall_score(h["country"])["volatility"],
+                    t("pf.csv.country"): h["country"]["name"],
+                    t("pf.csv.weight"): round(h["weight"] * 100, 2),
+                    t("pf.csv.amount"): round(h["weight"] * 100000, 0),
+                    t("pf.csv.ke"): required_return(h["country"])["ke"],
+                    t("pf.csv.vol"): overall_score(h["country"])["volatility"],
                 }
             )
         csv = pd.DataFrame(export_rows).to_csv(index=False).encode("utf-8-sig")
         st.download_button(
-            "Télécharger l'allocation",
+            t("pf.download"),
             data=csv,
             file_name="geocapital_portefeuille.csv",
             mime="text/csv",
@@ -341,9 +345,7 @@ def render() -> None:
         )
 
     ui.callout(
-        "Limites du modèle : la volatilité est une estimation pédagogique, les corrélations sont simplifiées par groupe de pays, "
-        "et le portefeuille est investi en actions pays sans couverture de change. Une vraie allocation doit tenir compte de votre horizon, "
-        "de votre situation fiscale et de votre capacité à supporter une perte.",
+        t("pf.callout.limits"),
         "blue",
     )
     ui.footer()
