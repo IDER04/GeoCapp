@@ -15,7 +15,9 @@ def _go_map() -> None:
 
 
 def render() -> None:
-    meta = load_data()
+    # meta.json traduit à l'affichage (EN) : noms et usages des sources,
+    # libellés de méthode ; les paramètres chiffrés restent inchangés.
+    meta = i18n.localize_meta(load_data())
     ui.page_head(
         t("me.eyebrow"),
         t("me.title"),
@@ -141,6 +143,10 @@ def render() -> None:
             unsafe_allow_html=True,
         )
     st.caption(t("me.sources.caption", last_update=meta.get("app", {}).get("last_update", "2024-2025")))
+
+    ui.section_title(t("me.risklab.title"), t("me.risklab.sub"))
+    st.markdown(f"<div class='gc-small'>{t('me.risklab.body')}</div>")
+    st.caption(t("me.risklab.caption"))
 
     ui.section_title(t("me.limits.title"), t("me.limits.sub"))
     st.markdown(

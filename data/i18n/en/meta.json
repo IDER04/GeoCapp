@@ -1,0 +1,46 @@
+{
+  "app": {
+    "tagline": "Understand the past to anticipate the future.",
+    "last_update": "Reference data 2024-2025"
+  },
+  "financial_params": {
+    "risk_free_source": "10-year US Treasury yield, order of magnitude 2024-2025",
+    "erp_source": "A. Damodaran, Equity Risk Premiums, January 2025"
+  },
+  "sources": [
+    {
+      "name": "International Monetary Fund — World Economic Outlook",
+      "use": "Growth, inflation, public debt, unemployment"
+    },
+    {
+      "name": "National central banks",
+      "use": "Policy rates, FX reserves, exchange-rate regimes"
+    },
+    {
+      "name": "S&P Global Ratings, Moody's, Fitch",
+      "use": "Sovereign rating and outlook"
+    },
+    {
+      "name": "CMA / Bloomberg / Refinitiv",
+      "use": "5-year sovereign CDS, orders of magnitude"
+    },
+    {
+      "name": "Aswath Damodaran — Country Risk",
+      "use": "Country risk premium, mature ERP, volatility ratio"
+    },
+    {
+      "name": "World Bank — Worldwide Governance Indicators",
+      "use": "Governance quality (GeoCapital qualitative score)"
+    },
+    {
+      "name": "Local exchanges and WFE",
+      "use": "Equity indices, annual performance, currencies"
+    }
+  ],
+  "methodology": {
+    "score": "Five components scored from 0 to 100, weighted according to three investor profiles. The components combine hard indicators and explicit qualitative scores.",
+    "ke": "Cost of equity = risk-free rate (4.20%) + beta (1.0) × mature equity risk premium (4.50%) + country risk premium. The country premium takes the maximum between the rating spread and the CDS spread, multiplied by 1.5 (Damodaran).",
+    "missing": "A missing rating or an unquoted CDS is never neutralized: it lowers the solvency score and blocks the \"Invest\" verdict.",
+    "disclaimer": "Educational tool. The data is indicative and rounded, and does not constitute investment advice or real-time valuation."
+  }
+}

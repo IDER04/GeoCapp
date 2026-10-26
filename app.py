@@ -12,7 +12,7 @@ from geocapital import i18n, ui
 from geocapital.i18n import t
 
 # Codes de route internes (stables, jamais traduits) — libellés via i18n.t().
-PAGES = ["map", "country", "compare", "decoder", "analyst", "portfolio", "progress", "sources"]
+PAGES = ["map", "country", "compare", "decoder", "analyst", "risk_lab", "portfolio", "progress", "sources"]
 
 ICONS = {
     "map": "◉",
@@ -20,6 +20,7 @@ ICONS = {
     "compare": "⇄",
     "decoder": "⌁",
     "analyst": "✎",
+    "risk_lab": "⚖",
     "portfolio": "◫",
     "progress": "✦",
     "sources": "◎",
@@ -118,7 +119,7 @@ def _sidebar() -> None:
 
         if current:
             st.markdown(
-                f'<div style="margin-top:10px;color:#7f8ea4;font-size:.72rem;line-height:1.5">{t("side.last_sheet")} {current["flag"]} <strong style="color:#c8d4e3">{current["name"]}</strong></div>',
+                f'<div style="margin-top:10px;color:#7f8ea4;font-size:.72rem;line-height:1.5">{t("side.last_sheet")} {current["flag"]} <strong style="color:#c8d4e3">{ui.esc(i18n.localize_country(current)["name"])}</strong></div>',
                 unsafe_allow_html=True,
             )
 
@@ -155,6 +156,7 @@ def main() -> None:
         methodology_page,
         portfolio_page,
         progress_page,
+        risk_lab_page,
     )
 
     page = st.session_state.get("nav", "map")
@@ -164,6 +166,7 @@ def main() -> None:
         "compare": comparator_page.render,
         "decoder": decoder_page.render,
         "analyst": analyst_page.render,
+        "risk_lab": risk_lab_page.render,
         "portfolio": portfolio_page.render,
         "progress": progress_page.render,
         "sources": methodology_page.render,

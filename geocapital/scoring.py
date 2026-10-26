@@ -2,102 +2,48 @@
 
 Toutes les données chiffrées proviennent du fichier data/countries.json.
 Les formules sont volontairement explicites et reproductibles.
+
+Paramètres du modèle (Priorité 3 de la Phase 1 — refactorisation sans
+calibration) : depuis ce commit, la source de vérité unique est
+`data/meta.json` —
+- `financial_params` : taux sans risque, ERP mature, bêta, ratio de
+  volatilité actions/obligations (déjà présent, éventuellement sourcé) ;
+- `scoring_model` : poids par profil, courbes de composantes, formule de
+  risque, courbe CDS, paramètres CRP, tables rating/spread et seuils de
+  verdict (signification de chaque clé : `docs/MODEL_PARAMS.md`).
+
+Le chargement est strict : une section absente, incomplète ou incohérente
+lève `ConfigError` (message pointant la clé fautive) au lieu de retomber
+silencieusement sur des valeurs par défaut arbitraires. Les identifiants
+affichables (libellés FR des composantes et des verdicts, icônes, copies
+verdict/profil) restent dans le code : ce sont des libellés d'affichage,
+pas des paramètres de calibration, et ils sont traduits côté i18n.
 """
 
 from __future__ import annotations
 
+import json
 import math
 from typing import Any
 
+# Tolérance de cohérence pour les poids (somme = 1 ± ε).
+_WEIGHT_EPS = 1e-9
 
-# ---------------------------------------------------------------------------
-# Paramètres financiers (Damodaran, début 2025)
-# ---------------------------------------------------------------------------
-RISK_FREE_RATE = 4.20          # Taux du Trésor américain à 10 ans, approx.
-MATURE_ERP = 4.50              # Prime de risque actions marché mature
-BETA = 1.00                    # Bêta de marché retenu (indice large)
-EQUITY_BOND_VOL_RATIO = 1.50   # Ratio volatilité actions / obligations (Damodaran)
 
-RATING_SCORES = {
-    "AAA": 100,
-    "AA+": 95,
-    "AA": 92,
-    "AA-": 88,
-    "A+": 84,
-    "A": 80,
-    "A-": 76,
-    "BBB+": 70,
-    "BBB": 65,
-    "BBB-": 60,
-    "BB+": 52,
-    "BB": 46,
-    "BB-": 40,
-    "B+": 30,
-    "B": 22,
-    "B-": 14,
-    "CCC": 6,
-    "D": 2,
-    "RD": 1,
-    "NR": 20,
-}
+class ConfigError(ValueError):
+    """Configuration du modèle invalide ou incomplète dans data/meta.json."""
 
-DEFAULT_SPREADS = {
-    "AAA": 0.40,
-    "AA+": 0.55,
-    "AA": 0.70,
-    "AA-": 0.80,
-    "A+": 0.95,
-    "A": 1.05,
-    "A-": 1.15,
-    "BBB+": 1.45,
-    "BBB": 1.60,
-    "BBB-": 1.90,
-    "BB+": 2.60,
-    "BB": 3.00,
-    "BB-": 3.50,
-    "B+": 4.50,
-    "B": 5.50,
-    "B-": 6.50,
-    "CCC": 9.00,
-    "D": 15.00,
-    "RD": 15.00,
-    "NR": 15.50,
-}
 
-PROFILES = {
-    "Prudent": {
-        "label": "Prudent",
-        "description": "Priorité à la stabilité et à la capacité de rembourser.",
-        "weights": {
-            "dynamisme": 0.15,
-            "stabilite": 0.30,
-            "solvabilite": 0.30,
-            "institutions": 0.15,
-            "ouverture": 0.10,
-        },
-    },
-    "Équilibré": {
-        "label": "Équilibré",
-        "description": "Le bon compromis entre croissance, risque et gouvernance.",
-        "weights": {
-            "dynamisme": 0.25,
-            "stabilite": 0.20,
-            "solvabilite": 0.25,
-            "institutions": 0.15,
-            "ouverture": 0.15,
-        },
-    },
-    "Audacieux": {
-        "label": "Audacieux",
-        "description": "Recherche de croissance, tolérance au risque plus élevée.",
-        "weights": {
-            "dynamisme": 0.35,
-            "stabilite": 0.10,
-            "solvabilite": 0.20,
-            "institutions": 0.10,
-            "ouverture": 0.25,
-        },
-    },
+# Valeurs par défaut utilisées UNIQUEMENT pour l'échec explicite
+# (aucun aval silencieux) : si `scoring_model` manque dans meta.json,
+# ces vides restent vides et l'utilisateur voit une erreur explicite.
+_ALLOWED_PROFILES = ("Prudent", "Équilibré", "Audacieux")
+_COMPONENT_KEYS = ("dynamisme", "stabilite", "solvabilite", "institutions", "ouverture")
+
+_PROFILE_DESCRIPTIONS = {
+    "Prudent": "Priorité à la stabilité et à la capacité de rembourser.",
+    "Équilibré": "Le bon compromis entre croissance, risque et gouvernance.",
+    "Audacieux": "Recherche de croissance, tolérance au risque plus élevée.",
 }
 
 COMPONENT_LABELS = {
@@ -115,6 +61,321 @@ VERDICT_STYLES = {
     "Éviter": {"tone": "red", "icon": "↘", "copy": "Le risque n'est pas correctement rémunéré."},
 }
 
+
+# ---------------------------------------------------------------------------
+# Chargement / validation de la configuration (source de vérité = meta.json)
+# ---------------------------------------------------------------------------
+
+_config_cache: dict[str, dict[str, Any]] = {}
+_config_signature: str = ""
+
+
+def _fail(path: str, problem: str) -> None:
+    raise ConfigError(f"meta.scoring_model.{path}: {problem}")
+
+
+def _section(raw: dict[str, Any], path: str, kind: str = "dictionnaire", label: str | None = None) -> dict[str, Any]:
+    value = raw.get(path)
+    if not isinstance(value, dict):
+        raise ConfigError(f"meta.{label or f'scoring_model.{path}'}: section absente (attendue : {kind})")
+    return value
+
+
+def _number(raw: dict[str, Any], path: str, low: float, high: float, prefix: str = "scoring_model") -> float:
+    value = raw.get(path)
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ConfigError(f"meta.{prefix}.{path}: nombre attendu entre {low} et {high}, reçu: {value!r}")
+    value = float(value)
+    if not (low <= value <= high):
+        raise ConfigError(f"meta.{prefix}.{path}: valeur {value} hors bornes [{low}, {high}]")
+    return value
+
+
+def _weights(raw: dict[str, Any], path: str) -> dict[str, float]:
+    if not isinstance(raw, dict):
+        _fail(path, "table de poids (dictionnaire) attendue")
+    checked: dict[str, float] = {}
+    total = 0.0
+    for key, value in raw.items():
+        if not isinstance(key, str) or not isinstance(value, (int, float)) or isinstance(value, bool):
+            _fail(f"{path}.{key}", f"poids numérique attendu, reçu: {value!r}")
+        if value < 0 or value > 1:
+            _fail(f"{path}.{key}", f"poids {value} hors [0, 1]")
+        checked[key] = float(value)
+        total += float(value)
+    if abs(total - 1.0) > _WEIGHT_EPS:
+        detail = ", ".join(f"{k}={v}" for k, v in checked.items())
+        _fail(path, f"la somme des poids vaut {total} au lieu de 1 ({detail})")
+    return checked
+
+
+def _range_pair(raw: list[Any], path: str, low: float, high: float) -> tuple[float, float]:
+    if not isinstance(raw, list) or len(raw) != 2:
+        _fail(path, "liste de 2 bornes [basse, haute] attendue")
+    lo, hi = raw
+    for bound in (lo, hi):
+        if not isinstance(bound, (int, float)) or isinstance(bound, bool):
+            _fail(path, f"bornes numériques attendues, reçu: {raw!r}")
+    lo, hi = float(lo), float(hi)
+    if not (low <= lo < hi <= high):
+        _fail(path, f"bornes {lo} ; {hi} invalides (attendu {low} <= basse < haute <= {high})")
+    return lo, hi
+
+
+def _validate_financial_params(meta: dict[str, Any]) -> dict[str, float]:
+    """`financial_params` (existant) devient paramètres du modèle : strict."""
+    params = meta.get("financial_params")
+    if not isinstance(params, dict):
+        raise ConfigError("meta.financial_params: section absente (taux sans risque, ERP, bêta, ratio)")
+    spec = (
+        ("risk_free_rate", 0.0, 20.0),
+        ("mature_erp", 0.0, 20.0),
+        ("beta", 0.0, 5.0),
+        ("equity_bond_vol_ratio", 1.0, 5.0),
+    )
+    out: dict[str, float] = {}
+    for key, low, high in spec:
+        out[key] = _number(params, key, low, high, prefix="financial_params")
+    return out
+
+
+def validate_model_params(meta: dict[str, Any]) -> dict[str, Any]:
+    """Charge et valide `scoring_model` (+ financial_params) depuis meta.
+
+    Lève ConfigError avec le chemin exact de la clé fautive. Retourne un
+    dictionnaire figé de sous-sections validées utilisé par tout le moteur.
+    """
+    model = _section(meta, "scoring_model", label="scoring_model")
+    financial = _validate_financial_params(meta)
+
+    profiles_raw = _section(model, "profiles")
+    profiles: dict[str, dict[str, Any]] = {}
+    for name in _ALLOWED_PROFILES:
+        node = profiles_raw.get(name)
+        if not isinstance(node, dict):
+            _fail(f"profiles.{name}", "profil attendu (dictionnaire de poids)")
+        weights = _weights(node.get("weights"), f"profiles.{name}.weights")
+        missing = [key for key in _COMPONENT_KEYS if key not in weights]
+        if missing:
+            _fail(f"profiles.{name}.weights", f"composantes manquantes: {', '.join(missing)}")
+        unexpected = [key for key in weights if key not in _COMPONENT_KEYS]
+        if unexpected:
+            _fail(f"profiles.{name}.weights", f"composantes inconnues: {', '.join(unexpected)}")
+        profiles[name] = {"label": name, "description": _PROFILE_DESCRIPTIONS[name], "weights": weights}
+
+    components_raw = _section(model, "components")
+    missing_qualitative = _number(
+        model["components"], "missing_qualitative_score", 0.0, 100.0, prefix="scoring_model.components"
+    )
+
+    components: dict[str, Any] = {"missing_qualitative_score": missing_qualitative}
+    # Sous-poids attendus par composante (validés : présence + somme = 1).
+    _SUB_WEIGHTS: dict[str, tuple[str, ...]] = {
+        "dynamisme": ("growth", "unemployment", "outlook"),
+        "stabilite": ("inflation", "policy_rate", "currency"),
+        "solvabilite": ("debt", "rating", "cds"),
+        "institutions": ("governance", "resilience"),
+        "ouverture": ("business", "openness"),
+    }
+    # Sous-clés numériques attendues par composante. Les paliers « other »
+    # (stabilite : real_rate_*) sont validés dans le cas dédié ci-dessous.
+    _RANGE_FIELDS: dict[str, tuple[str, ...]] = {
+        "dynamisme": ("growth_range", "unemployment_range"),
+        "solvabilite": ("debt_range",),
+    }
+    for key in _COMPONENT_KEYS:
+        node = components_raw.get(key)
+        if not isinstance(node, dict):
+            _fail(f"components.{key}", "section de composante attendue")
+        required = _SUB_WEIGHTS[key]
+        checked_weights = _weights(node.get("weights"), f"components.{key}.weights")
+        missing = [k for k in required if k not in checked_weights]
+        if missing:
+            _fail(f"components.{key}.weights", f"sous-poids manquants: {', '.join(missing)}")
+        stored: dict[str, Any] = {"weights": checked_weights}
+        # sous-poids optionnels (mélange dynamisme : stabilite.<…>)
+        if key == "stabilite":
+            stored["inflation_target"] = _number(node, "inflation_target", 0.0, 15.0, prefix=f"scoring_model.components.{key}")
+            stored["inflation_sensitivity"] = _number(node, "inflation_sensitivity", 0.1, 50.0, prefix=f"scoring_model.components.{key}")
+            bands_raw = node.get("real_rate_bands")
+            if not isinstance(bands_raw, list) or not bands_raw:
+                _fail("components.stabilite.real_rate_bands", "liste de paliers [bas, haut, score] attendue")
+            bands = []
+            for index, band in enumerate(bands_raw):
+                if not isinstance(band, list) or len(band) != 3:
+                    _fail(f"components.stabilite.real_rate_bands[{index}]", "palier [bas, haut, score] attendu")
+                low, high, score = band
+                if not isinstance(low, (int, float)) or isinstance(low, bool) or not isinstance(high, (int, float)) or isinstance(high, bool):
+                    _fail(f"components.stabilite.real_rate_bands[{index}]", "bornes numériques attendues")
+                if not isinstance(score, (int, float)) or isinstance(score, bool) or not (0 <= score <= 100):
+                    _fail(f"components.stabilite.real_rate_bands[{index}].score", f"score 0-100 attendu, reçu: {score!r}")
+                if low >= high:
+                    _fail(f"components.stabilite.real_rate_bands[{index}]", "borne haute doit dépasser la borne basse")
+                bands.append([float(low), float(high), float(score)])
+            stored["real_rate_bands"] = bands
+            stored["real_rate_outside_score"] = _number(node, "real_rate_outside_score", 0.0, 100.0, prefix=f"scoring_model.components.{key}")
+        if key in {"dynamisme", "solvabilite"}:
+            ranges = {}
+            for field in _RANGE_FIELDS[key]:
+                low, high = _range_pair(node.get(field), f"components.{key}.{field}", -100.0, 1000.0)
+                ranges[field] = (low, high)
+            stored["ranges"] = ranges
+        components[key] = stored
+
+    risk_raw = _section(model, "risk")
+    bands_size = 3
+    bands = risk_raw.get("bands")
+    if not isinstance(bands, list) or len(bands) != bands_size or not all(
+        isinstance(item, (int, float)) and not isinstance(item, bool) for item in bands
+    ):
+        _fail("risk.bands", f"3 seuils numériques croissants attendus (reçu: {bands!r})")
+    band_values = [float(item) for item in bands]
+    if not all(band_values[i] < band_values[i + 1] for i in range(len(band_values) - 1)):
+        _fail("risk.bands", f"seuils non croissants: {band_values}")
+    risk = {
+        "weights": _weights(risk_raw.get("weights"), "risk.weights"),
+        "volatility_base": _number(risk_raw, "volatility_base", 0.0, 100.0, prefix="scoring_model.risk"),
+        "volatility_slope": _number(risk_raw, "volatility_slope", 0.0, 10.0, prefix="scoring_model.risk"),
+        "bands": band_values,
+    }
+
+    cds_raw = model.get("cds_score")
+    if not isinstance(cds_raw, dict):
+        _fail("cds_score", "section attendue (courbe de score CDS)")
+    cds_curve = {
+        "none_score": _number(cds_raw, "none_score", 0.0, 100.0, prefix="scoring_model.cds_score"),
+        "floor_pb": _number(cds_raw, "floor_pb", 0.1, 1000.0, prefix="scoring_model.cds_score"),
+        "log10_ceiling_ratio": _number(cds_raw, "log10_ceiling_ratio", 1.0, 1000.0, prefix="scoring_model.cds_score"),
+        "spread": _number(cds_raw, "spread", 0.0, 100.0, prefix="scoring_model.cds_score"),
+    }
+
+    crp_raw = model.get("crp")
+    if not isinstance(crp_raw, dict):
+        _fail("crp", "section attendue (paramètres de la prime de risque pays)")
+    crp = {
+        "cds_offset_pb": _number(crp_raw, "cds_offset_pb", 0.0, 500.0, prefix="scoring_model.crp"),
+        "cds_divisor": _number(crp_raw, "cds_divisor", 0.1, 1000.0, prefix="scoring_model.crp"),
+    }
+
+    ratings_raw = model.get("ratings")
+    if not isinstance(ratings_raw, dict):
+        _fail("ratings", "section attendue (tables scores/spreads de notation)")
+    ratings_scores = ratings_raw.get("scores")
+    ratings_spreads = ratings_raw.get("spreads")
+    if not isinstance(ratings_scores, dict) or not isinstance(ratings_spreads, dict):
+        _fail("ratings", "tables `scores` et `spreads` (dictionnaires) attendues")
+    if set(ratings_scores) != set(ratings_spreads):
+        _fail("ratings", "les tables scores et spreads doivent couvrir les mêmes notations")
+    rating_scores_f: dict[str, float] = {}
+    for grade, value in ratings_scores.items():
+        if not isinstance(grade, str) or not isinstance(value, (int, float)) or isinstance(value, bool):
+            _fail(f"ratings.scores.{grade}", "score numérique attendu par note")
+        if not (0 <= value <= 100):
+            _fail(f"ratings.scores.{grade}", f"score {value} hors [0, 100]")
+        rating_scores_f[grade] = float(value)
+    rating_spreads_f: dict[str, float] = {}
+    for grade, value in ratings_spreads.items():
+        if not isinstance(grade, str) or not isinstance(value, (int, float)) or isinstance(value, bool):
+            _fail(f"ratings.spreads.{grade}", "spread numérique attendu par note")
+        if not (0 <= value <= 100):
+            _fail(f"ratings.spreads.{grade}", f"spread {value} hors [0, 100]")
+        rating_spreads_f[grade] = float(value)
+    ratings = {
+        "scores": rating_scores_f,
+        "spreads": rating_spreads_f,
+        "default_score": _number(ratings_raw, "default_score", 0.0, 100.0, prefix="scoring_model.ratings"),
+        "default_spread": _number(ratings_raw, "default_spread", 0.0, 100.0, prefix="scoring_model.ratings"),
+    }
+
+    verdicts_raw = model.get("verdicts")
+    if not isinstance(verdicts_raw, dict):
+        _fail("verdicts", "section attendue (seuils de verdict)")
+    invest_min = _number(verdicts_raw, "invest_min", 0.0, 100.0, prefix="scoring_model.verdicts")
+    caution_min = _number(verdicts_raw, "caution_min", 0.0, 100.0, prefix="scoring_model.verdicts")
+    wait_min = _number(verdicts_raw, "wait_min", 0.0, 100.0, prefix="scoring_model.verdicts")
+    rescue_score = _number(verdicts_raw, "wait_rescue_score", 0.0, 100.0, prefix="scoring_model.verdicts")
+    rescue_gate = _number(verdicts_raw, "wait_rescue_dynamisme", 0.0, 100.0, prefix="scoring_model.verdicts")
+    if not (rescue_score <= wait_min <= caution_min <= invest_min):
+        _fail("verdicts", f"seuils non ordonnés: {rescue_score} <= {wait_min} <= {caution_min} <= {invest_min} attendus")
+    blocked = verdicts_raw.get("blocking_ratings")
+    if not isinstance(blocked, list) or not all(isinstance(rate, str) for rate in blocked):
+        _fail("verdicts.blocking_ratings", "liste de codes de notation attendue (ex. NR, D, RD)")
+    verdicts = {
+        "invest_min": invest_min,
+        "caution_min": caution_min,
+        "wait_min": wait_min,
+        "wait_rescue_score": rescue_score,
+        "wait_rescue_dynamisme": rescue_gate,
+        "blocking_ratings": frozenset(blocked),
+    }
+
+    return {
+        "financial": financial,
+        "profiles": profiles,
+        "components": components,
+        "risk": risk,
+        "cds_score": cds_curve,
+        "crp": crp,
+        "ratings": ratings,
+        "verdicts": verdicts,
+    }
+
+
+def model() -> dict[str, Any]:
+    """Configuration validée du modèle (mémoisée par signature de contenu).
+
+    Lit `data.load_data()` à chaque appel (module attribute, jamais lié à
+    l'import : cf. tests mockant `load_data`), ne revalide que si le
+    contenu brut a changé.
+    """
+    global _config_signature
+
+    import geocapital.data as _data
+
+    meta = _data.load_data()
+    signature = json.dumps(
+        {"scoring_model": meta.get("scoring_model"), "financial_params": meta.get("financial_params")},
+        sort_keys=True,
+        default=str,
+    )
+    if signature != _config_signature:
+        _config_cache.clear()
+        _config_cache["valid"] = validate_model_params(meta)
+        _config_signature = signature
+    return _config_cache["valid"]
+
+
+def reset_model_cache() -> None:
+    """Force une relecture de meta.json (usage : réinitialisation en test)."""
+    global _config_signature
+    _config_cache.clear()
+    _config_signature = ""
+
+
+# Constantes historiques résolues à la volée depuis la configuration
+# (compatibilité : méthodology_page, tests, analyst payloads) — il n'y a
+# désormais qu'une définition numérique, dans data/meta.json.
+def __getattr__(name: str) -> Any:
+    if name in {"RISK_FREE_RATE", "MATURE_ERP", "BETA", "EQUITY_BOND_VOL_RATIO"}:
+        mapping = {
+            "RISK_FREE_RATE": "risk_free_rate",
+            "MATURE_ERP": "mature_erp",
+            "BETA": "beta",
+            "EQUITY_BOND_VOL_RATIO": "equity_bond_vol_ratio",
+        }
+        return model()["financial"][mapping[name]]
+    if name == "PROFILES":
+        return model()["profiles"]
+    if name == "RATING_SCORES":
+        return model()["ratings"]["scores"]
+    if name == "DEFAULT_SPREADS":
+        return model()["ratings"]["spreads"]
+    raise AttributeError(f"module 'geocapital.scoring' has no attribute {name!r}")
+
+
+# ---------------------------------------------------------------------------
+# Formules (inchangées — seules les valeurs viennent de la configuration)
+# ---------------------------------------------------------------------------
 
 def clamp(value: float, low: float = 0.0, high: float = 100.0) -> float:
     return max(low, min(high, value))
@@ -148,32 +409,40 @@ def rating_of(country: dict[str, Any]) -> str:
 
 
 def rating_score(country: dict[str, Any]) -> float:
-    return float(RATING_SCORES.get(rating_of(country), 20))
+    cfg = model()["ratings"]
+    return float(cfg["scores"].get(rating_of(country), cfg["default_score"]))
 
 
 def cds_score(cds: float | None) -> float:
-    """Score CDS : 100 à 20 pb, proche de 0 au-delà de 1 000 pb."""
+    """Score CDS : plafond à floor_pb (proche), quasi nul au-delà plafond×ratio."""
+    curve = model()["cds_score"]
     if cds is None:
-        return 5.0
-    if cds <= 20:
+        return float(curve["none_score"])
+    floor = float(curve["floor_pb"])
+    if cds <= floor:
         return 100.0
-    log_position = math.log10(max(cds, 20) / 20) / math.log10(50)
-    return clamp(100 - log_position * 95)
+    log_position = math.log10(max(cds, floor) / floor) / math.log10(float(curve["log10_ceiling_ratio"]))
+    return clamp(100 - log_position * float(curve["spread"]))
 
 
 def default_spread(country: dict[str, Any]) -> float:
-    return float(DEFAULT_SPREADS.get(rating_of(country), 15.5))
+    cfg = model()["ratings"]
+    return float(cfg["spreads"].get(rating_of(country), cfg["default_spread"]))
 
 
 def country_risk_premium(country: dict[str, Any]) -> tuple[float, str]:
     """Prime de risque pays en %, méthode Damodaran.
 
     On retient le maximum entre le spread de notation et le spread CDS,
-    puis on applique le ratio de volatilité actions/obligations de 1,5.
+    puis on applique le ratio de volatilité actions/obligations.
     """
+    cfg = model()
+    ratio = float(cfg["financial"]["equity_bond_vol_ratio"])
+    cds_offset = float(cfg["crp"]["cds_offset_pb"])
+    cds_divisor = float(cfg["crp"]["cds_divisor"])
     cds = _numeric(country, "cds")
-    cds_crp = max(0.0, ((cds or 0.0) - 25.0) / 100.0) * EQUITY_BOND_VOL_RATIO
-    rating_crp = default_spread(country) * EQUITY_BOND_VOL_RATIO
+    cds_crp = max(0.0, ((cds or 0.0) - cds_offset) / cds_divisor) * ratio
+    rating_crp = default_spread(country) * ratio
     if cds is None:
         return round(rating_crp, 2), "Notation (CDS non coté)"
     if cds_crp >= rating_crp:
@@ -182,12 +451,16 @@ def country_risk_premium(country: dict[str, Any]) -> tuple[float, str]:
 
 
 def required_return(country: dict[str, Any]) -> dict[str, float | str]:
+    financial = model()["financial"]
+    risk_free = float(financial["risk_free_rate"])
+    mature_erp = float(financial["mature_erp"])
+    beta = float(financial["beta"])
     crp, source = country_risk_premium(country)
-    ke = RISK_FREE_RATE + BETA * MATURE_ERP + crp
+    ke = risk_free + beta * mature_erp + crp
     return {
-        "risk_free": RISK_FREE_RATE,
-        "erp": MATURE_ERP,
-        "beta": BETA,
+        "risk_free": risk_free,
+        "erp": mature_erp,
+        "beta": beta,
         "crp": crp,
         "crp_source": source,
         "ke": round(ke, 2),
@@ -247,6 +520,8 @@ def indicator_status(country: dict[str, Any], key: str) -> str:
 
 
 def component_scores(country: dict[str, Any]) -> dict[str, float]:
+    cfg = model()["components"]
+    qualitative_default = float(cfg["missing_qualitative_score"])
     growth = _numeric(country, "gdp_growth", 0) or 0
     unemployment = _numeric(country, "unemployment", 0) or 0
     inflation = _numeric(country, "inflation", 0) or 0
@@ -255,47 +530,68 @@ def component_scores(country: dict[str, Any]) -> dict[str, float]:
     cds = _numeric(country, "cds")
     q = country.get("qualitative", {})
 
-    growth_s = linear(growth, -2.0, 5.0)
-    unemployment_s = linear(unemployment, 2.0, 20.0, reverse=True)
-    outlook_s = float(q.get("outlook", 50))
-    inflation_s = clamp(100 - abs(inflation - 2.0) * 4.0)
+    def q_value(key: str) -> float:
+        value = q.get(key, qualitative_default)
+        return qualitative_default if value is None else float(value)
+
+    growth_low, growth_high = cfg["dynamisme"]["ranges"]["growth_range"]
+    unemployment_low, unemployment_high = cfg["dynamisme"]["ranges"]["unemployment_range"]
+    growth_weights = cfg["dynamisme"]["weights"]
+    growth_s = linear(growth, growth_low, growth_high)
+    unemployment_s = linear(unemployment, unemployment_low, unemployment_high, reverse=True)
+    outlook_s = q_value("outlook")
+    inflation_values = cfg["stabilite"]
+    inflation_s = clamp(
+        100 - abs(inflation - float(inflation_values["inflation_target"])) * float(inflation_values["inflation_sensitivity"])
+    )
     real_rate = policy - inflation
-    if -1.0 <= real_rate <= 2.0:
-        rate_s = 95.0
-    elif -3.0 <= real_rate <= 4.0:
-        rate_s = 72.0
-    elif -8.0 <= real_rate <= 6.0:
-        rate_s = 40.0
-    else:
-        rate_s = 8.0
-    currency_s = float(q.get("currency_stability", 50))
-    debt_s = linear(debt, 20.0, 180.0, reverse=True)
+    rate_s: float = float(inflation_values["real_rate_outside_score"])
+    for low, high, score in inflation_values["real_rate_bands"]:
+        if low <= real_rate <= high:
+            rate_s = score
+            break
+    currency_s = q_value("currency_stability")
+    debt_low, debt_high = cfg["solvabilite"]["ranges"]["debt_range"]
+    debt_s = linear(debt, debt_low, debt_high, reverse=True)
     rating_s = rating_score(country)
     cds_s = cds_score(cds)
-    governance_s = float(q.get("governance", 50))
-    resilience_s = float(q.get("resilience", 50))
-    business_s = float(q.get("business", 50))
-    openness_s = float(q.get("openness", 50))
+    governance_s = q_value("governance")
+    resilience_s = q_value("resilience")
+    business_s = q_value("business")
+    openness_s = q_value("openness")
+
+    dw = cfg["dynamisme"]["weights"]
+    sw = cfg["stabilite"]["weights"]
+    solw = cfg["solvabilite"]["weights"]
+    iw = cfg["institutions"]["weights"]
+    ow = cfg["ouverture"]["weights"]
 
     return {
-        "dynamisme": round(0.55 * growth_s + 0.20 * unemployment_s + 0.25 * outlook_s, 1),
-        "stabilite": round(0.45 * inflation_s + 0.15 * rate_s + 0.40 * currency_s, 1),
-        "solvabilite": round(0.30 * debt_s + 0.40 * rating_s + 0.30 * cds_s, 1),
-        "institutions": round(0.60 * governance_s + 0.40 * resilience_s, 1),
-        "ouverture": round(0.60 * business_s + 0.40 * openness_s, 1),
+        "dynamisme": round(dw["growth"] * growth_s + dw["unemployment"] * unemployment_s + dw["outlook"] * outlook_s, 1),
+        "stabilite": round(sw["inflation"] * inflation_s + sw["policy_rate"] * rate_s + sw["currency"] * currency_s, 1),
+        "solvabilite": round(solw["debt"] * debt_s + solw["rating"] * rating_s + solw["cds"] * cds_s, 1),
+        "institutions": round(iw["governance"] * governance_s + iw["resilience"] * resilience_s, 1),
+        "ouverture": round(ow["business"] * business_s + ow["openness"] * openness_s, 1),
     }
 
 
 def overall_score(country: dict[str, Any], profile: str = "Équilibré") -> dict[str, Any]:
-    profile = profile if profile in PROFILES else "Équilibré"
-    weights = PROFILES[profile]["weights"]
+    cfg = model()
+    valid_profiles = cfg["profiles"]
+    profile = profile if profile in valid_profiles else "Équilibré"
+    weights = valid_profiles[profile]["weights"]
     components = component_scores(country)
     score = sum(components[key] * weights[key] for key in weights)
+    risk_weights = cfg["risk"]["weights"]
     risk = clamp(
         100
-        - (0.40 * components["stabilite"] + 0.35 * components["solvabilite"] + 0.25 * components["institutions"])
+        - (risk_weights["stabilite"] * components["stabilite"]
+           + risk_weights["solvabilite"] * components["solvabilite"]
+           + risk_weights["institutions"] * components["institutions"])
     )
-    volatility = round(10 + risk * 0.48, 1)
+    volatility_base = float(cfg["risk"]["volatility_base"])
+    volatility_slope = float(cfg["risk"]["volatility_slope"])
+    volatility = round(volatility_base + risk * volatility_slope, 1)
     ke = required_return(country)
     verdict, verdict_reason = decide_verdict(score, components, country)
     return {
@@ -312,15 +608,16 @@ def overall_score(country: dict[str, Any], profile: str = "Équilibré") -> dict
 
 
 def decide_verdict(score: float, components: dict[str, float], country: dict[str, Any]) -> tuple[str, str]:
+    verdicts = model()["verdicts"]
     # Un pays sans notation active ni CDS ne peut pas être "Investir".
-    missing_market_signal = (
-        rating_of(country) in {"NR", "D", "RD"} and _numeric(country, "cds") is None
-    )
-    if score >= 76 and not missing_market_signal:
+    missing_market_signal = rating_of(country) in verdicts["blocking_ratings"] and _numeric(country, "cds") is None
+    if score >= verdicts["invest_min"] and not missing_market_signal:
         return "Investir", VERDICT_STYLES["Investir"]["copy"]
-    if score >= 62 and not missing_market_signal:
+    if score >= verdicts["caution_min"] and not missing_market_signal:
         return "Investir avec prudence", VERDICT_STYLES["Investir avec prudence"]["copy"]
-    if score >= 45 or (score >= 38 and components["dynamisme"] >= 55):
+    if score >= verdicts["wait_min"] or (
+        score >= verdicts["wait_rescue_score"] and components["dynamisme"] >= verdicts["wait_rescue_dynamisme"]
+    ):
         return "Attendre", VERDICT_STYLES["Attendre"]["copy"]
     return "Éviter", VERDICT_STYLES["Éviter"]["copy"]
 
@@ -390,11 +687,13 @@ def status_label(status: str) -> str:
 
 
 def risk_label(risk: float) -> str:
-    if risk < 30:
+    bands = model()["risk"]["bands"]
+    low, medium, high = bands
+    if risk < low:
         return "Faible"
-    if risk < 50:
+    if risk < medium:
         return "Modéré"
-    if risk < 70:
+    if risk < high:
         return "Élevé"
     return "Très élevé"
 

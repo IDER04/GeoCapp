@@ -167,6 +167,10 @@ def _commentary(holdings: list[dict[str, Any]], metrics: dict[str, Any]) -> str:
 
 
 def render() -> None:
+    # Copie traduite à l'affichage (EN) ; les calculs (score, Ke, volatilité)
+    # portent sur des valeurs identiques, seuls les libellés changent.
+    total_countries = i18n.localize_countries(countries())
+    fr_countries = countries()  # source FR intouchée : payloads IA
     for country in countries():
         st.session_state.setdefault(f"amount_{country['id']}", 10000)
 
@@ -193,7 +197,7 @@ def render() -> None:
     ui.section_title(t("pf.section.allocation"), t("pf.section.allocation_sub"))
     allocations = {}
     cols = st.columns(5)
-    for index, country in enumerate(countries()):
+    for index, country in enumerate(total_countries):
         result = overall_score(country, profile)
         with cols[index % 5]:
             st.markdown(
@@ -235,7 +239,7 @@ def render() -> None:
             "weight": allocations[country["id"]] / total,
             "amount": allocations[country["id"]],
         }
-        for country in countries()
+        for country in total_countries
     ]
     metrics = portfolio_metrics(holdings)
 
@@ -305,7 +309,7 @@ def render() -> None:
                 if st.button(t("pf.ai.button"), key="ai_portfolio", type="primary"):
                     facts = [
                         {
-                            "pays": h["country"]["name"],
+                            "pays": next(c["name"] for c in fr_countries if c["id"] == h["country"]["id"]),
                             "poids": round(h["weight"] * 100, 1),
                             "ke": required_return(h["country"])["ke"],
                             "volatilite": overall_score(h["country"])["volatility"],

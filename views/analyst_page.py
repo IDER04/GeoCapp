@@ -6,7 +6,7 @@ import json
 
 import streamlit as st
 
-from geocapital import ai, analyst, data, i18n, scoring, ui
+from geocapital import ai, analyst, data, i18n, limits, scoring, ui
 from geocapital.i18n import t
 
 PAGE_KEY = "analyst_messages"
@@ -37,7 +37,9 @@ def _clear_conversation() -> None:
 
 def _entity_selector(intent: str) -> None:
     countries = data.countries()
-    names = {c["id"]: f"{c['flag']} {c['name']}" for c in countries}
+    # Noms affichés dans la langue courante ; les payloads (analyst.py)
+    # restent construits sur la donnée FR, langue des faits déterministe.
+    names = {c["id"]: f"{c['flag']} {i18n.country_name(c['id'])}" for c in countries}
     if intent == "country":
         st.selectbox(
             t("an.select.country"),
@@ -65,7 +67,7 @@ def _entity_selector(intent: str) -> None:
         )
     elif intent == "event":
         events = data.load_events()
-        event_names = {e["id"]: f"{e['date']} · {e['title']}" for e in events}
+        event_names = {e["id"]: i18n.event_name(e["id"]) for e in events}
         st.selectbox(
             t("an.select.event"),
             list(event_names.keys()),
@@ -114,6 +116,14 @@ def _render_history() -> None:
 
 
 def _handle_question(prompt: str) -> None:
+    # Garde-fou serveur : au-delà de la limite, aucun appel fournisseur n'est
+    # émis (le garde-fou d'affichage désactive déjà la saisie — double barrière).
+    if not limits.can_ask(limits.used(), limits.limit()):
+        return
+    # Une question soumise = une unité, quel que soit le résultat (réponse
+    # fournisseur, échec → repli éditorial, mode éditorial sans clé).
+    # cf. docs/AI_LIMITS.md
+    limits.record()
     payload = _payload_for(prompt)
     history = st.session_state[PAGE_KEY][-analyst.MAX_EXCHANGES * 2 :]
     messages = analyst.build_messages(payload, prompt, history=history)
@@ -182,7 +192,17 @@ def render() -> None:
     if not ai.is_available():
         ui.callout(t("an.editorial_mode"), "orange")
 
-    prompt = st.chat_input(t("an.input.placeholder"))
+    # Limite de questions par session (serveur) : affichage + blocage doux.
+    limit_value = limits.limit()
+    used_value = limits.used()
+    remaining_value = limits.remaining(used_value, limit_value)
+    if remaining_value > 0:
+        st.caption(t("an.limit.remaining", remaining=remaining_value, total=limit_value))
+        prompt = st.chat_input(t("an.input.placeholder"))
+    else:
+        ui.callout(t("an.limit.reached", total=limit_value), "orange")
+        st.chat_input(t("an.input.placeholder"), disabled=True)
+        prompt = None
     if prompt and prompt.strip():
         _handle_question(prompt.strip())
 

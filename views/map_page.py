@@ -129,7 +129,7 @@ def _rows(profile: str) -> list[dict[str, Any]]:
         ke = required_return(country)
         rows.append(
             {
-                "country": country,
+                "country": i18n.localize_country(country),
                 "score": result["score"],
                 "risk": result["risk"],
                 "verdict": result["verdict"],
@@ -252,7 +252,9 @@ def _risk_return_figure(rows: list[dict[str, Any]]) -> go.Figure:
     }
     fig = go.Figure()
     for group, color in group_colors.items():
-        subset = [r for r in rows if r["country"]["group"] == group]
+        # Le filtre passe par le code de groupe (FR et EN mappent au même
+        # code) : fonctionne avec des pays localisés ou non.
+        subset = [r for r in rows if i18n.group_key(r["country"]["group"]) == i18n.group_key(group)]
         if not subset:
             continue
         group_label = t(f"group.{i18n.group_key(group)}")

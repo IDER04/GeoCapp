@@ -3,7 +3,8 @@
     "name": "GeoCapital",
     "tagline": "Connaître le passé pour anticiper le futur.",
     "version": "MVP 1.0",
-    "last_update": "Données de référence 2024-2025"
+    "last_update": "Données de référence 2024-2025",
+    "data_as_of": "2026-10-25"
   },
   "financial_params": {
     "risk_free_rate": 4.2,
@@ -55,5 +56,193 @@
     "ke": "Ke = taux sans risque (4,20 %) + bêta (1,0) × prime de risque mature (4,50 %) + prime de risque pays. La prime pays retient le maximum entre le spread de notation et le spread CDS, multiplié par 1,5 (Damodaran).",
     "missing": "Une notation absente ou un CDS non coté n'est jamais neutralisé : cela réduit le score de solvabilité et bloque le verdict « Investir ».",
     "disclaimer": "Outil pédagogique. Les données sont indicatives, arrondies et ne constituent ni une recommandation d'investissement, ni une valorisation en temps réel."
+  },
+  "scoring_model": {
+    "_doc": "Paramètres du modèle souverain — source de vérité unique. Signification documentée dans docs/MODEL_PARAMS.md. Modifier un de ces nombres changera les scores/verdicts en aval.",
+    "profiles": {
+      "Prudent": {
+        "weights": {
+          "dynamisme": 0.15,
+          "stabilite": 0.3,
+          "solvabilite": 0.3,
+          "institutions": 0.15,
+          "ouverture": 0.1
+        }
+      },
+      "Équilibré": {
+        "weights": {
+          "dynamisme": 0.25,
+          "stabilite": 0.2,
+          "solvabilite": 0.25,
+          "institutions": 0.15,
+          "ouverture": 0.15
+        }
+      },
+      "Audacieux": {
+        "weights": {
+          "dynamisme": 0.35,
+          "stabilite": 0.1,
+          "solvabilite": 0.2,
+          "institutions": 0.1,
+          "ouverture": 0.25
+        }
+      }
+    },
+    "components": {
+      "dynamisme": {
+        "weights": {
+          "growth": 0.55,
+          "unemployment": 0.2,
+          "outlook": 0.25
+        },
+        "growth_range": [
+          -2.0,
+          5.0
+        ],
+        "unemployment_range": [
+          2.0,
+          20.0
+        ]
+      },
+      "stabilite": {
+        "weights": {
+          "inflation": 0.45,
+          "policy_rate": 0.15,
+          "currency": 0.4
+        },
+        "inflation_target": 2.0,
+        "inflation_sensitivity": 4.0,
+        "real_rate_bands": [
+          [
+            -1.0,
+            2.0,
+            95.0
+          ],
+          [
+            -3.0,
+            4.0,
+            72.0
+          ],
+          [
+            -8.0,
+            6.0,
+            40.0
+          ]
+        ],
+        "real_rate_outside_score": 8.0
+      },
+      "solvabilite": {
+        "weights": {
+          "debt": 0.3,
+          "rating": 0.4,
+          "cds": 0.3
+        },
+        "debt_range": [
+          20.0,
+          180.0
+        ]
+      },
+      "institutions": {
+        "weights": {
+          "governance": 0.6,
+          "resilience": 0.4
+        }
+      },
+      "ouverture": {
+        "weights": {
+          "business": 0.6,
+          "openness": 0.4
+        }
+      },
+      "missing_qualitative_score": 50.0
+    },
+    "risk": {
+      "weights": {
+        "stabilite": 0.4,
+        "solvabilite": 0.35,
+        "institutions": 0.25
+      },
+      "volatility_base": 10.0,
+      "volatility_slope": 0.48,
+      "bands": [
+        30.0,
+        50.0,
+        70.0
+      ]
+    },
+    "cds_score": {
+      "none_score": 5.0,
+      "floor_pb": 20.0,
+      "log10_ceiling_ratio": 50.0,
+      "spread": 95.0
+    },
+    "crp": {
+      "cds_offset_pb": 25.0,
+      "cds_divisor": 100.0
+    },
+    "ratings": {
+      "scores": {
+        "AAA": 100,
+        "AA+": 95,
+        "AA": 92,
+        "AA-": 88,
+        "A+": 84,
+        "A": 80,
+        "A-": 76,
+        "BBB+": 70,
+        "BBB": 65,
+        "BBB-": 60,
+        "BB+": 52,
+        "BB": 46,
+        "BB-": 40,
+        "B+": 30,
+        "B": 22,
+        "B-": 14,
+        "CCC": 6,
+        "D": 2,
+        "RD": 1,
+        "NR": 20
+      },
+      "spreads": {
+        "AAA": 0.4,
+        "AA+": 0.55,
+        "AA": 0.7,
+        "AA-": 0.8,
+        "A+": 0.95,
+        "A": 1.05,
+        "A-": 1.15,
+        "BBB+": 1.45,
+        "BBB": 1.6,
+        "BBB-": 1.9,
+        "BB+": 2.6,
+        "BB": 3.0,
+        "BB-": 3.5,
+        "B+": 4.5,
+        "B": 5.5,
+        "B-": 6.5,
+        "CCC": 9.0,
+        "D": 15.0,
+        "RD": 15.0,
+        "NR": 15.5
+      },
+      "default_score": 20.0,
+      "default_spread": 15.5
+    },
+    "verdicts": {
+      "invest_min": 76.0,
+      "caution_min": 62.0,
+      "wait_min": 45.0,
+      "wait_rescue_score": 38.0,
+      "wait_rescue_dynamisme": 55.0,
+      "blocking_ratings": [
+        "NR",
+        "D",
+        "RD"
+      ]
+    }
+  },
+  "ai_limits": {
+    "_doc": "Limite de questions pour l'Analyste IA : par session Streamlit (navigateur), jamais un plafond global ni une garantie de dépense. Chaque question soumise compte, y compris avec une réponse de repli éditorial. Documenté dans docs/AI_LIMITS.md.",
+    "max_questions_per_session": 8
   }
 }

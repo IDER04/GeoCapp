@@ -1,0 +1,406 @@
+{
+  "retrieved": "2026-10-25",
+  "api": "Banque mondiale — Indicators API v2 (gratuite, sans clé)",
+  "production_modified": false,
+  "countries": [
+    {
+      "country": "lebanon",
+      "iso3": "LBN",
+      "new_country": false,
+      "candidates": [
+        {
+          "country": "lebanon",
+          "indicator": "gdp_growth",
+          "wb_series": "NY.GDP.MKTP.KD.ZG",
+          "wb_match": "exact",
+          "existing": {
+            "value": -6.5,
+            "unit": "%",
+            "date": "2024",
+            "source": "FMI / estimations",
+            "note": "L'économie se contracte encore sous l'effet de la guerre et de la destruction. La reprise dépendra de la reconstruction et de la stabilité politique."
+          },
+          "proposed": {
+            "value": -7.0799,
+            "unit": "%",
+            "date": "2024",
+            "source": "Banque mondiale (WDI), série NY.GDP.MKTP.KD.ZG",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [],
+          "recommendation": "manual",
+          "explanation": "même millésime (2024) : valeur WDI -7.0799 vs existant -6.5 — arbitrage de provenance (WB/FMI) à valider manuellement avant de toucher la fiche.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/LBN/indicator/NY.GDP.MKTP.KD.ZG?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "lebanon",
+          "indicator": "inflation",
+          "wb_series": "FP.CPI.TOTL.ZG",
+          "wb_match": "exact",
+          "existing": {
+            "value": 45.0,
+            "unit": "%",
+            "date": "2024",
+            "source": "Administration centrale de la statistique / FMI",
+            "note": "L'inflation reste très élevée après l'effondrement de la livre. Elle détruit le pouvoir d'achat et rend la planification impossible."
+          },
+          "proposed": {
+            "value": 14.5976,
+            "unit": "%",
+            "date": "2025",
+            "source": "Banque mondiale (WDI), série FP.CPI.TOTL.ZG",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [],
+          "recommendation": "manual",
+          "explanation": "observation WDI 2025 (14.5976 %) vs existant 2024 (45.0 %) : candidat sérieux — à valider manuellement (cohérence avec le 2e source avant application).",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/LBN/indicator/FP.CPI.TOTL.ZG?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "lebanon",
+          "indicator": "unemployment",
+          "wb_series": "SL.UEM.TOTL.ZS",
+          "wb_match": "partial",
+          "existing": {
+            "value": 30.0,
+            "unit": "%",
+            "date": "2024",
+            "source": "Estimation OIT / Banque mondiale",
+            "note": "Le chômage et l'émigration des jeunes privent le pays de sa classe moyenne et de ses compétences."
+          },
+          "proposed": {
+            "value": 10.985,
+            "unit": "%",
+            "date": "2023",
+            "source": "Banque mondiale (WDI), série SL.UEM.TOTL.ZS",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "Série MODELLISÉE ILO (pas une enquête brute) : estimation tripartite OIT, potentiellement décalée en période de rupture (crise libano-syrienne)."
+          ],
+          "recommendation": "reject",
+          "explanation": "observation 2023 plus ancienne que la valeur existante (2024) — valeur conservée, écart (stale) signalé côté freshness.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/LBN/indicator/SL.UEM.TOTL.ZS?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "lebanon",
+          "indicator": "debt_gdp",
+          "wb_series": "GC.DOD.TOTL.GD.ZS",
+          "wb_match": "partial",
+          "existing": {
+            "value": 150,
+            "unit": "%",
+            "date": "2024",
+            "source": "Estimation FMI",
+            "note": "La dette est en défaut et largement illiquide. Le ratio est une estimation, car la comptabilité publique et le change faussent la mesure."
+          },
+          "proposed": {
+            "value": 128.6413,
+            "unit": "%",
+            "date": "1999",
+            "source": "Banque mondiale (WDI), série GC.DOD.TOTL.GD.ZS",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "GeoCapital suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées."
+          ],
+          "recommendation": "reject",
+          "explanation": "série « dette du gouvernement central » obsolète (1999) et définition sous-couverte (gouvernement central ≠ dette générale) — conservé 2024: 150.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/LBN/indicator/GC.DOD.TOTL.GD.ZS?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "lebanon",
+          "indicator": "reserves",
+          "wb_series": "FI.RES.TOTL.CD",
+          "wb_match": "exact_for_total",
+          "existing": {
+            "value": 10,
+            "unit": "Mds $",
+            "date": "2024",
+            "source": "FMI / BDL",
+            "note": "Les réserves nettes sont faibles et en grande partie contraintes. Elles ne suffisent pas à restaurer la confiance dans la monnaie."
+          },
+          "proposed": {
+            "value": 33.3,
+            "unit": "Mds $",
+            "date": "2024",
+            "source": "Banque mondiale (WDI), série FI.RES.TOTL.CD · unité convertie US$ → Mds $",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "unité convertie (US$ → Mds $) : conversion définie, sans ambiguïté",
+            "Unité demandée GeoCapital : Mds $ (US$ / 1e9). Certaines fiches de production (ex. Liban) documentent les réserves NETTES — écart de définition, alors rejeté."
+          ],
+          "recommendation": "reject",
+          "explanation": "définitions incompatibles: la fiche documente des réserves NETTES (10 Mds $) alors que la série WB est TOTALE (brut, or inclus) (33.3 Mds $) — ne pas écraser.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/LBN/indicator/FI.RES.TOTL.CD?format=json&per_page=60&page=1"
+        }
+      ]
+    },
+    {
+      "country": "syria",
+      "iso3": "SYR",
+      "new_country": false,
+      "candidates": [
+        {
+          "country": "syria",
+          "indicator": "gdp_growth",
+          "wb_series": "NY.GDP.MKTP.KD.ZG",
+          "wb_match": "exact",
+          "existing": {
+            "value": -1.2,
+            "unit": "%",
+            "date": "2024",
+            "source": "Estimation Banque mondiale / FMI",
+            "note": "La guerre et la transition empêchent toute reprise durable. L'estimation elle-même est fragile, faute de comptabilité nationale fiable."
+          },
+          "proposed": {
+            "value": -0.2025,
+            "unit": "%",
+            "date": "2022",
+            "source": "Banque mondiale (WDI), série NY.GDP.MKTP.KD.ZG",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [],
+          "recommendation": "reject",
+          "explanation": "observation 2022 plus ancienne que la valeur existante (2024) — valeur conservée, écart (stale) signalé côté freshness.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/SYR/indicator/NY.GDP.MKTP.KD.ZG?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "syria",
+          "indicator": "inflation",
+          "wb_series": "FP.CPI.TOTL.ZG",
+          "wb_match": "exact",
+          "existing": {
+            "value": 60.0,
+            "unit": "%",
+            "date": "2024",
+            "source": "Estimation",
+            "note": "L'inflation est alimentée par la dépréciation de la livre, les pénuries et les coûts de transaction. Les prix varient fortement selon les régions."
+          },
+          "proposed": {
+            "value": 13.4176,
+            "unit": "%",
+            "date": "2019",
+            "source": "Banque mondiale (WDI), série FP.CPI.TOTL.ZG",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [],
+          "recommendation": "reject",
+          "explanation": "observation 2019 plus ancienne que la valeur existante (2024) — valeur conservée, écart (stale) signalé côté freshness.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/SYR/indicator/FP.CPI.TOTL.ZG?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "syria",
+          "indicator": "unemployment",
+          "wb_series": "SL.UEM.TOTL.ZS",
+          "wb_match": "partial",
+          "existing": {
+            "value": 50.0,
+            "unit": "%",
+            "date": "2024",
+            "source": "Estimation OIT",
+            "note": "La moitié de la population active serait sans emploi ou sous-employée. Les jeunes et les femmes sont les plus touchés."
+          },
+          "proposed": {
+            "value": 13.569,
+            "unit": "%",
+            "date": "2025",
+            "source": "Banque mondiale (WDI), série SL.UEM.TOTL.ZS",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "Série MODELLISÉE ILO (pas une enquête brute) : estimation tripartite OIT, potentiellement décalée en période de rupture (crise libano-syrienne)."
+          ],
+          "recommendation": "manual",
+          "explanation": "écart considérable avec la valeur existante (50.0 % vs 13.569 %) : série modélisée ILO pas encore ré-alignée sur la conjoncture de crise — croisement manuel OIT/FMI requis.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/SYR/indicator/SL.UEM.TOTL.ZS?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "syria",
+          "indicator": "debt_gdp",
+          "wb_series": "GC.DOD.TOTL.GD.ZS",
+          "wb_match": "partial",
+          "existing": {
+            "value": 130,
+            "unit": "%",
+            "date": "2024",
+            "source": "Estimation",
+            "note": "La dette extérieure est en grande partie en défaut ou non documentée. Le ratio doit être lu comme un ordre de grandeur, pas comme une certitude."
+          },
+          "proposed": null,
+          "definition_notes": [
+            "GeoCapital suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées."
+          ],
+          "recommendation": "gap",
+          "explanation": "aucune observation exploitable côté WDI — valeur existante conservée, écart signalé.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/SYR/indicator/GC.DOD.TOTL.GD.ZS?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "syria",
+          "indicator": "reserves",
+          "wb_series": "FI.RES.TOTL.CD",
+          "wb_match": "exact_for_total",
+          "existing": {
+            "value": 1,
+            "unit": "Mds $",
+            "date": "2024",
+            "source": "Estimation",
+            "note": "Les réserves sont quasi épuisées. Il n'existe pas de coussin pour défendre la monnaie ou financer les importations essentielles."
+          },
+          "proposed": {
+            "value": 20.6,
+            "unit": "Mds $",
+            "date": "2010",
+            "source": "Banque mondiale (WDI), série FI.RES.TOTL.CD · unité convertie US$ → Mds $",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "unité convertie (US$ → Mds $) : conversion définie, sans ambiguïté"
+          ],
+          "recommendation": "reject",
+          "explanation": "observation 2010 plus ancienne que la valeur existante (2024) — valeur conservée, écart (stale) signalé côté freshness.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/SYR/indicator/FI.RES.TOTL.CD?format=json&per_page=60&page=1"
+        }
+      ]
+    },
+    {
+      "country": "brazil",
+      "iso3": "BRA",
+      "new_country": true,
+      "candidates": [
+        {
+          "country": "brazil",
+          "indicator": "gdp_growth",
+          "wb_series": "NY.GDP.MKTP.KD.ZG",
+          "wb_match": "exact",
+          "existing": null,
+          "proposed": {
+            "value": 2.2857,
+            "unit": "%",
+            "date": "2025",
+            "source": "Banque mondiale (WDI), série NY.GDP.MKTP.KD.ZG",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [],
+          "recommendation": "manual",
+          "explanation": "nouveau pays (expansion, aucun fichier de production) : définition à confirmer contre la future fiche et données croisées avec une seconde source officielle.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/BRA/indicator/NY.GDP.MKTP.KD.ZG?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "brazil",
+          "indicator": "inflation",
+          "wb_series": "FP.CPI.TOTL.ZG",
+          "wb_match": "exact",
+          "existing": null,
+          "proposed": {
+            "value": 5.0168,
+            "unit": "%",
+            "date": "2025",
+            "source": "Banque mondiale (WDI), série FP.CPI.TOTL.ZG",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [],
+          "recommendation": "manual",
+          "explanation": "nouveau pays (expansion, aucun fichier de production) : définition à confirmer contre la future fiche et données croisées avec une seconde source officielle.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/BRA/indicator/FP.CPI.TOTL.ZG?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "brazil",
+          "indicator": "unemployment",
+          "wb_series": "SL.UEM.TOTL.ZS",
+          "wb_match": "partial",
+          "existing": null,
+          "proposed": {
+            "value": 5.97,
+            "unit": "%",
+            "date": "2025",
+            "source": "Banque mondiale (WDI), série SL.UEM.TOTL.ZS",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "Série MODELLISÉE ILO (pas une enquête brute) : estimation tripartite OIT, potentiellement décalée en période de rupture (crise libano-syrienne)."
+          ],
+          "recommendation": "manual",
+          "explanation": "nouveau pays (expansion, aucun fichier de production) : définition à confirmer contre la future fiche et données croisées avec une seconde source officielle.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/BRA/indicator/SL.UEM.TOTL.ZS?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "brazil",
+          "indicator": "debt_gdp",
+          "wb_series": "GC.DOD.TOTL.GD.ZS",
+          "wb_match": "partial",
+          "existing": null,
+          "proposed": {
+            "value": 81.8554,
+            "unit": "%",
+            "date": "2024",
+            "source": "Banque mondiale (WDI), série GC.DOD.TOTL.GD.ZS",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "GeoCapital suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées."
+          ],
+          "recommendation": "manual",
+          "explanation": "nouveau pays (expansion, aucun fichier de production) : définition à confirmer contre la future fiche et données croisées avec une seconde source officielle.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/BRA/indicator/GC.DOD.TOTL.GD.ZS?format=json&per_page=60&page=1"
+        },
+        {
+          "country": "brazil",
+          "indicator": "reserves",
+          "wb_series": "FI.RES.TOTL.CD",
+          "wb_match": "exact_for_total",
+          "existing": null,
+          "proposed": {
+            "value": 358.5,
+            "unit": "Mds $",
+            "date": "2025",
+            "source": "Banque mondiale (WDI), série FI.RES.TOTL.CD · unité convertie US$ → Mds $",
+            "obs_status": "actual",
+            "published_lastupdated": "2026-10-08"
+          },
+          "definition_notes": [
+            "unité convertie (US$ → Mds $) : conversion définie, sans ambiguïté"
+          ],
+          "recommendation": "manual",
+          "explanation": "nouveau pays (expansion, aucun fichier de production) : définition à confirmer contre la future fiche et données croisées avec une seconde source officielle.",
+          "retrieved": "2026-10-25",
+          "api_url": "https://api.worldbank.org/v2/country/BRA/indicator/FI.RES.TOTL.CD?format=json&per_page=60&page=1"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "safe": 0,
+    "manual": 8,
+    "reject": 6,
+    "gap": 1
+  }
+}

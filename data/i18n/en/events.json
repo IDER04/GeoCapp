@@ -1,0 +1,252 @@
+{
+  "usa-fed-cut-2024": {
+    "date": "September 18, 2024",
+    "category": "Monetary policy",
+    "title": "The Fed cuts rates by 50 basis points",
+    "source": "Federal Reserve",
+    "summary": "The first cut since 2020: the Fed chooses a bold move to keep the labor market from deteriorating too fast, as inflation approaches 2%.",
+    "chain": [
+      {"label": "Event", "text": "The Federal Reserve lowers its target range from 5.25-5.50% to 4.75-5.00%. That is a 50 bp cut, larger than the customary 25 bp."},
+      {"label": "Economic consequence", "text": "The cost of credit falls for households and firms. Housing, investment, and refinancing get cheaper, which supports demand."},
+      {"label": "Financial consequence", "text": "Long rates fall, the dollar weakens, and US equities rise. Growth-stock valuations benefit from the lower discount rate."},
+      {"label": "Winners / losers", "text": "Winners: borrowers, equities, dollar-indebted emerging markets. Losers: cash savers, banks whose margins compress, dollar traders."}
+    ],
+    "winners": ["Equity markets", "Dollar-indebted emerging markets", "Real estate"],
+    "losers": ["Liquid savings", "Bank margins", "The dollar"],
+    "history": {
+      "year": "2001",
+      "title": "The Fed eases, yet the recession comes",
+      "text": "In 2001, the Fed cut rates aggressively in the face of the slowdown. It did not keep equities from falling: the market always anticipates the economy before the central bank does."
+    },
+    "concepts": [
+      {"term": "Policy rate", "definition": "The reference rate set by the central bank, which influences the cost of credit across the whole economy."},
+      {"term": "Discount rate", "definition": "The rate used to bring future cash flows back to today's value. The lower it is, the dearer long-dated assets become."},
+      {"term": "Monetary easing", "definition": "Rate cuts or asset purchases intended to support activity."}
+    ]
+  },
+  "china-stimulus-2024": {
+    "date": "September 24, 2024",
+    "category": "Stimulus",
+    "title": "Beijing unveils a stimulus package",
+    "source": "People's Bank of China",
+    "summary": "Rate cuts, credit support, and property measures: China tries to revive domestic demand weakened by the developers' crisis.",
+    "chain": [
+      {"label": "Event", "text": "The PBoC cuts several policy rates and eases credit conditions. Measures support the property market and equities."},
+      {"label": "Economic consequence", "text": "Builders and local governments breathe, but households stay cautious. Credit transmission is slowed by deleveraging."},
+      {"label": "Financial consequence", "text": "The Shanghai Composite logs its best rebound in a decade. The yuan stays constrained and foreign investors return cautiously."},
+      {"label": "Winners / losers", "text": "Winners: developers, banks, Chinese cyclicals, commodities. Losers: savers, short sellers, commodity importers."}
+    ],
+    "winners": ["Property developers", "Materials", "Chinese equities"],
+    "losers": ["Savers", "Commodity importers", "Short positioning"],
+    "history": {
+      "year": "2008-2009",
+      "title": "The stimulus plan that changed everything",
+      "text": "Facing the global crisis, Beijing had launched a massive infrastructure program. Growth came back quickly, but local debt and the property bubble were the side effects."
+    },
+    "concepts": [
+      {"term": "Fiscal multiplier", "definition": "The effect of public spending on activity: one euro spent can generate more than one euro of GDP."},
+      {"term": "Deleveraging", "definition": "Reducing debt among households, firms, or the state, often at the cost of weaker demand."},
+      {"term": "Deflation", "definition": "A broad, persistent fall in prices that makes agents postpone purchases and raises the burden of debt."}
+    ]
+  },
+  "france-spread-2024": {
+    "date": "June 2024",
+    "category": "Political risk",
+    "title": "The France-Germany spread widens after the dissolution",
+    "source": "Bond markets",
+    "summary": "The announcement of snap legislative elections sends the French risk premium up. Investors demand a higher yield to lend to Paris.",
+    "chain": [
+      {"label": "Event", "text": "The president dissolves the National Assembly after the European elections. No clear majority emerges, making the budget and reforms uncertain."},
+      {"label": "Economic consequence", "text": "Firms postpone investment decisions. The deficit path becomes less credible while debt already exceeds 110% of GDP."},
+      {"label": "Financial consequence", "text": "The French OAT yield rises and the spread against the German Bund widens. French banks and domestic names underperform."},
+      {"label": "Winners / losers", "text": "Winners: German Bunds, opportunistic bond investors. Losers: French taxpayers, banks, firms dependent on the home market."}
+    ],
+    "winners": ["German bonds", "Contrarian investors"],
+    "losers": ["French banks", "Domestic consumption", "The state budget"],
+    "history": {
+      "year": "2011-2012",
+      "title": "When the euro area nearly broke apart",
+      "text": "The sovereign debt crisis showed that a euro-area country can lose market confidence without controlling its currency. The 'spread' had become the euro's survival thermometer."
+    },
+    "concepts": [
+      {"term": "Spread", "definition": "The yield gap between two bonds of the same maturity. It measures the risk premium the market demands."},
+      {"term": "OAT", "definition": "The French government bond, named in the market after its French acronym."},
+      {"term": "Political risk premium", "definition": "The extra yield demanded when political uncertainty threatens the fiscal path."}
+    ]
+  },
+  "japan-boj-2024": {
+    "date": "March-August 2024",
+    "category": "Monetary policy",
+    "title": "The BOJ normalizes and the carry trade unravel",
+    "source": "Bank of Japan",
+    "summary": "Japan exits negative rates, then raises its rate. The yen strengthens abruptly and triggers a global unwinding of the carry trade.",
+    "chain": [
+      {"label": "Event", "text": "The Bank of Japan ends eight years of negative rates in March, then raises its rate in July. It also reduces its bond purchases."},
+      {"label": "Economic consequence", "text": "Credit becomes marginally more expensive, but the yen appreciates. Exporters lose competitiveness while households pay less for imports."},
+      {"label": "Financial consequence", "text": "Investors who borrowed in yen to buy high-yield assets must unwind positions. Global equity markets tumble in early August."},
+      {"label": "Winners / losers", "text": "Winners: Japanese banks, the yen, importers. Losers: exporters, carry-trade hedge funds, overvalued risky assets."}
+    ],
+    "winners": ["Japanese banks", "The yen", "Importers"],
+    "losers": ["Japanese exporters", "Carry-trade funds", "Technology stocks"],
+    "history": {
+      "year": "1989-1990",
+      "title": "The bubble's comeuppance",
+      "text": "Japan had already suffered a major monetary shock when the BOJ tightened to break the bubble. Equities and real estate took decades to recover."
+    },
+    "concepts": [
+      {"term": "Carry trade", "definition": "Borrowing in a low-rate currency to invest in a higher-yielding asset. Highly profitable as long as the funding currency stays weak."},
+      {"term": "Negative rate", "definition": "A policy rate below zero: banks pay to deposit their cash at the central bank."},
+      {"term": "Normalization", "definition": "A central bank's gradual return to more conventional rates and balance sheets."}
+    ]
+  },
+  "saudi-oil-cuts-2024": {
+    "date": "2024",
+    "category": "Energy",
+    "title": "Riyadh extends its oil-production cuts",
+    "source": "OPEC+ / Ministry of Energy",
+    "summary": "To support the barrel price, Saudi Arabia keeps output reduced. It protects per-unit revenue but sacrifices volume and growth.",
+    "chain": [
+      {"label": "Event", "text": "Riyadh and its allies extend voluntary production cuts. The aim is to avoid an oversupply that would send prices falling."},
+      {"label": "Economic consequence", "text": "Oil revenues fall in volume, GDP contracts, and the budget deficit widens. Vision 2030 projects must be funded by debt or the PIF."},
+      {"label": "Financial consequence", "text": "Oil prices stabilize, but the stock market and Saudi banks depend on public spending. CDS stay low thanks to reserves."},
+      {"label": "Winners / losers", "text": "Winners: high-cost producers, oil importers. Losers: oil economies, energy-services firms, fuel consumers."}
+    ],
+    "winners": ["Non-OPEC producers", "Energy importers", "Renewables"],
+    "losers": ["The Saudi budget", "Oil services", "Non-oil growth"],
+    "history": {
+      "year": "2014-2016",
+      "title": "The price war that drained the reserves",
+      "text": "Saudi Arabia had raised output to defend market share. The barrel collapsed below 30 dollars, forcing the kingdom to draw on reserves and launch Vision 2030."
+    },
+    "concepts": [
+      {"term": "OPEC+", "definition": "An enlarged producers' cartel that coordinates quotas to influence the oil price."},
+      {"term": "Oil rent", "definition": "Revenue from the gap between extraction cost and selling price. It funds the state without going through taxes."},
+      {"term": "Fiscal breakeven", "definition": "The barrel price needed to balance the budget. The higher it is, the more vulnerable the country is to falling prices."}
+    ]
+  },
+  "uae-corporate-tax-2023": {
+    "date": "June 2023",
+    "category": "Taxation",
+    "title": "The Emirates introduce a corporate tax",
+    "source": "UAE Ministry of Finance",
+    "summary": "A country with near-zero taxation adopts a 9% levy on profits. A turning point for a model that drew corporate headquarters with the absence of tax.",
+    "chain": [
+      {"label": "Event", "text": "The Emirates introduce a 9% federal corporate tax above a profit threshold, with exemptions for qualifying free zones."},
+      {"label": "Economic consequence", "text": "Firms must rework their structures and transfer prices. Low-margin activities become less attractive while high-value services stay competitive."},
+      {"label": "Financial consequence", "text": "Revenues diversify beyond oil. Investors watch compliance and the real substance of structures."},
+      {"label": "Winners / losers", "text": "Winners: the federal budget, consulting firms, high-margin activities. Losers: shell companies, low-margin traders, rival offshore jurisdictions."}
+    ],
+    "winners": ["The federal budget", "Tax advisory", "High-margin services"],
+    "losers": ["Shell companies", "Low-margin trading", "Rival tax havens"],
+    "history": {
+      "year": "2018",
+      "title": "VAT changes the social contract",
+      "text": "The Emirates had introduced a 5% VAT as oil rent no longer sufficed. The corporate tax extends this transition to modern taxation."
+    },
+    "concepts": [
+      {"term": "Transfer pricing", "definition": "Prices applied between subsidiaries of the same group. They determine where profits are taxed."},
+      {"term": "Free zone", "definition": "A separate customs and fiscal territory designed to attract exporting firms."},
+      {"term": "Tax diversification", "definition": "The gradual replacement of oil revenues by taxes and levies on the real economy."}
+    ]
+  },
+  "morocco-worldcup-2030": {
+    "date": "October 2023",
+    "category": "Investment",
+    "title": "Morocco will co-host the 2030 World Cup",
+    "source": "FIFA",
+    "summary": "With Spain and Portugal, Morocco wins the co-hosting of the 2030 tournament. The country accelerates investment in stadiums, transport, and hotels.",
+    "chain": [
+      {"label": "Event", "text": "The Ibero-Moroccan bid is selected. Morocco becomes the first African country to co-host a World Cup, after the 2025 Africa Cup."},
+      {"label": "Economic consequence", "text": "Infrastructure, stadium, and hotel construction supports growth and jobs. The risk is over-scaled investment after the event."},
+      {"label": "Financial consequence", "text": "Construction, cement, tourism, and bank stocks rise. The state borrows more but gains an image effect."},
+      {"label": "Winners / losers", "text": "Winners: construction, tourism, banks, real estate. Losers: taxpayers if costs overrun, sectors neglected by the building priority."}
+    ],
+    "winners": ["Construction", "Tourism", "Moroccan banks"],
+    "losers": ["Taxpayers", "Non-priority sectors", "The social budget"],
+    "history": {
+      "year": "2010",
+      "title": "South Africa and the World Cup effect",
+      "text": "South Africa's tournament left costly, little-used stadiums. It also improved the country's image. The lesson: infrastructure must serve after the event, not only during it."
+    },
+    "concepts": [
+      {"term": "Announcement effect", "definition": "The market's reaction before the spending or revenue even materializes."},
+      {"term": "Infrastructure multiplier", "definition": "The impact of public investment on activity, strongest when the economy has idle capacity."},
+      {"term": "Opportunity cost", "definition": "What you give up by assigning a resource to one use rather than another."}
+    ]
+  },
+  "south-africa-gnu-2024": {
+    "date": "June 2024",
+    "category": "Politics",
+    "title": "The ANC forms a government of national unity",
+    "source": "ANC / South African Parliament",
+    "summary": "For the first time since 1994, the ANC loses its majority. A coalition with the opposition opens a new political era and hope for reforms.",
+    "chain": [
+      {"label": "Event", "text": "The ANC takes about 40% of the vote. It allies with the DA and other parties to form a government of national unity."},
+      {"label": "Economic consequence", "text": "The coalition can speed up power and logistics reforms, but it may also be paralyzed by internal disagreements."},
+      {"label": "Financial consequence", "text": "The rand and bonds firm up on hopes of better governance. CDS fall, yet remain elevated."},
+      {"label": "Winners / losers", "text": "Winners: banks, retailers, local bonds. Losers: firms reliant on public patronage, populist parties."}
+    ],
+    "winners": ["Banks", "Local bonds", "The rand"],
+    "losers": ["State rent-seekers", "Populist parties", "Unreformed firms"],
+    "history": {
+      "year": "1994",
+      "title": "The transition that avoided war",
+      "text": "The end of apartheid was negotiated, not torn away by revolution. The compromise stabilized the country but left most inherited economic structures intact."
+    },
+    "concepts": [
+      {"term": "Coalition government", "definition": "An executive formed by several parties that must share power and negotiate every reform."},
+      {"term": "Political risk premium", "definition": "The extra yield demanded when the stability of public decision-making is uncertain."},
+      {"term": "Structural reform", "definition": "A measure that changes how the economy works: labor market, energy, competition, taxation."}
+    ]
+  },
+  "lebanon-ceasefire-2024": {
+    "date": "November 27, 2024",
+    "category": "Geopolitics",
+    "title": "A ceasefire ends the hostilities with Israel",
+    "source": "Ceasefire agreement",
+    "summary": "After months of war, a ceasefire is agreed. It opens a window for reconstruction but resolves neither the banking collapse nor the political crisis.",
+    "chain": [
+      {"label": "Event", "text": "Israel and Hezbollah accept a halt to hostilities, with a deployment of the Lebanese army and an international monitoring mechanism."},
+      {"label": "Economic consequence", "text": "Displacement slows and humanitarian aid can move. Reconstruction will cost billions, in a state without budget capacity."},
+      {"label": "Financial consequence", "text": "Lebanese markets stay illiquid. The pound and deposits do not recover their value; no CDS allows pricing the risk."},
+      {"label": "Winners / losers", "text": "Winners: displaced people, reconstruction, importers. Losers: insolvent banks, sovereign creditors, savers frozen out."}
+    ],
+    "winners": ["Reconstruction", "Humanitarian aid", "Importers"],
+    "losers": ["Banks", "State creditors", "Savers"],
+    "history": {
+      "year": "2006",
+      "title": "The 33-day war",
+      "text": "The 2006 conflict had already destroyed infrastructure and displaced nearly a million people. Reconstruction was donor-funded, without fixing the political fragilities."
+    },
+    "concepts": [
+      {"term": "Geopolitical risk", "definition": "The risk that a conflict, a sanction, or a military decision abruptly changes asset values."},
+      {"term": "Sovereign default", "definition": "A situation in which a state does not repay its debt on the terms agreed."},
+      {"term": "Dollarization", "definition": "The use of a foreign currency for transactions and savings, a sign of lost confidence in the local currency."}
+    ]
+  },
+  "syria-assad-fall-2024": {
+    "date": "December 8, 2024",
+    "category": "Geopolitics",
+    "title": "The fall of the Assad regime opens an uncertain transition",
+    "source": "Syrian political events",
+    "summary": "A lightning rebel offensive ends fifty years of family rule. Syria begins a political and economic reconstruction without solid institutions.",
+    "chain": [
+      {"label": "Event", "text": "Rebel forces enter Damascus. Bashar al-Assad leaves the country. Security and power structures collapse within days."},
+      {"label": "Economic consequence", "text": "Some sanctions could be lifted, but the economy is destroyed, the currency nearly worthless, and the skills gone. Emergency aid dominates."},
+      {"label": "Financial consequence", "text": "There is no rating, no CDS, and no liquid equity market. The risk cannot be priced: it is treated as maximal."},
+      {"label": "Winners / losers", "text": "Winners: the freed population, reconstruction, trading neighbors. Losers: the old regime's networks, undocumented creditors, threatened minorities."}
+    ],
+    "winners": ["Reconstruction", "The civilian population", "Regional trade"],
+    "losers": ["Old power networks", "Creditors", "Minorities"],
+    "history": {
+      "year": "2011",
+      "title": "The Arab Spring and the war",
+      "text": "The 2011 protests demanded freedoms and jobs. Repression turned dissent into civil war, with an internationalization that destroyed the country."
+    },
+    "concepts": [
+      {"term": "Information risk", "definition": "Uncertainty linked to the absence of reliable data, which prevents valuing an asset correctly."},
+      {"term": "Sanctions", "definition": "Restrictive measures that limit access to trade, financing, and technology."},
+      {"term": "Reconstruction", "definition": "Reinvestment in infrastructure and institutions after a conflict. It can support growth but also breeds corruption risks."}
+    ]
+  }
+}

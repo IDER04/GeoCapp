@@ -1,0 +1,160 @@
+{
+  "name": "Morocco",
+  "official_name": "Kingdom of Morocco",
+  "region": "North Africa",
+  "group": "Frontier",
+  "headline": "Political stability as a competitive advantage.",
+  "summary": "Morocco has turned an ancient monarchy into an industrial platform oriented toward Europe and Africa. Its assets are stability, infrastructure, and renewables; its constraints remain youth unemployment, dependence on imported energy, and the Western Sahara conflict.",
+  "history": [
+    {
+      "year": "1912",
+      "title": "French protectorate",
+      "text": "The Treaty of Fez places most of Morocco under a French protectorate, with a Spanish zone in the north. Modern administration and infrastructure develop."
+    },
+    {
+      "year": "1956",
+      "title": "Independence",
+      "text": "Sultan Mohammed V becomes king. Morocco keeps a strong monarchy that guarantees national unity and the balance between tribes and cities."
+    },
+    {
+      "year": "1975",
+      "title": "The Green March",
+      "text": "350,000 Moroccans cross into Western Sahara. The territory becomes a national cause, a source of cohesion but also of lasting conflict with Algeria."
+    },
+    {
+      "year": "1999",
+      "title": "The reign of Mohammed VI",
+      "text": "The new king modernizes the economy, launches major works, and gradually opens society while keeping the palace primacy."
+    },
+    {
+      "year": "2011",
+      "title": "Constitutional reform",
+      "text": "In the wake of the Arab Spring, a new Constitution strengthens Parliament and the courts, without challenging the king's central role."
+    },
+    {
+      "year": "2022",
+      "title": "World Cup semi-final",
+      "text": "The Atlas Lions reach the World Cup semi-finals in Qatar. Morocco's image and soft power change scale."
+    },
+    {
+      "year": "2025-2030",
+      "title": "Year of football and the 2030 horizon",
+      "text": "The 2025 Africa Cup of Nations and the 2030 World Cup, co-hosted with Spain and Portugal, accelerate investment in transport and energy."
+    }
+  ],
+  "institutions": {
+    "regime": "Constitutional monarchy",
+    "executive": "King as head of state and religious leader; Prime Minister from Parliament",
+    "legislature": "Bicameral Parliament: House of Representatives and House of Councillors",
+    "central_bank": "Bank Al-Maghrib, independent in conducting monetary policy",
+    "currency": "Moroccan dirham (MAD), a managed float regime",
+    "law": "Civil law based on French law; Muslim law for personal status",
+    "fact": "Morocco was the first African country to sign a full free-trade agreement with the United States."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "France",
+        "note": "Leading economic and cultural partner, despite occasional tensions."
+      },
+      {
+        "name": "Spain",
+        "note": "Migration, energy, and economic cooperation."
+      },
+      {
+        "name": "United States",
+        "note": "Free-trade agreement and recognition of the Sahara autonomy plan."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "Algeria",
+        "note": "Closed borders, the Sahara dispute, and a race for regional influence."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "European Union",
+        "note": "Main outlet for autos, agro-industry, and textiles."
+      },
+      {
+        "name": "Imported energy",
+        "note": "The country imports most of its hydrocarbons."
+      },
+      {
+        "name": "Tourism and remittances",
+        "note": "Migrant transfers and tourism support the balance of payments."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "Growth is supported by industry, tourism, and football-related investment, but remains vulnerable to drought.",
+      "source": "IMF, WEO"
+    },
+    "inflation": {
+      "note": "Inflation is back within the comfort zone. Lower food prices and the dirham's stability helped.",
+      "source": "Bank Al-Maghrib"
+    },
+    "debt_gdp": {
+      "note": "Debt remains manageable, but the deficit and financing needs limit fiscal room.",
+      "source": "IMF, WEO"
+    },
+    "policy_rate": {
+      "date": "Dec 2024",
+      "note": "The central bank cut its rate to support investment. The real rate remains positive but moderate.",
+      "source": "Bank Al-Maghrib"
+    },
+    "unemployment": {
+      "note": "Unemployment is high, especially among youth and graduates. It is the main social weakness of the Moroccan model.",
+      "source": "HCP"
+    },
+    "reserves": {
+      "note": "Reserves cover about five months of imports. That is decent, but less than Gulf standards.",
+      "source": "Bank Al-Maghrib / IMF"
+    },
+    "rating": {
+      "note": "The rating has moved into the high speculative category. The reformist path and European anchoring support the outlook.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "The market prices moderate risk. Morocco borrows more expensively than Spain, but less than the more fragile African frontier countries.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "The index benefits from banks, real estate, and enthusiasm for World Cup-linked stocks.",
+      "source": "Casablanca Stock Exchange"
+    },
+    "currency": {
+      "name": "Moroccan dirham",
+      "note": "The dirham is managed within a band. Nominal stability is an advantage for European investors.",
+      "source": "Bank Al-Maghrib"
+    }
+  },
+  "strengths": [
+    "Political stability and monarchical continuity.",
+    "A hub position for industry and logistics between Europe and Africa.",
+    "Massive investment in renewable energy."
+  ],
+  "risks": [
+    "High youth unemployment and regional inequalities.",
+    "Dependence on energy imports and rainfall.",
+    "The Western Sahara conflict and frozen relations with Algeria."
+  ],
+  "opportunities": [
+    "Electric autos and batteries thanks to agreements with Europe.",
+    "Green hydrogen and electricity interconnections.",
+    "The 2030 World Cup and infrastructure modernization."
+  ],
+  "quiz": {
+    "question": "Why was the Green March of 1975 so formative for Morocco?",
+    "options": [
+      "It ended the protectorate",
+      "It claimed the Western Sahara",
+      "It created the euro",
+      "It opened the Suez Canal"
+    ],
+    "answer": 1,
+    "explanation": "The Green March mobilized the population to claim the Western Sahara. The territory remains at the core of foreign policy and of the conflict with Algeria."
+  }
+}

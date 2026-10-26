@@ -1,0 +1,76 @@
+{
+  "_candidate": {
+    "status": "proposed_for_review",
+    "created": "2026-10-25",
+    "retrieved": "2026-10-25",
+    "review_reference": "docs/REFRESH_REVIEW.md — candidats 4, 5, 6, 7, 8 (incrément 6.2)",
+    "not_registered_in_production": true,
+    "resolution_policy": "Une valeur n'est retenue que si elle est officielle, directement vérifiée (source + URL) et comparable en définition avec l'indicateur GeoCapital ; sinon elle est omise et listée dans open_items.",
+    "open_items": [
+      "indicateurs de marché (policy_rate, rating, cds, crp, equity_index, currency) : non collectés — sources officielles à identifier avant toute intégration (BCB/Tarifas Selic, agences de notation, bourse/devise) ; aucune valeur n'est inventée",
+      "contenu éditorial (headline, summary, history, institutions, relations, qualitative, strengths/risks/opportunities, quiz) : à rédiger lors de la préparation de la fiche, après revue",
+      "inflation : écart WDI/IFS (5,02 %) vs IPCA IBGE (4,26 %) non réconcilié — cf. docs/REFRESH_REVIEW.md entrée 5 ; la valeur retenue ici est la source nationale IBGE",
+      "champ order et intégration au registre de production (data/countries/, navigation, comparateur, scoring) : uniquement après approbation de ce fichier"
+    ]
+  },
+  "id": "brazil",
+  "name": "Brésil",
+  "official_name": "République fédérative du Brésil",
+  "iso3": "BRA",
+  "flag": "🇧🇷",
+  "region": "Amérique du Sud",
+  "group": "Émergent",
+  "group_key": "emerging",
+  "indicators": {
+    "gdp_growth": {
+      "value": 2.3,
+      "unit": "%",
+      "date": "2025",
+      "obs_status": "actual",
+      "source": "IBGE — Contas Nacionais (communiqué du 3 mars 2026)",
+      "source_url": "https://agenciadenoticias.ibge.gov.br/agencia-noticias/2012-agencia-de-noticias/noticias/45969-pib-cresce-2-3-em-2025",
+      "retrieved": "2026-10-25",
+      "note": "Croissance du PIB réel en 2025. Recoupé par le FMI (WEO : 2,3 %) et la Banque mondiale (WDI : 2,29 %) — accord triple. Le WDI seul n'a pas été retenu par défaut : la statistique nationale est la source de premier rang."
+    },
+    "inflation": {
+      "value": 4.26,
+      "unit": "%",
+      "date": "2025",
+      "obs_status": "actual",
+      "source": "IBGE — IPCA (acumulado do ano, dez. 2025 → dez. 2025)",
+      "source_url": "https://ftp.ibge.gov.br/Precos_Indices_de_Precos_ao_Consumidor/IPCA/Fasciculo_Indicadores_IBGE/2025/ipca-inpc_202512caderno.pdf",
+      "retrieved": "2026-10-25",
+      "note": "IPCA, indice national de référence. En deçà de la cible de 4,5 %. Écart non résolu avec la série WDI (FP.CPI.TOTL.ZG : 5,02) — cf. docs/REFRESH_REVIEW.md entrée 5 (seek_better_source) ; la valeur WB n'est pas utilisée."
+    },
+    "unemployment": {
+      "value": 5.6,
+      "unit": "%",
+      "date": "2025",
+      "obs_status": "actual",
+      "source": "IBGE — PNAD Contínua (taxa anual 2025, release du 30 janvier 2026)",
+      "source_url": "https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/45759-pnad-continua-em-2025-taxa-anual-de-desocupacao-foi-de-5-6-enquanto-taxa-de-subutilizacao-foi-14-5",
+      "retrieved": "2026-10-25",
+      "note": "Taux de « desocupação », moyenne annuelle 2025, plus bas niveau de la série depuis 2012. Recoupé par l'estimation ILO modélisée (WDI : 5,97) ; la statistique d'enquête nationale est privilégiée."
+    },
+    "debt_gdp": {
+      "value": 78.64,
+      "unit": "%",
+      "date": "2025",
+      "obs_status": "actual",
+      "source": "Banco Central do Brasil — Dívida Bruta do Governo Geral / PIB (série SGS 13762, méthodologie 2008)",
+      "source_url": "https://dadosabertos.bcb.gov.br/dataset/13762-divida-bruta-do-governo-geral--pib---metodologia-utilizada-a-partir-de-2008",
+      "retrieved": "2026-10-25",
+      "note": "Dette brute du gouvernement GÉNÉRAL (définition DBGG alignée FMI), fim de período décembre 2025 : 78,64 %. La valeur WDI (dette du gouvernement central 2024 : 81,86) est écartée — définition incompatible, cf. docs/REFRESH_REVIEW.md entrée 7. Valeur 2024 : 76,27 %."
+    },
+    "reserves": {
+      "value": 358.2,
+      "unit": "Mds $",
+      "date": "2025",
+      "obs_status": "actual",
+      "source": "Banco Central do Brasil — Relatório de Gestão das Reservas Internacionais (mars 2026)",
+      "source_url": "https://www.bcb.gov.br/content/publicacoes/relgestaoreservas/GESTAORESERVAS202603-relatorio_anual_reservas_internacionais_2026.pdf",
+      "retrieved": "2026-10-25",
+      "note": "Réserves internationales totales (or inclus), « conceito caixa », au 31/12/2025 : US$ 358,23 Md. Recoupé par la Banque mondiale/IFS : 358,5 Mds $ (accrual) — accord 0,08 %. Millésime 2025, période de référence : 31/12/2025 (fin de période ne se confond pas avec l'année-moyenne)."
+    }
+  }
+}

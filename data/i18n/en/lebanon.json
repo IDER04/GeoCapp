@@ -1,0 +1,163 @@
+{
+  "name": "Lebanon",
+  "official_name": "Lebanese Republic",
+  "region": "Middle East",
+  "group": "Frontier",
+  "headline": "A country defaults; a society still holds.",
+  "summary": "Lebanon long served as the Middle East's financial hub and trading crossroads. Its confessional model maintained a fragile peace, but it also blocked economic decisions. Since 2019 the currency, the banks, and public debt have collapsed; the absence of market prices has itself become a risk signal.",
+  "history": [
+    {
+      "year": "1920",
+      "title": "Greater Lebanon",
+      "text": "France creates Greater Lebanon under mandate. The country brings together Christian and Muslim communities with fragile demographic balances."
+    },
+    {
+      "year": "1943",
+      "title": "Independence and the National Pact",
+      "text": "An unwritten compromise splits power between Christians and Muslims. The presidency goes to a Maronite, the government to a Sunni, Parliament to a Shia."
+    },
+    {
+      "year": "1975",
+      "title": "The civil war",
+      "text": "The conflict pits militias and communities against each other, with Syrian and Israeli interventions. Beirut, once a financial center, is destroyed."
+    },
+    {
+      "year": "1989",
+      "title": "The Taif Accords",
+      "text": "Saudi Arabia sponsors a compromise that ends the war. Power is rebalanced toward Muslims, but confessional rule remains central."
+    },
+    {
+      "year": "2005",
+      "title": "The Cedar Revolution",
+      "text": "After Rafic Hariri's assassination, mass demonstrations push the Syrian army out. The political class is largely unchanged."
+    },
+    {
+      "year": "2019-2020",
+      "title": "Collapse and explosion",
+      "text": "The dollar shortage and the eurobond default wipe out most of the currency's value. In August 2020, the Beirut port explosion ravages the capital."
+    },
+    {
+      "year": "2024",
+      "title": "War and ceasefire",
+      "text": "The conflict between Israel and Hezbollah displaces hundreds of thousands. A ceasefire opens a political window, but economic reforms remain blocked."
+    }
+  ],
+  "institutions": {
+    "regime": "Confessional parliamentary republic",
+    "executive": "Maronite president, Sunni Prime Minister, and a national-unity government",
+    "legislature": "Parliament with confessional allocation, frequently deadlocked",
+    "central_bank": "Banque du Liban (BDL), at the heart of the monetary crisis",
+    "currency": "Lebanese pound (LBP), an official rate and a parallel market",
+    "law": "Civil law based on French law; confessional courts for personal status",
+    "fact": "Lebanon has no active sovereign rating and no liquid CDS: the absence of price is treated as a risk, not as neutrality."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "France",
+        "note": "Diplomatic and historic support, aid conferences."
+      },
+      {
+        "name": "Saudi Arabia",
+        "note": "A traditional financial partner, with irregular relations."
+      },
+      {
+        "name": "The diaspora",
+        "note": "Remittances and networks abroad cushion the crisis."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "Israel",
+        "note": "Recurrent armed conflict and border tensions."
+      },
+      {
+        "name": "Hezbollah",
+        "note": "An armed and political actor that challenges the state's monopoly."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "Iran",
+        "note": "Support for Hezbollah and political influence."
+      },
+      {
+        "name": "Syria",
+        "note": "Border, informal trade, and refugees."
+      },
+      {
+        "name": "Imports",
+        "note": "Food, fuel, and medicine depend on foreign currency."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "The economy is still contracting on war and destruction. Recovery will depend on reconstruction and political stability.",
+      "source": "IMF / estimates"
+    },
+    "inflation": {
+      "note": "Inflation remains extremely high after the pound's collapse. It destroys purchasing power and makes planning impossible.",
+      "source": "Central Administration of Statistics / IMF"
+    },
+    "debt_gdp": {
+      "note": "The debt is in default and largely illiquid. The ratio is an estimate, because public accounting and exchange distortions blur the measure.",
+      "source": "IMF estimate"
+    },
+    "policy_rate": {
+      "note": "The official rate no longer reflects market conditions. The banking system is being restructured and capital is frozen.",
+      "source": "Banque du Liban"
+    },
+    "unemployment": {
+      "note": "Unemployment and the emigration of youth strip the country of its middle class and skills.",
+      "source": "ILO / World Bank estimate"
+    },
+    "reserves": {
+      "note": "Net reserves are low and largely constrained. They cannot restore confidence in the currency.",
+      "source": "IMF / BDL"
+    },
+    "rating": {
+      "note": "The country is in sovereign default. A D rating means the debt is not being honored on its terms.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "No liquid CDS: the debt is already in default. Missing data is treated as a maximum-risk signal.",
+      "source": "Market"
+    },
+    "equity_index": {
+      "note": "The market is very illiquid. Prices do not properly reflect asset values in a fragmented, dollarized economy.",
+      "source": "Beirut Stock Exchange"
+    },
+    "currency": {
+      "name": "Lebanese pound",
+      "note": "The pound has lost most of its value since 2019. The official and parallel rates diverged for a long time.",
+      "source": "BDL / parallel market"
+    }
+  },
+  "strengths": [
+    "An entrepreneurial diaspora and a dense international network.",
+    "Geographic position and trading traditions.",
+    "A historically high level of education."
+  ],
+  "risks": [
+    "Sovereign default and an insolvent banking system.",
+    "A destroyed currency and a largely dollarized economy.",
+    "Political deadlock and the risk of armed conflict."
+  ],
+  "opportunities": [
+    "Reconstruction and reform of the electricity sector.",
+    "Restoring confidence in banks and deposits.",
+    "The return of diaspora capital if an IMF deal is reached."
+  ],
+  "quiz": {
+    "question": "Which institutional feature makes Lebanese decision-making so hard?",
+    "options": [
+      "A strong presidential system",
+      "A confessional sharing of power",
+      "A federal monarchy",
+      "A monetary union with Syria"
+    ],
+    "answer": 1,
+    "explanation": "The confessional system allocates posts between communities. It preserved a political balance, but it lets every bloc block the reforms."
+  }
+}

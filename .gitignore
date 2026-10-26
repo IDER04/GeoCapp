@@ -30,3 +30,6 @@ desktop.ini
 preview_*.png
 *.log
 geocapital_*.csv
+# Additional local secrets
+.streamlit/secrets.toml
+secrets.toml
