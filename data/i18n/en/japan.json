@@ -1,0 +1,164 @@
+{
+  "name": "Japan",
+  "official_name": "Japan",
+  "region": "East Asia",
+  "group": "Developed",
+  "headline": "Industrial discipline against an aging population.",
+  "summary": "Japan achieved lightning industrialization after 1945, then endured the bubble and deflation. Its public debt is the highest in the developed world, but it is held by residents and denominated in yen. The real challenge is demographic: fewer workers, more social spending.",
+  "history": [
+    {
+      "year": "1868",
+      "title": "Meiji Restoration",
+      "text": "Japan opens its economy and industrializes under state direction. It copies Western technologies, creates conglomerates (zaibatsu), and builds a modern navy."
+    },
+    {
+      "year": "1945",
+      "title": "Defeat and rebuilding",
+      "text": "After Hiroshima and Nagasaki, the country is occupied and reformed. It renounces war, adopts a pacifist constitution, and focuses on growth."
+    },
+    {
+      "year": "1955",
+      "title": "The Japanese miracle",
+      "text": "The Liberal Democratic Party dominates politics. The state coordinates industry and banks fund investment: growth exceeds 8% a year."
+    },
+    {
+      "year": "1989",
+      "title": "The bubble bursts",
+      "text": "Equities and real estate collapse. Banks accumulate bad loans and the country enters a long deflation."
+    },
+    {
+      "year": "1997",
+      "title": "Banking crisis",
+      "text": "The failure of major institutions forces the state to recapitalize the system. Public debt explodes to prevent a credit collapse."
+    },
+    {
+      "year": "2013",
+      "title": "Abenomics",
+      "text": "Three arrows: aggressive monetary policy, fiscal stimulus, and structural reforms. The Bank of Japan buys debt on a massive scale."
+    },
+    {
+      "year": "2024",
+      "title": "Exit from negative rates",
+      "text": "The BOJ normalizes cautiously. The yen stays weak and the stock market returns to peaks, carried by corporate governance and semiconductors."
+    }
+  ],
+  "institutions": {
+    "regime": "Parliamentary constitutional monarchy",
+    "executive": "Prime Minister drawn from the Diet; Emperor as a symbol",
+    "legislature": "Bicameral Diet: House of Representatives and House of Councillors",
+    "central_bank": "Bank of Japan (BOJ), historically highly accommodative",
+    "currency": "Yen (JPY)",
+    "law": "Civil law based on the German model, strong administrative stability",
+    "fact": "The BOJ holds a huge share of Japanese public debt, so sustainability depends on its policy."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "United States",
+        "note": "Security treaty and nuclear umbrella."
+      },
+      {
+        "name": "Australia",
+        "note": "Strategic partnership in the Indo-Pacific."
+      },
+      {
+        "name": "European Union",
+        "note": "Free-trade agreement and technology cooperation."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "China",
+        "note": "Territorial disputes and technology competition."
+      },
+      {
+        "name": "North Korea",
+        "note": "Ballistic threat and unresolved abductions."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "China",
+        "note": "Value chains and tourist demand."
+      },
+      {
+        "name": "Middle East",
+        "note": "Near-total dependence on imported oil."
+      },
+      {
+        "name": "United States",
+        "note": "Security and market access, but risk of trade friction."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "Growth is weak: consumption suffers from aging and exports depend on the global cycle.",
+      "source": "Cabinet Office / IMF"
+    },
+    "inflation": {
+      "note": "After decades of deflation, inflation is taking hold. Good news for real wages, as long as it stays moderate.",
+      "source": "Statistics Bureau"
+    },
+    "debt_gdp": {
+      "note": "The ratio is extreme, but the debt is in yen and locally held. Sustainability depends on rates and nominal growth.",
+      "source": "IMF, WEO"
+    },
+    "policy_rate": {
+      "date": "Jan 2025",
+      "note": "The BOJ exits its ultra-accommodative regime very slowly. Every hike raises the cost of debt and supports the yen.",
+      "source": "Bank of Japan"
+    },
+    "unemployment": {
+      "note": "Unemployment is very low, but the labor force shrinks. Labor scarcity weighs on small businesses.",
+      "source": "Statistics Bureau"
+    },
+    "reserves": {
+      "note": "Japan holds enormous reserves, mostly in foreign securities. They act as a buffer in any yen stress.",
+      "source": "Ministry of Finance / IMF"
+    },
+    "rating": {
+      "note": "The rating stays high thanks to institutional stability and locally held debt, despite the record debt ratio.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "The market prices no short-term default risk. Japanese CDS are among the lowest in the G7.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "The index benefits from a weak yen, corporate governance, and the semiconductor cycle.",
+      "source": "Nikkei / JPX"
+    },
+    "currency": {
+      "name": "Yen",
+      "note": "A weak yen helps exporters but makes imported energy and household cost of living more expensive.",
+      "source": "BOJ / BIS"
+    }
+  },
+  "strengths": [
+    "Stable institutions and a high standard of living.",
+    "A first-class industrial and technological base.",
+    "Public debt financed locally and in yen."
+  ],
+  "risks": [
+    "Aging and a shrinking labor force.",
+    "Record public debt sensitive to higher rates.",
+    "Energy and demographic dependence on imports."
+  ],
+  "opportunities": [
+    "Semiconductors, robotics, and automation for an aging society.",
+    "Improving corporate governance and returning capital to shareholders.",
+    "Tourism and cultural soft power."
+  ],
+  "quiz": {
+    "question": "Why is Japanese debt less risky than it looks?",
+    "options": [
+      "It is denominated in dollars",
+      "It is held by residents and in yen",
+      "It is guaranteed by the United States",
+      "Japan has no deficit"
+    ],
+    "answer": 1,
+    "explanation": "Debt in the national currency, held by residents and a domestic central bank, is easier to refinance. That does not remove the risk, it transforms it."
+  }
+}

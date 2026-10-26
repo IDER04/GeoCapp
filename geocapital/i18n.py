@@ -15,6 +15,8 @@ Règles du projet :
 
 from __future__ import annotations
 
+import json  # noqa: E402  (chargement des overlays)
+
 import re
 
 import streamlit as st
@@ -77,9 +79,17 @@ def crp_source_key(source: str) -> str:
     return CRP_SOURCE_KEYS.get(source, source)
 
 
+GROUP_KEYS_EN: dict[str, str] = {
+    "Developed": "developed",
+    "Emerging": "emerging",
+    "Gulf": "gulf",
+    "Frontier": "frontier",
+}
+
+
 def group_key(group: str) -> str:
-    """Code i18n d'un groupe de pays à partir de sa valeur FR (données)."""
-    return GROUP_KEYS.get(group, group)
+    """Code i18n d'un groupe de pays, depuis sa valeur FR ou EN (données)."""
+    return GROUP_KEYS.get(group) or GROUP_KEYS_EN.get(group) or group
 
 
 def profile_label(profile: str) -> str:
@@ -359,6 +369,9 @@ STRINGS: dict[str, dict[str, str]] = {
         "country.section.indicators_sub": "feu vert, orange ou rouge",
         "country.dash.hint": "Chaque indicateur est daté et sourcé. La couleur est une grille de lecture GeoCapital, pas une opinion de marché en temps réel.",
         "dash.source_missing": "Source non renseignée",
+        "fresh.as_of": "Données au {as_of}",
+        "fresh.stale_note": "⚠ = observation antérieure à {limit} : la valeur retenue reste la plus récente confirmée, à rafraîchir dès qu'une source fiable le permet.",
+        "fresh.verdict_dates": "Le verdict composite repose sur les observations ci-dessus ; plus ancienne retenue : millésime {oldest}.",
         "country.callout.missing": "Ici, une donnée manquante n'est pas une case vide : c'est un signal de risque. Sans notation active ni CDS coté, le marché ne peut pas donner de prix fiable à la dette. GeoCapital bloque donc le verdict « Investir ».",
         "country.section.pricerisk": "Le prix du risque",
         "country.section.pricerisk_sub": "formule de Damodaran",
@@ -604,6 +617,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "an.unavailable": "IA indisponible (clé absente ou service injoignable). Réponse fondée uniquement sur les données validées et les calculs déterministes.",
         "an.prototype_caption": "Prototype pédagogique : aucune recommandation personnalisée ; l'IA ne reçoit que les faits validés affichés ci-dessus.",
         "an.input.placeholder": "Ex : « Explique le verdict de la France » ou « Que change une baisse de la Fed ? »",
+        "an.limit.remaining": "Questions restantes : {remaining}/{total} · limite par session",
+        "an.limit.reached": "Vous avez utilisé les {total} questions d'analyste de cette session. Pour rester raisonnable, l'assistant fonctionne par session de navigateur : ce n'est ni un plafond global ni une garantie de dépense, et une nouvelle session remet le compteur à zéro. Toutes les autres pages restent accessibles.",
     },
     "en": {
         "nav.map": "Living map",
@@ -847,6 +862,9 @@ STRINGS: dict[str, dict[str, str]] = {
         "country.section.indicators_sub": "green, amber or red",
         "country.dash.hint": "Every indicator is dated and sourced. The color is a GeoCapital reading grid, not a real-time market opinion.",
         "dash.source_missing": "Source not provided",
+        "fresh.as_of": "Data as of {as_of}",
+        "fresh.stale_note": "⚠ = observation predating {limit}: the retained value remains the most recent confirmed one, to be refreshed as soon as a reliable source allows it.",
+        "fresh.verdict_dates": "The composite verdict rests on the observations above; oldest retained: {oldest} vintage.",
         "country.callout.missing": "Here, a missing data point is not an empty cell: it is a risk signal. With no active rating and no quoted CDS, the market cannot price the debt reliably. GeoCapital therefore blocks the “Invest” verdict.",
         "country.section.pricerisk": "The price of risk",
         "country.section.pricerisk_sub": "Damodaran formula",
@@ -1091,6 +1109,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "an.unavailable": "AI unavailable (missing key or unreachable service). Response based only on validated data and deterministic calculations.",
         "an.prototype_caption": "Educational prototype: no personalized advice; the AI receives only the validated facts displayed above.",
         "an.input.placeholder": "E.g. “Explain France's verdict” or “What does a Fed rate cut change?”",
+        "an.limit.remaining": "Questions remaining: {remaining}/{total} · per-session limit",
+        "an.limit.reached": "You have used this session's {total} analyst questions. To stay restrained, the assistant works per browser session: this is neither a global account limit nor a guaranteed spending cap, and a new session resets the counter. Every other page remains accessible.",
     },
 }
 
@@ -1127,3 +1147,399 @@ def t(key: str, **fmt: object) -> str:
 def profile_key(profile_label: str) -> str:
     """Clé i18n d'un profil à partir de sa clé interne FR de scoring."""
     return PROFILE_KEYS.get(profile_label, profile_label)
+
+
+# --- Localisation des données narratives (Étape 3 — Phase 3) ---
+#
+# Les textes FR de data/countries/*.json, data/events.json et data/meta.json
+# sont traduits via des overlays EN dans data/i18n/en/ (les valeurs
+# numériques, les IDs, les clés et les formules ne sont JAMAIS modifiés).
+# Le repli entre overlay incomplet et valeur source reste le français :
+# aucune donnée ne peut disparaître par une traduction partielle.
+
+from pathlib import Path  # noqa: E402
+
+_DATA_ROOT = Path(__file__).resolve().parent.parent / "data"
+_EN_DIR = _DATA_ROOT / "i18n" / "en"
+
+_OVERLAYS: dict[str, dict[str, Any]] = {}
+
+
+def _overlay(name: str) -> dict[str, Any]:
+    """Charge (une seule fois) l'overlay EN ``data/i18n/en/<name>.json``."""
+    if name not in _OVERLAYS:
+        path = _EN_DIR / name
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            data = {}
+        _OVERLAYS[name] = data
+    return _OVERLAYS[name]
+
+
+def _is_en() -> bool:
+    return current_lang() == "en"
+
+
+def _apply_overlay(source: Any, overlay: Any) -> Any:
+    """Fusionne récursivement overlay et source ; l'overlay gagne.
+
+    - dict: clés de l'overlay appliquées, les autres conservées.
+    - list: remplacée en bloc uniquement si l'overlay fournit la même
+      longueur (traduction complète ou rien — jamais une liste à moitié).
+    - scalaires : une chaîne de l'overlay remplace une chaîne de la source ;
+      les valeurs numériques et les clés ne passent jamais par l'overlay
+      (traduction interdite), la source est conservée.
+    """
+    if isinstance(source, dict):
+        overlay = overlay if isinstance(overlay, dict) else {}
+        out = {}
+        for key, value in source.items():
+            out[key] = _apply_overlay(value, overlay.get(key))
+        return out
+    if isinstance(source, list):
+        if isinstance(overlay, list) and len(overlay) == len(source):
+            return [_apply_overlay(item, trans) for item, trans in zip(source, overlay)]
+        return [_apply_overlay(item, None) for item in source]
+    # Scalars : seule une chaîne de l'overlay peut remplacer une chaîne de la source.
+    if isinstance(source, str) and isinstance(overlay, str) and overlay.strip():
+        return overlay
+    return source
+
+
+def localize_country(country: dict[str, Any]) -> dict[str, Any]:
+    """Copie traduite d'une fiche pays (aucune donnée numérique modifiée).
+
+    En français : renvoie la fiche source sans copie (chemin zéro coût)."""
+    if not _is_en():
+        return country
+    translated = _apply_overlay(country, _overlay(f"{country.get('id')}.json"))
+    return translated if isinstance(translated, dict) else country
+
+
+def localize_countries(countries_list: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Liste de fiches pays localisées (identiques en FR)."""
+    return [localize_country(c) for c in countries_list]
+
+
+def localize_event(event: dict[str, Any]) -> dict[str, Any]:
+    """Copie traduite d'un événement du décodeur (champs éditoriaux)."""
+    if not _is_en():
+        return event
+    translated = _apply_overlay(event, _overlay("events.json").get(event.get("id", "")))
+    return translated if isinstance(translated, dict) else event
+
+
+def localize_events(events_list: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Liste d'événements localisés (identiques en FR)."""
+    return [localize_event(e) for e in events_list]
+
+
+def localize_meta(meta: dict[str, Any]) -> dict[str, Any]:
+    """Copie traduite de meta.json (libellés de sources et de méthode)."""
+    if not _is_en():
+        return meta
+    return _apply_overlay(meta, _overlay("meta.json"))
+
+
+def indicator_label(key: str) -> str:
+    """Libellé affiché d'un indicateur (clé interne de data.INDICATOR_ORDER)."""
+    return t(f"ind.{key}")
+
+
+def display_label(fr_label: str) -> str:
+    """Traduit un libellé FR issu des données (INDICATOR_LABELS, verdicts…) ; repli FR."""
+    return t(f"lbl.{fr_label}")
+
+
+def country_name(country_id: str) -> str:
+    """Nom affiché d'un pays par ID (traduit en EN, sans charger plus de données)."""
+    from geocapital.data import country_by_id
+
+    local = country_by_id(country_id)
+    if not local:
+        return country_id
+    return str(localize_country(local).get("name", country_id))
+
+
+def event_name(event_id: str) -> str:
+    """Libellé affiché d'un événement du décodeur par ID."""
+    from geocapital.data import load_events
+
+    local = next((e for e in load_events() if e.get("id") == event_id), None)
+    if not local:
+        return event_id
+    local = localize_event(local)
+    return f"{local.get('date', '')} · {local.get('title', '')}".strip(" ·")
+
+
+# Libellés des étiquettes FR affichées, traduits via des clés lbl.* (les
+# deux langues contiennent les mêmes clés, garantie par les tests de parité).
+STRINGS["fr"].update({
+    "ind.gdp_growth": "Croissance du PIB",
+    "ind.inflation": "Inflation",
+    "ind.debt_gdp": "Dette publique / PIB",
+    "ind.policy_rate": "Taux directeur",
+    "ind.unemployment": "Chômage",
+    "ind.reserves": "Réserves de change",
+    "ind.rating": "Notation souveraine",
+    "ind.cds": "CDS 5 ans",
+    "ind.crp": "Prime de risque pays",
+    "ind.equity_index": "Indice boursier",
+    "ind.currency": "Devise",
+})
+STRINGS["en"].update({
+    "ind.gdp_growth": "GDP growth",
+    "ind.inflation": "Inflation",
+    "ind.debt_gdp": "Public debt / GDP",
+    "ind.policy_rate": "Policy rate",
+    "ind.unemployment": "Unemployment",
+    "ind.reserves": "FX reserves",
+    "ind.rating": "Sovereign rating",
+    "ind.cds": "5y CDS",
+    "ind.crp": "Country risk premium",
+    "ind.equity_index": "Equity index",
+    "ind.currency": "Currency",
+})
+# Libellés FR issus des données (data.INDICATOR_LABELS) traduits via lbl.*.
+STRINGS["fr"].update({
+    "lbl.Croissance du PIB": "Croissance du PIB",
+    "lbl.Inflation": "Inflation",
+    "lbl.Dette publique / PIB": "Dette publique / PIB",
+    "lbl.Taux directeur": "Taux directeur",
+    "lbl.Chômage": "Chômage",
+    "lbl.Réserves de change": "Réserves de change",
+    "lbl.Notation souveraine": "Notation souveraine",
+    "lbl.CDS 5 ans": "CDS 5 ans",
+    "lbl.Prime de risque pays": "Prime de risque pays",
+    "lbl.Indice boursier": "Indice boursier",
+    "lbl.Devise": "Devise",
+    "lbl.Non coté": "Non coté",
+    # Valeurs FR de data.INDICATOR_LABELS affichées (tableaux, CSV) : clés
+    # identiques dans les deux langues, garantie par les tests de parité.
+    "comp.csv.indicator": "Indicateur",
+    "ind.crp.note": "Prime exigée pour détenir le risque souverain, au-delà du risque de marché mature.",
+})
+STRINGS["en"].update({
+    "lbl.Croissance du PIB": "GDP growth",
+    "lbl.Inflation": "Inflation",
+    "lbl.Dette publique / PIB": "Public debt / GDP",
+    "lbl.Taux directeur": "Policy rate",
+    "lbl.Chômage": "Unemployment",
+    "lbl.Réserves de change": "FX reserves",
+    "lbl.Notation souveraine": "Sovereign rating",
+    "lbl.CDS 5 ans": "5y CDS",
+    "lbl.Prime de risque pays": "Country risk premium",
+    "lbl.Indice boursier": "Equity index",
+    "lbl.Devise": "Currency",
+    "lbl.Non coté": "Not quoted",
+    # Valeurs FR de data.INDICATOR_LABELS affichées (tableaux, CSV) : clés
+    # identiques dans les deux langues, garantie par les tests de parité.
+    "comp.csv.indicator": "Indicator",
+    "ind.crp.note": "Premium required to hold sovereign risk, on top of mature market risk.",
+})
+
+# ---------------------------------------------------------------------------
+# Sovereign Risk Lab (Priorité 8 — phase 2) : libellés du lab de risque
+# souverain. Le dictionnaire français est la source de repli.
+# ---------------------------------------------------------------------------
+STRINGS["fr"].update({
+    "nav.risk_lab": "Lab risque souverain",
+    "rl.eyebrow": "Lab risque souverain",
+    "rl.title": "La dette se lit avec ses angles morts.",
+    "rl.subtitle": "Analyse souveraine approfondie : durabilité fiscale, vulnérabilité externe, conditions macro-financières. Chaque indicateur est daté, sourcé et honnête sur ses limites — une donnée indisponible est dite indisponible, jamais remplacée par zéro.",
+    "rl.select": "Pays analysé",
+    "rl.section.fiscal": "Durabilité fiscale",
+    "rl.section.fiscal_sub": "dette publique, solde budgétaire, charge des intérêts",
+    "rl.section.external": "Vulnérabilité externe",
+    "rl.section.external_sub": "balance courante, dette externe, réserves de change",
+    "rl.section.macro": "Conditions macro-financières",
+    "rl.section.macro_sub": "croissance, inflation, taux directeur et taux réel",
+    "rl.metric.fiscal_balance": "Solde budgétaire (ou primaire)",
+    "rl.metric.interest_revenue": "Paiements d'intérêts / recettes",
+    "rl.metric.current_account": "Balance courante",
+    "rl.metric.external_debt_total": "Dette externe (totale)",
+    "rl.metric.external_debt_short": "Dette externe court terme",
+    "rl.metric.reserves_import_months": "Réserves en mois d'importations",
+    "rl.metric.real_rate": "Taux réel (directeur − inflation)",
+    "rl.why.fiscal_balance": "Le solde budgétaire (ou primaire) mesure l'effort fiscal annuel : sans lui, impossible de dire si la dette se stabilise ou dérive.",
+    "rl.why.interest_revenue": "Le ratio intérêts/recettes mesure le poids du service de la dette sur le budget : au-delà d'un seuil critique, la soutenabilité devient fragile.",
+    "rl.why.current_account": "La balance courante indique si le pays vit au-dessus ou en dessous de ses moyens : un déficit durable financé par la dette externe fragilise la devise.",
+    "rl.why.external_debt_total": "La dette vis-à-vis du reste du monde expose au risque de change et aux arrêts de financement ; la dette publique seule ne la capture pas.",
+    "rl.why.external_debt_short": "La part court terme de la dette externe mesure la vulnérabilité aux arrêts soudains de financement.",
+    "rl.why.reserves_import_months": "Réserves ÷ importations mensuelles : le coussin classique de résilience externe. Les réserves en Mds $ seules ne permettent pas de le calculer.",
+    "rl.need.fiscal_balance": "Source requise : FMI WEO (solde recettes-dépenses, % du PIB) ou trésorerie nationale, avec millésime explicite.",
+    "rl.need.interest_revenue": "Source requise : statistiques de finances publiques (FMI GFS) ou budget voté — intérêts payés et recettes totales, même millésime.",
+    "rl.need.current_account": "Source requise : balance des paiements (FMI BOP), balance courante en % du PIB, avec millésime.",
+    "rl.need.external_debt_total": "Source requise : base de la dette externe de la Banque mondiale (IDS), encours total en % du PIB.",
+    "rl.need.external_debt_short": "Source requise : Banque mondiale IDS, dette externe à moins d'un an, avec millésime.",
+    "rl.need.reserves_import_months": "Source requise : importations de biens et services (Mds $, même période et devise que les réserves) — ex. WDI TM.VAL.MRCH.CD.",
+    "rl.badge.derived": "Calculé (dérivé)",
+    "rl.badge.observed": "Observation sourcée",
+    "rl.chip.estimated": "Estimation",
+    "rl.chip.conflicting": "Sources divergentes",
+    "rl.q.observed": "observation sourcée",
+    "rl.q.estimated": "estimation de la source — valeur à manier comme un ordre de grandeur",
+    "rl.q.conflicting": "sources institutionnelles divergentes",
+    "rl.q.stale": "millésime antérieur au seuil de fraîcheur ({limit})",
+    "rl.q.unverified": "provenance non documentée observation par observation",
+    "rl.warn.vintage_mismatch": "Taux réel calculé à partir d'observations d'années différentes (taux {policy_period}, inflation {inflation_period}) : à lire comme un ordre de grandeur, non comme une mesure alignée.",
+    "rl.real.title": "Taux réel et paliers du modèle",
+    "rl.real.sub": "taux réel = taux directeur − inflation ; lecture dans les paliers existants du moteur (aucun re-paramétrage)",
+    "rl.real.aligned": "Millésimes alignés ({year}) : les deux observations portent sur la même période.",
+    "rl.real.band_label": "Palier",
+    "rl.real.outside_label": "Hors paliers",
+    "rl.real.xaxis": "Taux réel (%)",
+    "rl.real.kpi.policy": "Taux directeur",
+    "rl.real.kpi.inflation": "Inflation",
+    "rl.real.kpi.real": "Taux réel",
+    "rl.real.kpi.bandscore": "Score du palier",
+    "rl.dsa.title": "Lecture de durabilité de la dette",
+    "rl.dsa.sub": "ce que les données disponibles permettent — et ne permettent pas — de conclure",
+    "rl.dsa.position.below_low": "sous la borne basse du palier de scoring ({low}–{high} % du PIB)",
+    "rl.dsa.position.within": "dans le palier de scoring ({low}–{high} % du PIB)",
+    "rl.dsa.position.above_high": "au-dessus de la borne haute du palier de scoring ({low}–{high} % du PIB)",
+    "rl.dsa.band_note": "Palier existant du scoring (solvabilité) : {low}–{high} % du PIB. Lecture indicative uniquement : le score reste calculé par le moteur, inchangé.",
+    "rl.dsa.limitation": "Analyse complète de durabilité non présentée : il manque {count} entrée(s) requise(s). Une DSA exige au minimum le solde budgétaire (ou primaire), la charge d'intérêts rapportée aux recettes et la trajectoire de croissance — voir la section « Indicateurs non disponibles » ci-dessus.",
+    "rl.dsa.growth_line": "Croissance disponible pour la trajectoire : {growth} % ({period}) — insuffisante à elle seule pour une DSA.",
+    "rl.summary.title": "Synthèse analytique",
+    "rl.summary.sub": "fondée uniquement sur les données disponibles ci-dessus",
+    "rl.summary.debt": "Dette publique : {value} % du PIB ({period}) — {position}.",
+    "rl.summary.reserves": "Réserves de change : {value} Mds $ ({period}).",
+    "rl.summary.macro": "Croissance {growth} % · inflation {inflation} % (millésime {period}).",
+    "rl.summary.real": "Taux réel : {value} % — {band_note}",
+    "rl.summary.real_band": "dans le palier [{low} ; {high}] (score {score}/100).",
+    "rl.summary.real_outside": "hors des paliers documentés du modèle.",
+    "rl.comp.section": "Comparaison entre pays",
+    "rl.comp.section_sub": "métriques disponibles côte à côte ; les indisponibilités restent visibles",
+    "rl.comp.select": "Pays à comparer",
+    "rl.comp.select_help": "Sélectionnez 2 à 4 pays.",
+    "rl.comp.min_two": "Sélectionnez au moins deux pays pour lancer la comparaison.",
+    "rl.comp.chart_metric": "Métrique affichée",
+    "rl.comp.no_data": "Aucun pays sélectionné ne dispose de cette métrique.",
+    "rl.comp.legend": "e = estimation de la source · d = sources divergentes · m = millésimes mélangés",
+    "rl.real.unavailable": "Taux directeur ou inflation indisponible : le taux réel ne peut pas être calculé pour ce pays.",
+    "rl.details.title": "Détails des données",
+    "rl.details.sub": "provenance, millésimes et statuts de validation, indicateur par indicateur",
+    "rl.details.period": "Période",
+    "rl.details.source": "Source",
+    "rl.details.status": "Statut",
+    "rl.details.as_of": "data_as_of = {as_of} : date de consultation de la base, qui ne garantit pas l'actualité de chaque observation sous-jacente.",
+    "rl.method.title": "Formules, hypothèses et limites",
+    "rl.method.real_rate": "Taux réel = taux directeur − inflation. C'est la même convention que le moteur de scoring (scoring.component_scores). Le calcul combine les millésimes des deux indicateurs : quand ils diffèrent (ex. Liban 2024 × 2025), un avertissement explicite est affiché et le résultat doit se lire comme un ordre de grandeur.",
+    "rl.method.bands": "Paliers du taux réel : {bands} (score {outside} si hors paliers). Ces paliers viennent de la configuration existante du scoring — ils ne sont ni re-définis ni re-calibrés ici.",
+    "rl.method.debt": "Dette : position par rapport au palier de solvabilité existant ({low}–{high} % du PIB). Aucune projection de dette, aucun différentiel croissance-taux : ces calculs exigent le solde budgétaire et la charge d'intérêts, indisponibles dans la base v1.",
+    "rl.method.reserves": "Réserves : valeur sourcée de la fiche (Mds $). Attention brut vs net : les réserves libanaises sont nettes et documentées comme telles. La couverture en mois d'importations n'est calculée que si des importations compatibles (période/devise) existent — pas le cas aujourd'hui.",
+    "rl.method.caveat": "Fraîcheur : les observations dont le millésime est antérieur à {limit} sont signalées dans les « Détails des données ». Les statuts d'estimation et de conflit proviennent de l'audit qualité (docs/DATA_QUALITY_AUDIT.md). data_as_of = {as_of} : date de consultation, qui ne garantit pas l'actualité de chaque observation sous-jacente.",
+    "rl.method.assumption": "Hypothèses explicites : aucune valeur manquante n'est traitée comme zéro ; aucune donnée n'est inventée ; les calculs du lab n'influencent ni le score ni le verdict de la fiche pays.",
+    "rl.missing.title": "Indicateurs non disponibles dans la base actuelle",
+    "rl.missing.sub": "l'analyse s'appuie sur les indicateurs disponibles ; chaque absence est explicite, jamais remplacée par zéro ni estimée",
+    "rl.missing.count": "{count} indicateur(s) requis pour une analyse complète ne sont pas couverts par la base : pour chacun, son importance analytique et la source qui le documenterait.",
+    "rl.missing.section_empty": "Aucun indicateur disponible dans cette section pour l'instant — voir la section « Indicateurs non disponibles ».",
+    "rl.missing.th.why": "Pourquoi c'est important",
+    "rl.missing.th.source": "Source requise",
+    "me.risklab.title": "Lab risque souverain",
+    "me.risklab.sub": "l'analyse approfondie et ses règles",
+    "me.risklab.body": "Le lab approfondit la lecture du risque souverain sur trois blocs : durabilité fiscale (dette publique, solde budgétaire, charge d'intérêts), vulnérabilité externe (balance courante, dette externe, réserves) et conditions macro-financières (croissance, inflation, taux directeur et taux réel). Le taux réel est le seul calcul dérivé : taux directeur − inflation, dans les paliers existants du scoring — quand les deux millésimes diffèrent (ex. Liban 2024 × 2025), un avertissement est affiché. Les indicateurs absents de la base (solde budgétaire, intérêts/recettes, balance courante, dette externe, mois d'importations) sont affichés comme indisponibles avec leur source requise : ils ne sont jamais remplacés par zéro ni par une estimation. Tant que ces entrées manquent, aucune analyse complète de durabilité de la dette n'est présentée — la limite est expliquée à la place. Les statuts de fraîcheur, d'estimation et de conflit proviennent de l'audit qualité ; les calculs du lab n'influencent ni le score ni le verdict.",
+    "me.risklab.caption": "Détail des formules et hypothèses : onglet « Lab risque souverain », section Formules, hypothèses et limites.",
+})
+STRINGS["en"].update({
+    "nav.risk_lab": "Sovereign Risk Lab",
+    "rl.eyebrow": "Sovereign Risk Lab",
+    "rl.title": "Debt is read through its blind spots.",
+    "rl.subtitle": "Deeper sovereign analysis: fiscal sustainability, external vulnerability, macro-financial conditions. Every indicator is dated, sourced, and honest about its limits — an unavailable datum is stated as unavailable, never replaced by zero.",
+    "rl.select": "Country analysed",
+    "rl.section.fiscal": "Fiscal sustainability",
+    "rl.section.fiscal_sub": "public debt, fiscal balance, interest burden",
+    "rl.section.external": "External vulnerability",
+    "rl.section.external_sub": "current account, external debt, FX reserves",
+    "rl.section.macro": "Macro-financial conditions",
+    "rl.section.macro_sub": "growth, inflation, policy rate and real rate",
+    "rl.metric.fiscal_balance": "Fiscal (or primary) balance",
+    "rl.metric.interest_revenue": "Interest payments / revenue",
+    "rl.metric.current_account": "Current-account balance",
+    "rl.metric.external_debt_total": "External debt (total)",
+    "rl.metric.external_debt_short": "Short-term external debt",
+    "rl.metric.reserves_import_months": "Reserves in months of imports",
+    "rl.metric.real_rate": "Real rate (policy − inflation)",
+    "rl.why.fiscal_balance": "The fiscal (or primary) balance measures the annual fiscal effort: without it, there is no way to tell whether debt is stabilising or drifting.",
+    "rl.why.interest_revenue": "The interest-to-revenue ratio measures the weight of debt service on the budget: beyond a critical threshold, sustainability becomes fragile.",
+    "rl.why.current_account": "The current account shows whether a country lives within its means: a lasting deficit financed by external debt weakens the currency.",
+    "rl.why.external_debt_total": "Debt owed to the rest of the world exposes the country to FX risk and funding stops; public debt alone does not capture it.",
+    "rl.why.external_debt_short": "The short-term share of external debt measures vulnerability to sudden stops in funding.",
+    "rl.why.reserves_import_months": "Reserves ÷ monthly imports: the classic external-resilience cushion. Reserves in $bn alone are not enough to compute it.",
+    "rl.need.fiscal_balance": "Source required: IMF WEO (revenue-expenditure balance, % of GDP) or national treasury, with an explicit vintage.",
+    "rl.need.interest_revenue": "Source required: public-finance statistics (IMF GFS) or the voted budget — interest paid and total revenue, same vintage.",
+    "rl.need.current_account": "Source required: balance of payments (IMF BOP), current account in % of GDP, with a vintage.",
+    "rl.need.external_debt_total": "Source required: World Bank International Debt Statistics, total stock in % of GDP.",
+    "rl.need.external_debt_short": "Source required: World Bank IDS, external debt under one year, with a vintage.",
+    "rl.need.reserves_import_months": "Source required: imports of goods and services ($bn, same period and currency as reserves) — e.g. WDI TM.VAL.MRCH.CD.",
+    "rl.badge.derived": "Derived calculation",
+    "rl.badge.observed": "Sourced observation",
+    "rl.chip.estimated": "Estimated",
+    "rl.chip.conflicting": "Diverging sources",
+    "rl.q.observed": "sourced observation",
+    "rl.q.estimated": "source-declared estimate — value to read as an order of magnitude",
+    "rl.q.conflicting": "institutional sources diverge",
+    "rl.q.stale": "vintage older than the freshness threshold ({limit})",
+    "rl.q.unverified": "no per-observation provenance documented",
+    "rl.warn.vintage_mismatch": "Real rate computed from observations of different years (rate {policy_period}, inflation {inflation_period}): read it as an order of magnitude, not an aligned measure.",
+    "rl.real.title": "Real rate and model bands",
+    "rl.real.sub": "real rate = policy rate − inflation; read against the engine's existing bands (no re-parametrisation)",
+    "rl.real.aligned": "Aligned vintages ({year}): both observations cover the same period.",
+    "rl.real.band_label": "Band",
+    "rl.real.outside_label": "Outside bands",
+    "rl.real.xaxis": "Real rate (%)",
+    "rl.real.kpi.policy": "Policy rate",
+    "rl.real.kpi.inflation": "Inflation",
+    "rl.real.kpi.real": "Real rate",
+    "rl.real.kpi.bandscore": "Band score",
+    "rl.dsa.title": "Debt-sustainability reading",
+    "rl.dsa.sub": "what the available data allows — and does not allow — to conclude",
+    "rl.dsa.position.below_low": "below the low end of the scoring band ({low}–{high} % of GDP)",
+    "rl.dsa.position.within": "within the scoring band ({low}–{high} % of GDP)",
+    "rl.dsa.position.above_high": "above the high end of the scoring band ({low}–{high} % of GDP)",
+    "rl.dsa.band_note": "Existing scoring band (solvency): {low}–{high} % of GDP. Indicative reading only: the score remains computed by the engine, unchanged.",
+    "rl.dsa.limitation": "No complete debt-sustainability analysis is presented: {count} required input(s) are missing. A DSA needs at least the fiscal (or primary) balance, interest payments relative to revenue, and a growth trajectory — see the « Indicators not covered » section above.",
+    "rl.dsa.growth_line": "Growth available for the trajectory: {growth} % ({period}) — not sufficient on its own for a DSA.",
+    "rl.summary.title": "Analytical summary",
+    "rl.summary.sub": "grounded only in the available data above",
+    "rl.summary.debt": "Public debt: {value} % of GDP ({period}) — {position}.",
+    "rl.summary.reserves": "FX reserves: {value} $bn ({period}).",
+    "rl.summary.macro": "Growth {growth} % · inflation {inflation} % (vintage {period}).",
+    "rl.summary.real": "Real rate: {value} % — {band_note}",
+    "rl.summary.real_band": "inside the [{low} ; {high}] band (score {score}/100).",
+    "rl.summary.real_outside": "outside the model's documented bands.",
+    "rl.comp.section": "Cross-country comparison",
+    "rl.comp.section_sub": "available metrics side by side; unavailability stays visible",
+    "rl.comp.select": "Countries to compare",
+    "rl.comp.select_help": "Select 2 to 4 countries.",
+    "rl.comp.min_two": "Select at least two countries to start the comparison.",
+    "rl.comp.chart_metric": "Displayed metric",
+    "rl.comp.no_data": "No selected country has this metric.",
+    "rl.comp.legend": "e = source-declared estimate · d = diverging sources · m = mixed vintages",
+    "rl.real.unavailable": "Policy rate or inflation unavailable: the real rate cannot be computed for this country.",
+    "rl.details.title": "Data details",
+    "rl.details.sub": "provenance, vintages and validation status, indicator by indicator",
+    "rl.details.period": "Period",
+    "rl.details.source": "Source",
+    "rl.details.status": "Status",
+    "rl.details.as_of": "data_as_of = {as_of}: the database retrieval date, which does not guarantee every underlying observation is current.",
+    "rl.method.title": "Formulas, assumptions and limitations",
+    "rl.method.real_rate": "Real rate = policy rate − inflation. This is the same convention as the scoring engine (scoring.component_scores). The calculation combines the vintages of the two indicators: when they differ (e.g. Lebanon 2024 × 2025), an explicit warning is displayed and the result should be read as an order of magnitude.",
+    "rl.method.bands": "Real-rate bands: {bands} (score {outside} when outside all bands). These bands come from the existing scoring configuration — they are neither redefined nor recalibrated here.",
+    "rl.method.debt": "Debt: position relative to the existing solvency band ({low}–{high} % of GDP). No debt projections, no growth-rate differential: those calculations require the fiscal balance and the interest burden, both unavailable in the v1 database.",
+    "rl.method.reserves": "Reserves: sourced value from the country file ($bn). Mind gross vs net: Lebanon's reserves are net and documented as such. The months-of-imports coverage is computed only if compatible imports (period/currency) exist — not the case today.",
+    "rl.method.caveat": "Freshness: observations with a vintage earlier than {limit} are flagged in « Data details ». Estimated/conflict statuses come from the data-quality audit (docs/DATA_QUALITY_AUDIT.md). data_as_of = {as_of}: a retrieval date, which does not guarantee every underlying observation is current.",
+    "rl.method.assumption": "Explicit assumptions: no missing value is treated as zero; no data is invented; the lab's calculations influence neither the score nor the verdict of the country page.",
+    "rl.missing.title": "Indicators not covered by the current database",
+    "rl.missing.sub": "the analysis relies on the indicators available; every gap is explicit, never replaced by zero or estimated",
+    "rl.missing.count": "{count} indicator(s) required for a full analysis are not covered by the database: for each, its analytical importance and the source that would document it.",
+    "rl.missing.section_empty": "No indicator is available in this section yet — see the « Indicators not covered » section.",
+    "rl.missing.th.why": "Why it matters",
+    "rl.missing.th.source": "Required source",
+    "me.risklab.title": "Sovereign Risk Lab",
+    "me.risklab.sub": "the deeper analysis and its rules",
+    "me.risklab.body": "The lab deepens the sovereign-risk reading across three blocks: fiscal sustainability (public debt, fiscal balance, interest burden), external vulnerability (current account, external debt, reserves) and macro-financial conditions (growth, inflation, policy rate and real rate). The real rate is the only derived calculation: policy rate − inflation, read against the engine's existing bands — when the two vintages differ (e.g. Lebanon 2024 × 2025), a warning is displayed. Indicators absent from the database (fiscal balance, interest/revenue, current account, external debt, months of imports) are shown as unavailable with the source required: they are never replaced by zero or an estimate. As long as those inputs are missing, no complete debt-sustainability analysis is presented — the limitation is explained instead. Freshness, estimated and conflict statuses come from the data-quality audit; the lab's calculations influence neither the score nor the verdict.",
+    "me.risklab.caption": "Full formulas and assumptions: the « Sovereign Risk Lab » tab, section Formulas, assumptions and limitations.",
+})

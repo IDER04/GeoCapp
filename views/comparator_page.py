@@ -5,7 +5,7 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import streamlit as st
 
-from geocapital import i18n, ui
+from geocapital import freshness, i18n, ui
 from geocapital.i18n import t
 from geocapital.data import (
     INDICATOR_LABELS,
@@ -132,7 +132,7 @@ def _table(selected: list[dict]) -> None:
             cells.append(
                 f'<td><span class="gc-dot {status}"></span>{ui.esc(indicator_summary(country, key))}</td>'
             )
-        rows_html.append(f"<tr><td class='gc-table-label'>{ui.esc(INDICATOR_LABELS[key])}</td>{''.join(cells)}</tr>")
+        rows_html.append(f"<tr><td class='gc-table-label'>{ui.esc(i18n.indicator_label(key))}</td>{''.join(cells)}</tr>")
     st.markdown(
         f'<div style="overflow-x:auto"><table class="gc-table"><thead><tr><th>{t("comp.table.indicator")}</th>{header}</tr></thead><tbody>{"".join(rows_html)}</tbody></table></div>',
         unsafe_allow_html=True,
@@ -164,7 +164,7 @@ def render() -> None:
         selected_ids = st.multiselect(
             t("comp.select"),
             [c["id"] for c in countries()],
-            format_func=lambda cid: f"{country_by_id(cid)['flag']} {country_by_id(cid)['name']}",
+            format_func=lambda cid: f"{country_by_id(cid)['flag']} {i18n.country_name(cid)}",
             max_selections=3,
             key="compare_ids",
             help=t("comp.select_help"),
@@ -172,7 +172,12 @@ def render() -> None:
     with control_b:
         profile = st.radio(t("comp.profile_radio"), list(PROFILES.keys()), horizontal=True, key="profile", format_func=i18n.profile_label)
 
+    # Copie traduite à l'affichage (EN) ; les calculs (scoring, Ke,
+    # comparaison) donnent des valeurs identiques, seuls les libellés changent.
     selected = [country_by_id(cid) for cid in selected_ids if country_by_id(cid)]
+    # Copie traduite à l'affichage (EN) ; les calculs (scoring, Ke,
+    # comparaison) donnent des valeurs identiques, seuls les libellés changent.
+    selected = [i18n.localize_country(c) for c in selected if c]
     if len(selected) < 2:
         ui.callout(t("comp.min_two"), "blue")
         return
@@ -218,6 +223,9 @@ def render() -> None:
         )
 
     ui.section_title(t("comp.section.table"), t("comp.section.table_sub"))
+    # Millésime global : les cellules résument des observations datées
+    # individuellement (voir les fiches pays pour le détail par indicateur).
+    st.caption(t("fresh.as_of", as_of=freshness.as_of()))
     _table(selected)
 
     ui.section_title(t("comp.section.reading"), t("comp.section.reading_sub"))
@@ -236,9 +244,15 @@ def render() -> None:
         unsafe_allow_html=True,
     )
 
-    download_cols = st.columns([1, 1, 3])
+    # Une colonne par bouton (CSV + chaque pays) ; l'écarteur limite l'étirement.
+    download_cols = st.columns([1, 1, 1, 3])
     with download_cols[0]:
         frame = comparison_frame(selected)
+        # Étiquettes affichées traduites (lignes), en-tête FR du frame
+        # traduite par colonne ; les valeurs chiffrées restent inchangées.
+        indicator_col = t("comp.csv.indicator")
+        frame = frame.rename(columns={"Indicateur": indicator_col})
+        frame[indicator_col] = frame[indicator_col].map(i18n.display_label)
         csv = frame.to_csv(index=False).encode("utf-8-sig")
         st.download_button(
             t("comp.export_csv"),

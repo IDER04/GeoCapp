@@ -88,7 +88,7 @@ def render() -> None:
     for col, group in zip(group_cols, groups):
         with col:
             st.markdown(f'<div class="gc-eyebrow" style="margin-bottom:8px">{ui.esc(t(f"group.{i18n.group_key(group)}"))}</div>', unsafe_allow_html=True)
-            for country in [c for c in all_countries if c["group"] == group]:
+            for country in [i18n.localize_country(c) for c in all_countries if c["group"] == group]:
                 done = country["id"] in explored
                 quiz = quiz_correct.get(country["id"])
                 result = overall_score(country, profile)
@@ -119,7 +119,7 @@ def render() -> None:
     ui.section_title(t("pr.section.next"), t("pr.section.next_sub"))
     if unvisited:
         ranked = sorted(unvisited, key=lambda c: overall_score(c, profile)["score"], reverse=True)
-        next_country = ranked[0]
+        next_country = i18n.localize_country(ranked[0])
         next_col, button_col = st.columns([3, 1])
         with next_col:
             st.markdown(

@@ -1,0 +1,163 @@
+{
+  "name": "United Arab Emirates",
+  "official_name": "United Arab Emirates",
+  "region": "Middle East",
+  "group": "Gulf",
+  "headline": "The hub that turns oil into a global platform.",
+  "summary": "A federation of seven emirates created in 1971, the country used Abu Dhabi's rent to become a commercial, financial, and logistics platform. Dubai attracts capital and talent from around the world; the risk is less solvency than dependence on an open model and an unstable regional environment.",
+  "history": [
+    {
+      "year": "1966",
+      "title": "Oil in Abu Dhabi",
+      "text": "The discovery of major fields turns a set of trading sheikhdoms into a future rentier state."
+    },
+    {
+      "year": "1971",
+      "title": "Foundation of the federation",
+      "text": "Six emirates unite, later joined by Ras al-Khaimah. Abu Dhabi brings the oil, Dubai the trade, and the country adopts a federal constitution."
+    },
+    {
+      "year": "1985",
+      "title": "Jebel Ali and logistics",
+      "text": "The Jebel Ali port and free zone create a re-export model. Dubai becomes a crossroads between Asia, Africa, and Europe."
+    },
+    {
+      "year": "2004",
+      "title": "DIFC and international finance",
+      "text": "The Dubai International Financial Centre adopts English law and its own courts. International capital gets a familiar legal enclave."
+    },
+    {
+      "year": "2009",
+      "title": "Dubai's debt crisis",
+      "text": "Dubai World asks for a standstill. Abu Dhabi helps with restructuring: federal solidarity saves the hub's reputation."
+    },
+    {
+      "year": "2020",
+      "title": "Abraham Accords",
+      "text": "The Emirates normalize relations with Israel. The country gains a technology partner and strengthens its image as a pragmatic power."
+    },
+    {
+      "year": "2021",
+      "title": "Targeting the next 50 years",
+      "text": "The country launches a diversification strategy: clean energy, artificial intelligence, industry, and long-term visas to attract talent."
+    }
+  ],
+  "institutions": {
+    "regime": "Federation of monarchies; president from Abu Dhabi",
+    "executive": "Supreme Council of Rulers, president and Prime Minister",
+    "legislature": "Federal National Council, partially elected and consultative",
+    "central_bank": "Central Bank of the UAE, dollar peg",
+    "currency": "Dirham (AED), pegged to the dollar",
+    "law": "Civil law and common law in free zones; strong emirate autonomy",
+    "fact": "Free zones and specialized jurisdictions attract capital without liberalizing the whole country."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "Saudi Arabia",
+        "note": "Strategic neighbor and GCC partner, but economic rivalry."
+      },
+      {
+        "name": "United States",
+        "note": "Security, technology, and investments."
+      },
+      {
+        "name": "Israel",
+        "note": "The 2020 normalization, technology and trade cooperation."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "Iran",
+        "note": "Territorial dispute over the islands and regional rivalry."
+      },
+      {
+        "name": "Qatar",
+        "note": "Hub competition and the aftermath of the 2017 blockade."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "Hydrocarbons",
+        "note": "Abu Dhabi remains the main source of federal revenue."
+      },
+      {
+        "name": "Foreign labor",
+        "note": "More than 80% of the population is expatriate."
+      },
+      {
+        "name": "Global trade",
+        "note": "The re-export model depends on stable shipping routes."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "Non-oil growth is robust: tourism, finance, logistics, and real estate offset slower crude.",
+      "source": "IMF, WEO"
+    },
+    "inflation": {
+      "note": "Inflation stays contained thanks to the pegged dirham and subsidy policies, though Dubai real estate can create pressure.",
+      "source": "IMF / UAE authorities"
+    },
+    "debt_gdp": {
+      "note": "Federal debt is low and sovereign assets considerable. Sustainability is not debated in the short term.",
+      "source": "IMF, WEO"
+    },
+    "policy_rate": {
+      "note": "The central bank follows the Fed to defend the peg. Higher rates make mortgages and projects more expensive.",
+      "source": "CBUAE"
+    },
+    "unemployment": {
+      "note": "Official unemployment is very low, but it does not measure the situation of low-skilled migrant workers.",
+      "source": "IMF / authorities"
+    },
+    "reserves": {
+      "note": "Reserves plus Abu Dhabi's and Dubai's sovereign funds form a very large shock absorber.",
+      "source": "CBUAE / IMF"
+    },
+    "rating": {
+      "note": "The high rating reflects wealth per capita, low debt, and solid sovereign funds.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "The market prices very low risk, close to some developed issuers.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "The market benefits from real estate, banks, and IPOs. Liquidity remains concentrated in a few names.",
+      "source": "Dubai Financial Market"
+    },
+    "currency": {
+      "name": "UAE dirham",
+      "note": "The dollar peg (3.6725 AED/USD) offers great nominal stability, at the price of an imported monetary policy.",
+      "source": "CBUAE"
+    }
+  },
+  "strengths": [
+    "Advanced diversification and a very business-friendly climate.",
+    "World-class logistics and financial infrastructure.",
+    "Reserves and sovereign funds that amply cover the debt."
+  ],
+  "risks": [
+    "Dependence on foreign labor and global trade.",
+    "Regional competition and exposure to Gulf tensions.",
+    "A cyclical real estate market and opaque structures."
+  ],
+  "opportunities": [
+    "Islamic finance, asset management, and fintech.",
+    "Renewables, hydrogen, and artificial intelligence.",
+    "A free-trade zone for re-export to Africa and Asia."
+  ],
+  "quiz": {
+    "question": "How many emirates make up the United Arab Emirates?",
+    "options": [
+      "Five",
+      "Six",
+      "Seven",
+      "Nine"
+    ],
+    "answer": 2,
+    "explanation": "The federation is created in 1971 by six emirates; Ras al-Khaimah joins in 1972, bringing the total to seven."
+  }
+}

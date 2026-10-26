@@ -1,0 +1,167 @@
+{
+  "name": "China",
+  "official_name": "People's Republic of China",
+  "region": "East Asia",
+  "group": "Emerging",
+  "headline": "The workshop of the world looks for a new engine.",
+  "summary": "In forty years China went from an agrarian economy to the workshop of the world, through Deng Xiaoping's opening and accession to the WTO. The model rests on investment, credit, and real estate; it now has to pivot toward consumption and technology without losing political control.",
+  "history": [
+    {
+      "year": "1911",
+      "title": "End of the Empire",
+      "text": "The Qing dynasty collapses. The Republic tries to build a modern state, but the country sinks into civil wars and Japanese occupation."
+    },
+    {
+      "year": "1949",
+      "title": "Founding of the People's Republic",
+      "text": "Mao Zedong proclaims the PRC. The Communist Party organizes the economy through planning, collectivizes land, and industrializes heavily."
+    },
+    {
+      "year": "1978",
+      "title": "Deng Xiaoping's reforms",
+      "text": "Coastal zones open, private initiative returns, and foreign investment flows in. Growth soars while the state keeps political control."
+    },
+    {
+      "year": "2001",
+      "title": "WTO accession",
+      "text": "China joins the world market. Exports explode, the country becomes the world's first factory, and it piles up vast foreign-exchange reserves."
+    },
+    {
+      "year": "2008",
+      "title": "Massive stimulus package",
+      "text": "Facing the financial crisis, Beijing launches a sweeping infrastructure program. Local government debt and real estate take on outsize importance."
+    },
+    {
+      "year": "2021",
+      "title": "Regulation and the property crisis",
+      "text": "The government clamps down on platforms and housing developers. Over-leveraged builders collapse and household confidence weakens."
+    },
+    {
+      "year": "2024",
+      "title": "Stimulus and the technology battle",
+      "text": "Beijing cuts rates and supports the market. The priority is technological sovereignty, in the face of US chip restrictions."
+    }
+  ],
+  "institutions": {
+    "regime": "Single-party Socialist Republic",
+    "executive": "President and Party Politburo Standing Committee; politics leads the administration",
+    "legislature": "National People's Congress, mostly consultative in practice",
+    "central_bank": "People's Bank of China (PBoC), under State Council supervision",
+    "currency": "Renminbi yuan (CNY), a managed regime",
+    "law": "Codified civil law, strong administrative discretion and political control",
+    "fact": "Credit is largely state-guided: state banks fund industrial and local government priorities."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "Russia",
+        "note": "Partnership without a formal alliance; anti-Western convergence."
+      },
+      {
+        "name": "Pakistan",
+        "note": "Economic corridor and strategic cooperation."
+      },
+      {
+        "name": "Central Asia",
+        "note": "Trade routes and resource access through the New Silk Roads."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "United States",
+        "note": "Technology, Taiwan, and trade conflicts."
+      },
+      {
+        "name": "India",
+        "note": "Border disputes and competition for influence in Asia."
+      },
+      {
+        "name": "Japan",
+        "note": "Historical memory and maritime tensions."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "Taiwan",
+        "note": "Advanced semiconductors and a potential breaking point."
+      },
+      {
+        "name": "Australia / Brazil",
+        "note": "Iron ore, soybeans, and raw materials."
+      },
+      {
+        "name": "Middle East",
+        "note": "Oil and gas are essential to its industry."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "The 5% target is met thanks to exports and public investment, but domestic demand remains fragile.",
+      "source": "National Bureau of Statistics / IMF"
+    },
+    "inflation": {
+      "note": "Very low inflation borders on deflation: households save, producer prices fall, and confidence is lacking.",
+      "source": "National Bureau of Statistics"
+    },
+    "debt_gdp": {
+      "note": "General government debt is contained, but local government and financing-vehicle debt is far higher.",
+      "source": "IMF, WEO"
+    },
+    "policy_rate": {
+      "note": "The PBoC cuts rates gradually, but transmission into credit is slowed by deleveraging among households and developers.",
+      "source": "PBoC (1y LPR)"
+    },
+    "unemployment": {
+      "note": "Urban unemployment is stable, but youth unemployment is markedly higher and the statistic is still debated.",
+      "source": "National Bureau of Statistics"
+    },
+    "reserves": {
+      "note": "The world's largest reserves back the yuan and protect against capital-flow shocks.",
+      "source": "PBoC / IMF"
+    },
+    "rating": {
+      "note": "The rating is solid, but hidden local-government debt and capital controls limit comparison with developed markets.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "The market prices moderate risk. Chinese CDS remain far below those of big dollar-indebted emerging markets.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "The year-end rebound reflects stimulus announcements. Governance and low dividend payouts limit the appeal.",
+      "source": "Shanghai Stock Exchange"
+    },
+    "currency": {
+      "name": "Renminbi yuan",
+      "note": "The yuan is managed, not freely floating. Beijing controls capital flows to avoid a disorderly depreciation.",
+      "source": "PBoC / BIS"
+    }
+  },
+  "strengths": [
+    "Industrial base, scale, and a rising technology ecosystem.",
+    "Foreign-exchange reserves and protective capital controls.",
+    "A state able to invest and coordinate priorities."
+  ],
+  "risks": [
+    "Property crisis and deleveraging of local governments.",
+    "Technology and trade tensions with the United States.",
+    "Rapid aging and a thin social safety net."
+  ],
+  "opportunities": [
+    "Underexploited domestic consumption and middle class.",
+    "Energy transition, electric vehicles, and batteries.",
+    "A gradual opening of capital markets."
+  ],
+  "quiz": {
+    "question": "Which turning point opened China to the market economy?",
+    "options": [
+      "The Cultural Revolution",
+      "Deng Xiaoping's reforms in 1978",
+      "WTO accession in 2001",
+      "The 2008 crisis"
+    ],
+    "answer": 1,
+    "explanation": "The 1978 reforms created special economic zones and reintroduced private initiative. The WTO will later accelerate exports, but the opening begins in 1978."
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "name": "Saudi Arabia",
+  "official_name": "Kingdom of Saudi Arabia",
+  "region": "Middle East",
+  "group": "Gulf",
+  "headline": "The oil rent funds a reinvention.",
+  "summary": "Unified in 1932, Saudi Arabia built its power on oil and its role as guardian of the holy sites. The country remains heavily dependent on the barrel price, but Vision 2030 seeks to grow tourism, logistics, and industry to prepare for the post-oil era.",
+  "history": [
+    {
+      "year": "1932",
+      "title": "Unification of the kingdom",
+      "text": "Ibn Saud brings together the tribes of the Najd and the Hejaz. The kingdom gains a vast territory, Islam's holy sites, and religious legitimacy."
+    },
+    {
+      "year": "1938",
+      "title": "Oil discovery",
+      "text": "The Dammam well opens the rent era. Aramco, first American-controlled then nationalized, becomes the core of the economy."
+    },
+    {
+      "year": "1979",
+      "title": "The Grand Mosque shock",
+      "text": "The Mecca hostage-taking and the Iranian revolution harden the regime. Oil rent funds a welfare state and a conservative Islam."
+    },
+    {
+      "year": "2016",
+      "title": "Vision 2030",
+      "text": "Mohammed bin Salman launches a diversification plan: Aramco's IPO, tourism, entertainment, renewables, and subsidy cuts."
+    },
+    {
+      "year": "2018",
+      "title": "The Khashoggi affair",
+      "text": "The murder of the journalist at the Istanbul consulate tarnishes the kingdom's image and chills some foreign investors, despite ongoing reforms."
+    },
+    {
+      "year": "2023-2024",
+      "title": "Diplomacy and oil cuts",
+      "text": "The rapprochement with Iran and regional normalization move ahead. Production cuts support prices but reduce growth and revenues."
+    }
+  ],
+  "institutions": {
+    "regime": "Absolute monarchy, the House of Saud",
+    "executive": "King, Council of Ministers, and Crown Prince; strongly concentrated power",
+    "legislature": "The appointed Shura Council, consultative in role",
+    "central_bank": "Saudi Central Bank (SAMA), defends the dollar peg of the riyal",
+    "currency": "Saudi riyal (SAR), pegged to the dollar",
+    "law": "Sharia as the primary source, special courts, and a modernized business law",
+    "fact": "The budget still depends heavily on hydrocarbons; the sovereign fund PIF finances diversification."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "United States",
+        "note": "Security, oil, and arms sales, despite disagreements."
+      },
+      {
+        "name": "United Arab Emirates",
+        "note": "Gulf partners who also compete on tourism and logistics."
+      },
+      {
+        "name": "China",
+        "note": "Largest oil customer and a growing industrial partner."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "Iran",
+        "note": "Regional rivalry, Shia/Sunni divide, and influence in Yemen."
+      },
+      {
+        "name": "Qatar",
+        "note": "The 2017-2021 crisis, and media and diplomatic competition."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "Oil price",
+        "note": "Budget revenues remain indexed to the barrel."
+      },
+      {
+        "name": "China",
+        "note": "An essential market for Saudi crude."
+      },
+      {
+        "name": "United States",
+        "note": "Security guarantee and sensitive technologies."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "Growth is slowed by oil-production cuts. Non-oil sectors are progressing, but not enough to compensate.",
+      "source": "IMF, WEO"
+    },
+    "inflation": {
+      "note": "Inflation stays moderate thanks to the dollar-pegged riyal and subsidies, though fiscal reforms can raise some services' prices.",
+      "source": "GASTAT / IMF"
+    },
+    "debt_gdp": {
+      "note": "Debt is low and the sovereign fund holds sizable assets. The constraint is the oil price, not solvency.",
+      "source": "IMF, WEO"
+    },
+    "policy_rate": {
+      "note": "SAMA follows the Fed to maintain the riyal peg. Credit remains expensive for non-oil projects.",
+      "source": "SAMA"
+    },
+    "unemployment": {
+      "note": "The overall rate is low, but youth and female unemployment remain higher. Saudization of jobs is progressing.",
+      "source": "GASTAT"
+    },
+    "reserves": {
+      "note": "Reserves and the sovereign fund form a comfortable cushion to finance deficits and mega-projects.",
+      "source": "SAMA / IMF"
+    },
+    "rating": {
+      "note": "The rating is backed by low debt and PIF assets, capped by oil dependence and concentrated power.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "The market prices low risk over the medium term, with an oil- and regional-tension-linked premium.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "The market is dominated by Aramco and the banks. Mega-projects attract capital, but profitability remains to be proven.",
+      "source": "Saudi Exchange"
+    },
+    "currency": {
+      "name": "Saudi riyal",
+      "note": "The riyal is pegged to the dollar (3.75 SAR/USD). That stability attracts investors but imports US monetary policy.",
+      "source": "SAMA"
+    }
+  },
+  "strengths": [
+    "Low public debt and a powerful sovereign fund.",
+    "A central position in global energy and trade flows.",
+    "State investment capacity and rapid social reforms."
+  ],
+  "risks": [
+    "Persistent dependence on the oil price.",
+    "Concentrated power and the risk of a regulatory U-turn.",
+    "The cost of mega-projects and the execution of Vision 2030."
+  ],
+  "opportunities": [
+    "Non-oil tourism, entertainment, and logistics.",
+    "Green hydrogen, solar, and critical minerals.",
+    "Opening of capital and IPOs of public assets."
+  ],
+  "quiz": {
+    "question": "What is the central goal of Vision 2030?",
+    "options": [
+      "Nationalize Aramco",
+      "Reduce dependence on oil",
+      "Adopt the euro",
+      "Close the economy"
+    ],
+    "answer": 1,
+    "explanation": "Vision 2030 aims to diversify revenues, develop the private sector and tourism, and prepare an economy less dependent on hydrocarbons."
+  }
+}

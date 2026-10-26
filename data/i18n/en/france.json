@@ -1,0 +1,159 @@
+{
+  "name": "France",
+  "official_name": "French Republic",
+  "region": "Western Europe",
+  "group": "Developed",
+  "headline": "A strong state, a single market, and a debt to watch.",
+  "summary": "France built its power on a centralizing state, a solid civil service, and European integration. Its social model protects and stabilizes, but it is costly: public debt and political fragmentation have become the two variables markets watch most closely.",
+  "history": [
+    {
+      "year": "1789",
+      "title": "French Revolution",
+      "text": "The end of the old monarchical order establishes equality before the law and national sovereignty. The centralized state inherits a strong capacity for mobilization."
+    },
+    {
+      "year": "1945",
+      "title": "Social reconstruction",
+      "text": "After the war, France creates Social Security and launches indicative planning. The state becomes an investor and coordinates reconstruction."
+    },
+    {
+      "year": "1958",
+      "title": "The Fifth Republic",
+      "text": "De Gaulle gives the president stable power and an independent diplomacy. The 1958 Constitution remains the current institutional framework."
+    },
+    {
+      "year": "1992",
+      "title": "Maastricht Treaty",
+      "text": "France commits to the single currency. It loses control of its key rate but gains the credibility of the euro and a market of 450 million consumers."
+    },
+    {
+      "year": "2002",
+      "title": "Switch to the euro",
+      "text": "The franc disappears. The Eurosystem becomes the real monetary pilot; the Banque de France keeps supervision and financial stability."
+    },
+    {
+      "year": "2024",
+      "title": "Political fragmentation",
+      "text": "The dissolution of the National Assembly opens a period of government instability. French spreads drift away from Germany's, a sign of a political risk premium."
+    }
+  ],
+  "institutions": {
+    "regime": "Semi-presidential republic",
+    "executive": "President elected for 5 years; Prime Minister accountable to the National Assembly",
+    "legislature": "National Assembly and Senate",
+    "central_bank": "Banque de France, member of the Eurosystem; ECB for monetary policy",
+    "currency": "Euro (EUR)",
+    "law": "Civil law, Napoleonic Code, strong administrative tradition",
+    "fact": "France is the euro area's second-largest economy and one of its leading sovereign-debt issuers."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "Germany",
+        "note": "Engine of European integration and industrial partner."
+      },
+      {
+        "name": "United States",
+        "note": "Defense alliance, despite trade disagreements."
+      },
+      {
+        "name": "European Union",
+        "note": "Single market, common rules, and recovery funds."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "United Kingdom",
+        "note": "Post-Brexit financial competition and fishing disputes."
+      },
+      {
+        "name": "China",
+        "note": "Industrial and commercial rival, notably in electric vehicles."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "Germany",
+        "note": "Industrial value chains and the German trade surplus."
+      },
+      {
+        "name": "China",
+        "note": "Components, rare earths, and demand for luxury goods."
+      },
+      {
+        "name": "Energy imports",
+        "note": "Oil, gas, and uranium must be secured."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "Growth is sluggish: investment and exports lack momentum, while consumption holds up thanks to disinflation.",
+      "source": "INSEE / IMF"
+    },
+    "inflation": {
+      "note": "Inflation is back near the ECB target. Falling energy prices did most of the work.",
+      "source": "INSEE"
+    },
+    "debt_gdp": {
+      "note": "Debt is well above the euro-area average. The high deficit and rising interest costs reduce the room for maneuver.",
+      "source": "INSEE / IMF"
+    },
+    "policy_rate": {
+      "date": "Dec 2024",
+      "note": "The ECB eases after the 2023 peak. France is subject to monetary policy calibrated for the whole euro area.",
+      "source": "ECB"
+    },
+    "unemployment": {
+      "note": "Unemployment remains higher than Germany's, with a core of long-term joblessness and wide regional gaps.",
+      "source": "INSEE"
+    },
+    "reserves": {
+      "note": "Reserves support euro stability and the Eurosystem's safety net. France does not rely on them to fund itself.",
+      "source": "Banque de France / IMF"
+    },
+    "rating": {
+      "note": "The rating remains solid, but the fiscal path is the agencies' main point of concern.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "Perceived risk stays low. The gap with Germany, however, widened with the political uncertainty of 2024.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "The index suffers from exposure to Chinese luxury demand and political uncertainty, despite banks and energy.",
+      "source": "Euronext"
+    },
+    "currency": {
+      "name": "Euro",
+      "note": "The euro is a solid reserve currency, but its rate against the dollar remains sensitive to US rates.",
+      "source": "ECB / BIS"
+    }
+  },
+  "strengths": [
+    "Strong institutions and euro-area membership.",
+    "Productivity, demographics, and a high level of education.",
+    "A central position in the single market and appeal to foreign investment."
+  ],
+  "risks": [
+    "Public debt and budget deficit with no clear political majority.",
+    "Government instability and difficulty reforming.",
+    "Loss of industrial competitiveness against China and the United States."
+  ],
+  "opportunities": [
+    "Re-industrialization through France 2030 and electrification.",
+    "Decarbonized energy and the appeal of data centers.",
+    "The Paris financial center strengthened by Brexit."
+  ],
+  "quiz": {
+    "question": "Which treaty committed France to the European single currency?",
+    "options": [
+      "The Treaty of Rome",
+      "The Maastricht Treaty",
+      "The Treaty of Lisbon",
+      "The Treaty of Versailles"
+    ],
+    "answer": 1,
+    "explanation": "The Maastricht Treaty (1992) creates the European Union and organizes convergence toward the euro. The single currency starts circulating in 2002."
+  }
+}

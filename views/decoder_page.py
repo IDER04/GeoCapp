@@ -22,7 +22,7 @@ def render() -> None:
         t("dec.subtitle"),
     )
 
-    events = load_events()
+    events = i18n.localize_events(load_events())
     valid_ids = [c["id"] for c in countries()]
     if st.session_state.get("decoder_country") not in valid_ids:
         st.session_state["decoder_country"] = valid_ids[0]
@@ -32,7 +32,7 @@ def render() -> None:
         selected_country = st.selectbox(
             t("dec.country"),
             valid_ids,
-            format_func=lambda cid: f"{country_by_id(cid)['flag']} {country_by_id(cid)['name']}",
+            format_func=lambda cid: f"{country_by_id(cid)['flag']} {i18n.country_name(cid)}",
             key="decoder_country",
         )
     available = [event for event in events if event.get("country") == selected_country]
@@ -50,6 +50,7 @@ def render() -> None:
         )
     event = next(event for event in available if event["id"] == event_id)
     country = country_by_id(selected_country)
+    country_loc = i18n.localize_country(country)
     result = overall_score(country, st.session_state.get("profile", "Équilibré"))
     ke = required_return(country)
 
@@ -58,7 +59,7 @@ def render() -> None:
         <div class="gc-card gc-card-gold" style="margin:10px 0 16px">
           <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start">
             <div>
-              <div class="gc-eyebrow">{ui.esc(event.get('category'))} · {ui.esc(country['flag'])} {ui.esc(country['name'])}</div>
+              <div class="gc-eyebrow">{ui.esc(event.get('category'))} · {ui.esc(country['flag'])} {ui.esc(country_loc['name'])}</div>
               <h2 style="font-family:'DM Serif Display',Georgia,serif;font-weight:400;color:#f8f4e9;font-size:clamp(1.5rem,2.6vw,2.25rem);margin:.25rem 0 .55rem;line-height:1.1">{ui.esc(event.get('title'))}</h2>
               <p style="color:#aab7c9;font-size:.88rem;max-width:780px;margin:0">{ui.esc(event.get('summary'))}</p>
             </div>
@@ -124,7 +125,7 @@ def render() -> None:
             f"""
             <div class="gc-card">
               <div class="gc-eyebrow">{t("dec.link.eyebrow")}</div>
-              <h4 style="font-size:1rem">{ui.esc(country['name'])}</h4>
+              <h4 style="font-size:1rem">{ui.esc(country_loc['name'])}</h4>
               <div style="display:flex;gap:8px;flex-wrap:wrap;margin:9px 0">
                 {ui.verdict_badge(t(f"verdict.{i18n.verdict_key(result['verdict'])}"), tone)}
                 <span class="gc-chip">{t("dec.link.chip_score", value=f"{result['score']:.0f}")}</span>

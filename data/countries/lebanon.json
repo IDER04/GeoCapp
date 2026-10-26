@@ -104,11 +104,14 @@
       "note": "L'économie se contracte encore sous l'effet de la guerre et de la destruction. La reprise dépendra de la reconstruction et de la stabilité politique."
     },
     "inflation": {
-      "value": 45.0,
+      "value": 14.6,
       "unit": "%",
-      "date": "2024",
-      "source": "Administration centrale de la statistique / FMI",
-      "note": "L'inflation reste très élevée après l'effondrement de la livre. Elle détruit le pouvoir d'achat et rend la planification impossible."
+      "date": "2025",
+      "source": "Banque mondiale (WDI, série FP.CPI.TOTL.ZG) / FMI (WEO)",
+      "obs_status": "actual",
+      "source_url": "https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG?locations=LB",
+      "retrieved": "2026-10-25",
+      "note": "Après l'hyperinflation née de l'effondrement de la livre, l'inflation retombe sous 15 % avec la stabilisation du change. La prudence reste de mise : cette désinflation repose sur une stabilité monétaire encore fragile."
     },
     "debt_gdp": {
       "value": 150,

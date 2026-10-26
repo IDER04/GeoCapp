@@ -1,0 +1,163 @@
+{
+  "name": "South Africa",
+  "official_name": "Republic of South Africa",
+  "region": "Southern Africa",
+  "group": "Emerging",
+  "headline": "The potential of a continent, the fractures of its history.",
+  "summary": "South Africa is the world's most unequal large economy. Apartheid left a spatial and educational structure that still weighs on productivity. Yet the country holds strategic minerals, solid financial institutions, and a vigorous civil society.",
+  "history": [
+    {
+      "year": "1910",
+      "title": "Union of South Africa",
+      "text": "The British and Boer colonies unite. Political power is reserved for whites, while gold and diamond mines finance industrialization."
+    },
+    {
+      "year": "1948",
+      "title": "Institutionalization of apartheid",
+      "text": "The National Party systematizes racial segregation. The Black majority loses political rights, land, and quality education."
+    },
+    {
+      "year": "1960",
+      "title": "The Sharpeville massacre",
+      "text": "Police open fire on protesters against pass laws. The massacre internationalizes the anti-apartheid cause and radicalizes the struggle."
+    },
+    {
+      "year": "1994",
+      "title": "First democratic elections",
+      "text": "Nelson Mandela becomes president. The negotiated transition averts civil war but does not radically redistribute wealth."
+    },
+    {
+      "year": "1996",
+      "title": "The 1996 Constitution",
+      "text": "One of the world's most protective constitutions guarantees rights, an independent judiciary, and watchdog institutions."
+    },
+    {
+      "year": "2010",
+      "title": "The football World Cup",
+      "text": "The country demonstrates its logistics capacity and soft power. Infrastructure improves, but inequality and unemployment remain massive."
+    },
+    {
+      "year": "2024",
+      "title": "Government of national unity",
+      "text": "The ANC loses its majority. A coalition with the opposition opens a period of political instability, but also hope for reforms."
+    }
+  ],
+  "institutions": {
+    "regime": "Parliamentary and federal republic",
+    "executive": "President elected by Parliament; coalition government since 2024",
+    "legislature": "Bicameral Parliament: National Assembly and National Council of Provinces",
+    "central_bank": "South African Reserve Bank (SARB), independent and inflation-targeting",
+    "currency": "Rand (ZAR), a floating currency",
+    "law": "A hybrid of common law, Roman-Dutch law, and constitutional law",
+    "fact": "The 1996 Constitution is often cited as one of the most protective of social rights in the world."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "Brazil / India / China",
+        "note": "Cooperation within BRICS and major emerging economies."
+      },
+      {
+        "name": "African Union",
+        "note": "A driving role in continental diplomacy."
+      },
+      {
+        "name": "European Union",
+        "note": "Leading trade partner and source of investment."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "Nigeria",
+        "note": "Competition for African leadership and investment."
+      },
+      {
+        "name": "United States",
+        "note": "Recent diplomatic tensions over foreign and trade policies."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "China",
+        "note": "Top buyer of minerals and largest supplier of goods."
+      },
+      {
+        "name": "Platinum / gold / coal",
+        "note": "Commodity exports remain central."
+      },
+      {
+        "name": "Electricity",
+        "note": "The Eskom crisis and blackouts weigh on activity."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "Growth is near zero: power cuts, rail logistics, and weak confidence weigh on investment.",
+      "source": "Statistics South Africa / IMF"
+    },
+    "inflation": {
+      "note": "Inflation is back within the SARB target (3-6%), which allowed rates to start coming down.",
+      "source": "Statistics South Africa"
+    },
+    "debt_gdp": {
+      "note": "Debt is rising on deficits and the Eskom bailout. Interest costs absorb a growing share of the budget.",
+      "source": "IMF, WEO"
+    },
+    "policy_rate": {
+      "note": "The policy rate stays high to anchor expectations. Credit is expensive for households and small firms.",
+      "source": "SARB"
+    },
+    "unemployment": {
+      "note": "Unemployment tops 30%, with extreme depth among the young. It is the main social and political risk.",
+      "source": "Statistics South Africa"
+    },
+    "reserves": {
+      "note": "Reserves cover about five months of imports. They support the rand but cannot absorb a lasting shock.",
+      "source": "SARB / IMF"
+    },
+    "rating": {
+      "note": "The rating sits in speculative territory. Strong institutions and moderate debt limit the premium, but weak growth weighs.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "The market prices more risk than Morocco's, reflecting weak growth, unemployment, and fiscal strains.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "The index benefits from gold, mining, and financials. The stock market outperforms the real economy.",
+      "source": "Johannesburg Stock Exchange"
+    },
+    "currency": {
+      "name": "Rand",
+      "note": "The rand is liquid but volatile. It serves as a proxy for emerging-market risk and stays sensitive to commodity prices.",
+      "source": "SARB / BIS"
+    }
+  },
+  "strengths": [
+    "Strong legal and financial institutions.",
+    "Wealth in strategic minerals and renewable energy.",
+    "One of Africa's freest civil societies and presses."
+  ],
+  "risks": [
+    "Mass unemployment and inequalities inherited from apartheid.",
+    "An energy and logistics crisis that rations output.",
+    "A fragile governing coalition and fiscal risk."
+  ],
+  "opportunities": [
+    "Minerals for the energy transition (platinum, manganese, vanadium).",
+    "Solar power and green hydrogen.",
+    "A financial and logistics hub for Southern Africa."
+  ],
+  "quiz": {
+    "question": "Which event marked the end of political apartheid in South Africa?",
+    "options": [
+      "The Sharpeville massacre",
+      "The 2010 World Cup",
+      "The 1994 elections",
+      "The creation of BRICS"
+    ],
+    "answer": 2,
+    "explanation": "The first multiracial elections of 1994 bring Nelson Mandela to power. Apartheid is abolished, but its economic and spatial legacy persists."
+  }
+}

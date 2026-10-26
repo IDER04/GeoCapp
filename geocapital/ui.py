@@ -221,13 +221,14 @@ def indicator_card(
     note: str,
     source: str,
     date: str,
+    status_label: str | None = None,
 ) -> None:
     st.markdown(
         f"""
         <div class="gc-ind {esc(status)}">
           <div class="gc-ind-top">
             <div class="gc-ind-label">{esc(label)}</div>
-            <div class="gc-status {esc(status)}">{esc(t(f"status.{status}"))}</div>
+            <div class="gc-status {esc(status)}">{esc(status_label or t(f"status.{status}"))}</div>
           </div>
           <div class="gc-ind-value">{esc(value)}<small>{esc(unit)}</small></div>
           <div class="gc-ind-note">{esc(note)}</div>

@@ -6,7 +6,7 @@ from typing import Any
 
 import streamlit as st
 
-from geocapital import ai, i18n, ui
+from geocapital import ai, freshness, i18n, ui
 from geocapital.i18n import t
 from geocapital.data import (
     INDICATOR_LABELS,
@@ -134,11 +134,13 @@ def _ai_country_block(country: dict[str, Any], result: dict[str, Any], suffix: s
                 st.warning(t("ai.unavailable"))
 
 
-def _render_quiz(country: dict[str, Any]) -> None:
-    question = country.get("quiz", {})
+def _render_quiz(country_loc: dict[str, Any], country_fr: dict[str, Any]) -> None:
+    """Quiz affiché dans la langue courante ; l'IA reçoit la fiche FR
+    (facts language déterministe côté analyste)."""
+    question = country_loc.get("quiz", {})
     if not question:
         return
-    cid = country["id"]
+    cid = country_loc["id"]
     st.markdown(
         f"""
         <div class="gc-card gc-card-gold" style="margin-bottom:14px">
@@ -178,7 +180,7 @@ def _render_quiz(country: dict[str, Any]) -> None:
         if ai.is_available():
             if st.button(t("quiz.ai_button"), key=f"ai_quiz_{cid}"):
                 with st.spinner(t("quiz.ai_spinner")):
-                    text = ai.explain_quiz(country, question, correct)
+                    text = ai.explain_quiz(country_fr, country_fr.get("quiz", {}), correct)
                 if text:
                     st.markdown(text)
         else:
@@ -199,7 +201,7 @@ def render() -> None:
         selected_id = st.selectbox(
             t("country.select"),
             ids,
-            format_func=lambda cid: f"{country_by_id(cid)['flag']} {country_by_id(cid)['name']}",
+            format_func=lambda cid: f"{country_by_id(cid)['flag']} {i18n.country_name(cid)}",
             key="country_id",
         )
     with profile_col:
@@ -215,6 +217,9 @@ def render() -> None:
     if country is None:
         st.error(t("country.error"))
         return
+    # Copie traduite à l'affichage (EN) ; `country` (FR) reste la source
+    # des calculs de scoring et des payloads IA (langue des faits déterministe).
+    country_loc = i18n.localize_country(country)
 
     if selected_id not in st.session_state["explored"]:
         st.session_state["explored"] = sorted([*st.session_state["explored"], selected_id])
@@ -228,7 +233,7 @@ def render() -> None:
         reverse=True,
     ).index(result["score"]) + 1
 
-    ui.country_hero(country, result)
+    ui.country_hero(country_loc, result)
     action_a, action_b, action_c, action_d = st.columns([1, 1, 1, 2.2])
     profile_display = i18n.profile_label(profile)
     with action_a:
@@ -251,13 +256,13 @@ def render() -> None:
     )
 
     with tab_story:
-        ui.callout(country.get("summary", ""), "gold")
+        ui.callout(country_loc.get("summary", ""), "gold")
         left, right = st.columns([1.65, 1], gap="large")
         with left:
             ui.section_title(t("country.section.timeline"), t("country.section.timeline_sub"))
-            ui.timeline(country.get("history", []))
+            ui.timeline(country_loc.get("history", []))
         with right:
-            _institution_card(country.get("institutions", {}))
+            _institution_card(country_loc.get("institutions", {}))
             st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
             current = result["components"]
             st.markdown(
@@ -266,15 +271,14 @@ def render() -> None:
                   <div class="gc-eyebrow">{t("country.hero_to_risk")}</div>
                   <h4 style="font-size:.94rem">{t("country.story_in_numbers")}</h4>
                   <p style="font-size:.78rem;line-height:1.6">
-                    {t("country.story_paragraph", solv=f"{current['solvabilite']:.0f}", stab=f"{current['stabilite']:.0f}", inst=f"{current['institutions']:.0f}")}
-                  </p>
+                    {t("country.story_paragraph", solv=f"{current['solvabilite']:.0f}", stab=f"{current['stabilite']:.0f}", inst=f"{current['institutions']:.0f}")}                  </p>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
         ui.section_title(t("country.section.relations"), t("country.section.relations_sub"))
-        rel = country.get("relations", {})
+        rel = country_loc.get("relations", {})
         rel_cols = st.columns(3)
         with rel_cols[0]:
             ui.relation_column(t("country.rel.allies"), "🤝", rel.get("allies", []))
@@ -288,21 +292,21 @@ def render() -> None:
         with strength_col:
             st.markdown(
                 f'<div class="gc-card"><div class="gc-eyebrow">{t("country.eyebrow.strengths")}</div><ul class="gc-list">'
-                + "".join(f"<li>{ui.esc(item)}</li>" for item in country.get("strengths", []))
+                + "".join(f"<li>{ui.esc(item)}</li>" for item in country_loc.get("strengths", []))
                 + "</ul></div>",
                 unsafe_allow_html=True,
             )
         with risk_col:
             st.markdown(
                 f'<div class="gc-card"><div class="gc-eyebrow">{t("country.eyebrow.risks")}</div><ul class="gc-list">'
-                + "".join(f"<li>{ui.esc(item)}</li>" for item in country.get("risks", []))
+                + "".join(f"<li>{ui.esc(item)}</li>" for item in country_loc.get("risks", []))
                 + "</ul></div>",
                 unsafe_allow_html=True,
             )
         with opp_col:
             st.markdown(
                 f'<div class="gc-card"><div class="gc-eyebrow">{t("country.eyebrow.opportunities")}</div><ul class="gc-list">'
-                + "".join(f"<li>{ui.esc(item)}</li>" for item in country.get("opportunities", []))
+                + "".join(f"<li>{ui.esc(item)}</li>" for item in country_loc.get("opportunities", []))
                 + "</ul></div>",
                 unsafe_allow_html=True,
             )
@@ -315,27 +319,43 @@ def render() -> None:
             f'<div class="gc-small" style="margin-bottom:12px">{t("country.dash.hint")}</div>',
             unsafe_allow_html=True,
         )
+        # Fraîcheur : date de consultation (data_as_of du meta) et millésimes.
+        # Aucune valeur n'est changée : c'est une étiquette d'affichage.
+        as_of_value = freshness.as_of()
+        st.caption(t("fresh.as_of", as_of=as_of_value))
+        indicator_dates = [m.get("date") for m in country_loc.get("indicators", {}).values()]
+        if freshness.any_stale(indicator_dates):
+            st.caption(t("fresh.stale_note", limit=freshness.stale_threshold()))
         cols = st.columns(4)
+        # La métadonnée CRP vient de scoring.py (intouché, en FR) : son
+        # affichage passe par les clés i18n, pas par la donnée brute.
+        crp_source_label = t(f"crp_source.{i18n.crp_source_key(ke['crp_source'])}")
         for index, key in enumerate(INDICATOR_ORDER):
-            meta = indicator_meta(country, key)
-            value, unit, date = indicator_display(country, key)
-            status = indicator_status(country, key)
-            note = meta.get("note", "")
-            source = meta.get("source", "Source non renseignée")
+            if key == "crp":
+                note = t("ind.crp.note")
+                source = f"Damodaran · {crp_source_label}"
+                meta = {}
+            else:
+                meta = indicator_meta(country_loc, key)
+                note = meta.get("note", "")
+                source = meta.get("source", "Source non renseignée")
             if source == "Source non renseignée":
                 source = t("dash.source_missing")
+            value, unit, date = indicator_display(country_loc, key)
+            status = indicator_status(country, key)
             with cols[index % 4]:
                 ui.indicator_card(
-                    INDICATOR_LABELS[key],
+                    i18n.indicator_label(key),
                     value,
                     unit,
                     status,
                     note,
                     source,
-                    date,
+                    freshness.stale_badge(date),
                 )
                 st.markdown("<div style='height:9px'></div>", unsafe_allow_html=True)
 
+        oldest = freshness.oldest_obs_year(indicator_dates)
         if country["id"] in {"lebanon", "syria"}:
             ui.callout(
                 t("country.callout.missing"),
@@ -353,6 +373,8 @@ def render() -> None:
             ui.kpi(f"{ke['crp']:.1f} %", t("country.kpi.crp"), t("country.kpi.crp_desc", source=crp_source_label))
         with ke_cols[3]:
             ui.kpi(f"{ke['ke']:.1f} %", t("country.kpi.ke"), t("country.kpi.ke_desc"))
+        if oldest:
+            st.caption(t("fresh.verdict_dates", oldest=oldest))
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         st.markdown(
             f"""
@@ -360,7 +382,7 @@ def render() -> None:
               <div class="gc-eyebrow">{t("country.howto.eyebrow")}</div>
               <h4 style="font-size:.98rem">{t("country.howto.title")}</h4>
               <p style="font-size:.82rem;line-height:1.65;margin-top:6px">
-                {t("country.howto.text", name=ui.esc(country['name']), rf=f"{ke['risk_free']:.1f}", erp=f"{ke['erp']:.1f}", crp=f"{ke['crp']:.1f}", ke=f"{ke['ke']:.1f}")}
+                {t("country.howto.text", name=ui.esc(country_loc['name']), rf=f"{ke['risk_free']:.1f}", erp=f"{ke['erp']:.1f}", crp=f"{ke['crp']:.1f}", ke=f"{ke['ke']:.1f}")}
               </p>
             </div>
             """,
@@ -447,6 +469,6 @@ def render() -> None:
             )
 
     with tab_quiz:
-        _render_quiz(country)
+        _render_quiz(country_loc, country)
 
     ui.footer()

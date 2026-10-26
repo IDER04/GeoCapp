@@ -1,0 +1,164 @@
+{
+  "name": "United States",
+  "official_name": "United States of America",
+  "region": "North America",
+  "group": "Developed",
+  "headline": "The dollar, the technology, and the depth of the markets.",
+  "summary": "Born out of a revolution against British taxation, the world's largest economy was built on a vast home market, a business-law framework friendly to capital, and the privilege of the dollar. Today its risk is less insolvency than political polarization, the weight of debt, and dependence on a handful of technology giants.",
+  "history": [
+    {
+      "year": "1776",
+      "title": "Independence",
+      "text": "Thirteen colonies break away from London. The 1787 Constitution creates a common market, a federal currency, and a legal framework that protects property."
+    },
+    {
+      "year": "1865",
+      "title": "End of the Civil War",
+      "text": "The Union's victory accelerates the industrialization of the North. The country becomes a continental manufacturing power."
+    },
+    {
+      "year": "1929",
+      "title": "Crash and New Deal",
+      "text": "The crisis exposes the dangers of lightly regulated finance. Roosevelt creates the SEC, unemployment insurance, and public works: the state becomes a stabilizer."
+    },
+    {
+      "year": "1944",
+      "title": "Bretton Woods",
+      "text": "The dollar becomes the world's reserve currency, convertible into gold. The United States organizes the IMF, the World Bank, and global trade."
+    },
+    {
+      "year": "1971",
+      "title": "End of gold convertibility",
+      "text": "Nixon closes the gold window. The dollar floats, yet stays dominant thanks to the depth of the Treasury market and to oil priced in dollars."
+    },
+    {
+      "year": "2008",
+      "title": "Financial crisis and QE",
+      "text": "Lehman's collapse leads to massive Fed asset purchases. Monetary policy becomes a central tool for managing the cycle."
+    },
+    {
+      "year": "2022-2024",
+      "title": "Inflation, rates, and AI",
+      "text": "The Fed raises rates sharply to break inflation. The economy holds up, carried by employment and investment in artificial intelligence."
+    }
+  ],
+  "institutions": {
+    "regime": "Federal presidential republic",
+    "executive": "President elected for 4 years, strict separation of powers",
+    "legislature": "Bicameral Congress: Senate and House of Representatives",
+    "central_bank": "Federal Reserve (Fed), independent since 1913",
+    "currency": "US dollar (USD), the world's reserve currency",
+    "law": "Common law, state-level jurisdictions, strong contractual protection",
+    "fact": "The US bond market is the most liquid in the world: it sets the global price of risk."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "Japan",
+        "note": "Security alliance and technological integration."
+      },
+      {
+        "name": "United Kingdom",
+        "note": "Intelligence, defense, and financial markets."
+      },
+      {
+        "name": "European Union",
+        "note": "Trade partner, sometimes a rival regulator."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "China",
+        "note": "Technological, industrial, and military competition."
+      },
+      {
+        "name": "Russia",
+        "note": "Geopolitical opposition, sanctions, and arms control."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "China",
+        "note": "Supply chains, rare earths, and consumer goods."
+      },
+      {
+        "name": "Taiwan",
+        "note": "Advanced semiconductors: a strategic point of fragility."
+      },
+      {
+        "name": "Canada / Mexico",
+        "note": "Trade integrated by the USMCA, plus energy and autos."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "Household consumption and technology investment take over from a very expansionary fiscal policy.",
+      "source": "IMF, WEO"
+    },
+    "inflation": {
+      "note": "Inflation is slowing but still above the 2% target. Services and housing are the last stubborn spots.",
+      "source": "Bureau of Labor Statistics"
+    },
+    "debt_gdp": {
+      "note": "Federal debt is high but financed in the reserve currency. The real risk is political: the cost of interest rates.",
+      "source": "IMF, WEO"
+    },
+    "policy_rate": {
+      "date": "Dec 2024",
+      "note": "The Fed is easing gradually after the 2023 peak. A positive real rate leaves margin if inflation surprises.",
+      "source": "Federal Reserve"
+    },
+    "unemployment": {
+      "note": "The labor market remains solid, which supports consumption and delays recession risk.",
+      "source": "Bureau of Labor Statistics"
+    },
+    "reserves": {
+      "note": "Reserves matter less for an issuer of the reserve currency: dollar liquidity is the shock absorber.",
+      "source": "IMF / Treasury"
+    },
+    "rating": {
+      "note": "The rating remains very high, despite fiscal strains and congressional gridlock.",
+      "source": "S&P Global Ratings"
+    },
+    "cds": {
+      "note": "The market prices low political and fiscal risk over the short run. US CDS serve as the global benchmark.",
+      "source": "CMA / market"
+    },
+    "equity_index": {
+      "note": "Performance is concentrated in tech mega-caps: market breadth is the point to watch.",
+      "source": "S&P Dow Jones Indices"
+    },
+    "currency": {
+      "name": "US dollar",
+      "note": "The dollar remains the safe haven and the dominant invoicing currency. Its strength weighs on countries indebted in dollars.",
+      "source": "Fed / BIS"
+    }
+  },
+  "strengths": [
+    "Unmatched depth of capital markets and the dollar's status.",
+    "Technology ecosystem, universities, and innovation capacity.",
+    "Flexible labor market and demographics more dynamic than Europe's."
+  ],
+  "risks": [
+    "Political polarization and the risk of fiscal gridlock.",
+    "High federal debt in a higher-rate regime.",
+    "Market concentration and dependence on technology giants."
+  ],
+  "opportunities": [
+    "Investment in AI, semiconductors, and energy.",
+    "Partial re-industrialization supported by public subsidies.",
+    "Unmatched access to markets for exporters."
+  ],
+  "quiz": {
+    "question": "Who decides US monetary policy?",
+    "options": [
+      "The Treasury",
+      "The Federal Reserve",
+      "The Congress",
+      "The World Bank"
+    ],
+    "answer": 1,
+    "explanation": "The Fed is independent of political power. It sets rates to pursue full employment and price stability, even though the Treasury manages the debt."
+  }
+}

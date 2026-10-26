@@ -1,0 +1,163 @@
+{
+  "name": "Syria",
+  "official_name": "Syrian Arab Republic",
+  "region": "Middle East",
+  "group": "Frontier",
+  "headline": "After the war, everything remains to be rebuilt.",
+  "summary": "Syria is emerging from more than a decade of civil war and the fall of the Assad regime in December 2024. The institutions, the currency, and the infrastructure are deeply destroyed. The absence of a rating, of CDS, and of reliable data is not a detail: it is the heart of the risk.",
+  "history": [
+    {
+      "year": "1920",
+      "title": "The French mandate",
+      "text": "The League of Nations entrusts Syria to France. Modern borders and centralized administration take shape on a fractured territory."
+    },
+    {
+      "year": "1946",
+      "title": "Independence",
+      "text": "French troops leave the country. A period of political instability opens, marked by coups and regional rivalries."
+    },
+    {
+      "year": "1963",
+      "title": "The Baath seizes power",
+      "text": "The Baath Party installs an authoritarian regime, secular at first but dominated by the Alawite minority. The army and intelligence services become central."
+    },
+    {
+      "year": "1970",
+      "title": "Hafez al-Assad",
+      "text": "Bashar's father takes power in a coup. He maintains a balance of patronage, repression, and alliances with the USSR then Iran."
+    },
+    {
+      "year": "2011",
+      "title": "Revolution and war",
+      "text": "Arab Spring protests are repressed. The country slides into an internationalized civil war, with the Islamic State, Russia, Iran, and Turkey."
+    },
+    {
+      "year": "2015",
+      "title": "Russian intervention",
+      "text": "Moscow intervenes militarily to save the regime. Airstrikes allow Damascus to retake part of the territory."
+    },
+    {
+      "year": "2024",
+      "title": "The fall of the Assad regime",
+      "text": "A lightning rebel offensive ends fifty years of family rule. The country enters an uncertain transition, without reliable institutions or a stable currency."
+    }
+  ],
+  "institutions": {
+    "regime": "Political transition since December 2024",
+    "executive": "Transitional authorities; legitimacy and scope still disputed",
+    "legislature": "Parliamentary institutions under reconstruction",
+    "central_bank": "Central Bank of Syria, capacity limited by sanctions and the currency shortage",
+    "currency": "Syrian pound (SYP), multiple market rates and steep depreciation",
+    "law": "An inheritance of French civil law; courts and administration to rebuild",
+    "fact": "No active sovereign rating, no quoted CDS, uncertified public accounts: risk is first an information risk."
+  },
+  "relations": {
+    "allies": [
+      {
+        "name": "Russia",
+        "note": "Historic military support; naval and air bases to negotiate."
+      },
+      {
+        "name": "Iran",
+        "note": "Support for the fallen regime; now contested influence."
+      },
+      {
+        "name": "Turkey",
+        "note": "Support for rebel groups and the Kurdish issue."
+      }
+    ],
+    "rivals": [
+      {
+        "name": "Israel",
+        "note": "Regular strikes and strategic distrust."
+      },
+      {
+        "name": "Jihadist groups",
+        "note": "A security threat and fragmented territorial control."
+      }
+    ],
+    "dependencies": [
+      {
+        "name": "International aid",
+        "note": "Reconstruction, food, and medicine depend on donors."
+      },
+      {
+        "name": "Turkey",
+        "note": "Trade, energy, and control of armed factions."
+      },
+      {
+        "name": "Sanctions",
+        "note": "Access to the global financial system remains constrained."
+      }
+    ]
+  },
+  "indicators": {
+    "gdp_growth": {
+      "note": "War and transition prevent any durable recovery. The estimate itself is fragile without reliable national accounts.",
+      "source": "World Bank / IMF estimate"
+    },
+    "inflation": {
+      "note": "Inflation is fed by the pound's depreciation, shortages, and transaction costs. Prices vary sharply by region.",
+      "source": "Estimate"
+    },
+    "debt_gdp": {
+      "note": "External debt is largely in default or undocumented. The ratio should be read as an order of magnitude, not a certainty.",
+      "source": "Estimate"
+    },
+    "policy_rate": {
+      "note": "The policy rate shapes only part of credit, so dollarized and informal is the economy.",
+      "source": "Central Bank of Syria"
+    },
+    "unemployment": {
+      "note": "Half of the active population is estimated jobless or underemployed. Youth and women are hardest hit.",
+      "source": "ILO estimate"
+    },
+    "reserves": {
+      "note": "Reserves are nearly exhausted. There is no cushion to defend the currency or fund essential imports.",
+      "source": "Estimate"
+    },
+    "rating": {
+      "note": "No active rating. The absence of a note is not neutral: it reflects the impossibility of assessing the ability and willingness to pay.",
+      "source": "S&P / Moody's / Fitch"
+    },
+    "cds": {
+      "note": "No quoted CDS. Sovereign risk has no observable price, which reinforces the uncertainty premium.",
+      "source": "Market"
+    },
+    "equity_index": {
+      "note": "The market is tiny and illiquid. Its prices are not a reliable signal about the real economy.",
+      "source": "DSE"
+    },
+    "currency": {
+      "name": "Syrian pound",
+      "note": "The pound has collapsed and several rates coexist. Informal dollarization is households' answer to uncertainty.",
+      "source": "Central bank / parallel market"
+    }
+  },
+  "strengths": [
+    "A geographic position at the crossroads of the Levant.",
+    "A diaspora and dispersed technical skills.",
+    "Reconstruction needs that can attract capital if peace holds."
+  ],
+  "risks": [
+    "A violent political transition and unconsolidated institutions.",
+    "A destroyed currency, sanctions, and a crippled financial system.",
+    "A total absence of reliable data and market prices."
+  ],
+  "opportunities": [
+    "Reconstruction of infrastructure and housing.",
+    "A gradual reintegration into regional trade.",
+    "Sanctions relief conditioned on a credible transition."
+  ],
+  "quiz": {
+    "question": "Why is the absence of a rating and of CDS so important for Syria?",
+    "options": [
+      "It allows cheaper borrowing",
+      "It deprives the investor of any price for risk",
+      "It guarantees the currency's stability",
+      "It automatically attracts donors"
+    ],
+    "answer": 1,
+    "explanation": "Without a note or a CDS, no market prices sovereign risk. GeoCapital treats this void as maximum risk, not as an absence of risk."
+  }
+}
