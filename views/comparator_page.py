@@ -5,7 +5,7 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import streamlit as st
 
-from geocapital import freshness, i18n, ui
+from geocapital import charts, freshness, i18n, ui
 from geocapital.i18n import t
 from geocapital.data import (
     INDICATOR_LABELS,
@@ -24,7 +24,7 @@ from geocapital.scoring import (
     required_return,
 )
 
-COLORS = ["#e6b86b", "#7dd3fc", "#a3e635"]
+COLORS = charts.SERIES  # nuances de gris ; distinction par tiret et symbole
 
 
 def _go_country(country_id: str) -> None:
@@ -47,36 +47,36 @@ def _radar(selected: list[dict], profile: str) -> go.Figure:
                 r=values + [values[0]],
                 theta=categories + [categories[0]],
                 fill="toself",
-                fillcolor=f"rgba({_hex_to_rgb(COLORS[index])},0.10)",
-                line=dict(color=COLORS[index], width=2),
+                fillcolor=f"rgba({_hex_to_rgb(COLORS[index])},0.08)",
+                line=dict(color=COLORS[index], width=2, dash=charts.DASHES[index % 4]),
+                marker=dict(symbol=charts.SYMBOLS[index % 4], size=6),
                 name=f"{country['flag']} {country['name']}",
                 hovertemplate="%{theta}<br>%{r:.0f}/100<extra></extra>",
             )
         )
     fig.update_layout(
-        height=420,
-        margin=dict(l=45, r=45, t=35, b=35),
-        paper_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#94a3b8"),
-        polar=dict(
-            bgcolor="rgba(255,255,255,0.018)",
-            radialaxis=dict(
-                visible=True,
-                range=[0, 100],
-                showline=False,
-                gridcolor="rgba(148,163,184,.14)",
-                tickfont=dict(size=8, color="#64748b"),
-                angle=90,
-                tickangle=90,
+        **charts.layout(
+            420,
+            dict(l=45, r=45, t=35, b=35),
+            polar=dict(
+                bgcolor="rgba(255,255,255,0.35)",
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 100],
+                    showline=False,
+                    gridcolor=charts.GRID_STRONG,
+                    tickfont=dict(size=8, color=charts.SILVER),
+                    angle=90,
+                    tickangle=90,
+                ),
+                angularaxis=dict(
+                    gridcolor=charts.GRID_STRONG,
+                    linecolor=charts.GRID_STRONG,
+                    tickfont=dict(size=10, color=charts.SLATE),
+                ),
             ),
-            angularaxis=dict(
-                gridcolor="rgba(148,163,184,.14)",
-                linecolor="rgba(148,163,184,.18)",
-                tickfont=dict(size=10, color="#aab7c9"),
-            ),
-        ),
-        legend=dict(orientation="h", y=-0.08, x=0, font=dict(size=10)),
-        showlegend=True,
+            showlegend=True,
+        )
     )
     return fig
 
@@ -93,7 +93,8 @@ def _ke_chart(selected: list[dict], profile: str) -> go.Figure:
         ke = required_return(country)
         rows.append((f"{country['flag']} {country['name']}", ke["ke"], result["score"]))
     rows.sort(key=lambda item: item[1])
-    colors = ["#4ade80" if score >= 76 else "#a3e635" if score >= 62 else "#fbbf24" if score >= 45 else "#fb7185" for _, _, score in rows]
+    # Monochrome : le niveau de score se lit en nuance de gris ; rouge réservé au score faible.
+    colors = [charts.OBSIDIAN if score >= 76 else charts.GRAPHITE if score >= 62 else charts.SLATE if score >= 45 else charts.RED for _, _, score in rows]
     fig = go.Figure(
         go.Bar(
             x=[row[1] for row in rows],
@@ -102,19 +103,18 @@ def _ke_chart(selected: list[dict], profile: str) -> go.Figure:
             marker=dict(color=colors, line=dict(width=0)),
             text=[f"{row[1]:.1f} %" for row in rows],
             textposition="outside",
-            textfont=dict(color="#cbd5e1", size=11),
+            textfont=dict(color=charts.SLATE, size=11),
             hovertemplate=f"<b>%{{y}}</b><br>{t('map.hover.ke')} %{{x:.1f}} %<extra></extra>",
         )
     )
     fig.update_layout(
-        height=310,
-        margin=dict(l=10, r=35, t=15, b=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#94a3b8"),
-        xaxis=dict(title="Ke (%)", gridcolor="rgba(148,163,184,.09)", range=[0, max(row[1] for row in rows) * 1.25]),
-        yaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        showlegend=False,
+        **charts.layout(
+            310,
+            dict(l=10, r=35, t=15, b=10),
+            xaxis=charts.axis(title="Ke (%)", range=[0, max(row[1] for row in rows) * 1.25]),
+            yaxis=charts.axis(gridcolor=charts.CLEAR),
+            showlegend=False,
+        )
     )
     return fig
 
@@ -193,14 +193,14 @@ def render() -> None:
                 <div class="gc-card" style="min-height:280px">
                   <div style="display:flex;align-items:center;gap:10px">
                     <span style="font-size:1.8rem">{country['flag']}</span>
-                    <div><div style="color:#f1f5fb;font-weight:750;font-size:.94rem">{ui.esc(country['name'])}</div>
-                    <div style="color:#7f8fa5;font-size:.68rem">{ui.esc(t(f"group.{i18n.group_key(country['group'])}"))}</div></div>
+                    <div><div style="color:var(--ink);font-weight:750;font-size:.94rem">{ui.esc(country['name'])}</div>
+                    <div style="color:var(--ink-2);font-size:.68rem">{ui.esc(t(f"group.{i18n.group_key(country['group'])}"))}</div></div>
                   </div>
                   <div style="display:flex;align-items:center;gap:14px;margin-top:16px">
                     {ui.ring(result['score'], t('comp.ring_label'))}
                     <div>
                       {ui.verdict_badge(t(f"verdict.{i18n.verdict_key(result['verdict'])}"), tone)}
-                      <div style="color:#e6b86b;font-size:1.45rem;font-weight:800;margin-top:10px;letter-spacing:-.04em">{ke['ke']:.1f} %</div>
+                      <div style="color:var(--gold);font-size:1.45rem;font-weight:800;margin-top:10px;letter-spacing:-.04em">{ke['ke']:.1f} %</div>
                       <div class="gc-small">{t("comp.card_ke_risk", value=f"{result['risk']:.0f}")}</div>
                     </div>
                   </div>

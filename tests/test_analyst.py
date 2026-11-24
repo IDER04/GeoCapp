@@ -145,7 +145,7 @@ class TestMultilingual(unittest.TestCase):
         payload = analyst.payload_country(data.country_by_id("syria"))
         text = analyst.editorial_answer(payload, question="What explains the Syria verdict?")
         self.assertIn("Editorial mode", text)
-        self.assertIn("GeoCapital score:", text)
+        self.assertIn("GeoCapp score:", text)
         self.assertIn("Data not available:", text)
         for fr_prose in ("Mode éditorial", "Rendement exigé calculé", "Données non disponibles"):
             self.assertNotIn(fr_prose, text)
@@ -169,7 +169,7 @@ class TestMultilingual(unittest.TestCase):
         payload = analyst.payload_country(data.country_by_id("usa"))
         text = analyst.editorial_answer(payload)
         self.assertIn("Mode éditorial", text)
-        self.assertIn("Score GeoCapital", text)
+        self.assertIn("Score GeoCapp", text)
         self.assertIn("Rendement exigé calculé en Python", text)
 
     # 7. Les faits, sources, dates et la structure restent identiques :
@@ -310,7 +310,7 @@ class TestPromptConstruction(unittest.TestCase):
         payload = analyst.payload_country(data.country_by_id("usa"))
         messages = analyst.build_messages(payload, "Question ?")
         self.assertEqual(messages[0]["role"], "system")
-        self.assertIn("analyste IA de GeoCapital", messages[0]["content"])
+        self.assertIn("analyste IA de GeoCapp", messages[0]["content"])
         self.assertIn("FAITS VALIDÉS", messages[-1]["content"])
         self.assertIn("QUESTION DE L'UTILISATEUR", messages[-1]["content"])
 

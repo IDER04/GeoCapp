@@ -36,7 +36,7 @@ def render() -> None:
                 f"""
                 <div class="gc-card" style="min-height:190px">
                   <div class="gc-eyebrow">{ui.esc(eyebrow)}</div>
-                  <h4 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;font-weight:400">{ui.esc(title)}</h4>
+                  <h4 style="font-family:var(--f-serif);font-size:1.3rem;font-weight:400">{ui.esc(title)}</h4>
                   <p style="font-size:.82rem;line-height:1.65">{ui.esc(text)}</p>
                 </div>
                 """,
@@ -82,7 +82,7 @@ def render() -> None:
     st.markdown(
         f"""
         <div class="gc-card gc-card-gold">
-          <h4 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;font-weight:400">{t("me.ke.formula")}</h4>
+          <h4 style="font-family:var(--f-serif);font-size:1.3rem;font-weight:400">{t("me.ke.formula")}</h4>
           <p style="margin-top:8px;font-size:.85rem;line-height:1.7">
             {t("me.ke.body", risk_free=RISK_FREE_RATE, mature_erp=MATURE_ERP, beta="1.0", ratio=EQUITY_BOND_VOL_RATIO)}
           </p>
@@ -139,7 +139,7 @@ def render() -> None:
     ui.section_title(t("me.sources.title"), t("me.sources.sub"))
     for source in meta.get("sources", []):
         st.markdown(
-            f'<div style="padding:9px 0;border-bottom:1px solid rgba(148,163,184,.1)"><a href="{ui.esc(source.get("url"))}" target="_blank" style="font-size:.82rem;font-weight:650">{ui.esc(source.get("name"))}</a><div class="gc-small">{ui.esc(source.get("use"))}</div></div>',
+            f'<div style="padding:9px 0;border-bottom:1px solid var(--line)"><a href="{ui.esc(source.get("url"))}" target="_blank" style="font-size:.82rem;font-weight:650">{ui.esc(source.get("name"))}</a><div class="gc-small">{ui.esc(source.get("use"))}</div></div>',
             unsafe_allow_html=True,
         )
     st.caption(t("me.sources.caption", last_update=meta.get("app", {}).get("last_update", "2024-2025")))

@@ -201,7 +201,7 @@
       "Elle attire automatiquement les bailleurs"
     ],
     "answer": 1,
-    "explanation": "Sans note ni CDS, aucun marché ne donne de prix au risque souverain. GeoCapital traite ce vide comme un risque maximal, et non comme une absence de risque."
+    "explanation": "Sans note ni CDS, aucun marché ne donne de prix au risque souverain. GeoCapp traite ce vide comme un risque maximal, et non comme une absence de risque."
   },
   "order": 10
 }

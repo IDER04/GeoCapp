@@ -15,13 +15,14 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import streamlit as st
 
-from geocapital import data, freshness, i18n, risk_lab, ui
+from geocapital import charts, data, freshness, i18n, risk_lab, ui
 from geocapital.data import countries, country_by_id
 from geocapital.i18n import t
 from geocapital.scoring import model
 
 # Couleurs des paliers de taux réel (cohérentes avec les feux du modèle).
-_BAND_COLORS = {"good": "rgba(74,222,128,0.28)", "mid": "rgba(251,191,36,0.25)", "poor": "rgba(251,113,133,0.25)"}
+# Paliers en niveaux de gris : plus c'est foncé, meilleur est le palier.
+_BAND_COLORS = {"good": "rgba(17,17,17,0.16)", "mid": "rgba(17,17,17,0.09)", "poor": "rgba(180,68,60,0.14)"}
 _METRIC_CHOICES = ("debt_gdp", "real_rate", "reserves")
 
 
@@ -118,7 +119,7 @@ def _missing_section(metrics: list[dict]) -> None:
         key = metric["key"]
         rows.append(
             f"<tr><td class='gc-table-label'>{ui.esc(_metric_label(key))}"
-            f"<br><span style='color:#7f8fa5;font-weight:400'>{ui.esc(metric['unit'] or '')}</span></td>"
+            f"<br><span style='color:var(--ink-2);font-weight:400'>{ui.esc(metric['unit'] or '')}</span></td>"
             f"<td>{ui.esc(t(f'rl.why.{key}'))}</td>"
             f"<td>{ui.esc(t(f'rl.need.{key}'))}</td></tr>"
         )
@@ -179,23 +180,22 @@ def _real_rate_chart(detail: dict) -> go.Figure:
             y=0.12,
             text=f"{t('rl.real.band_label')} {score:.0f}",
             showarrow=False,
-            font=dict(size=9, color="#64748b"),
+            font=dict(size=9, color=charts.SLATE),
         )
     fig.add_vline(
         x=detail["real_rate"],
-        line=dict(color="#e6b86b", width=3),
+        line=dict(color=charts.OBSIDIAN, width=2.5),
         annotation_text=f"{detail['real_rate']:.1f} %",
         annotation_position="top",
-        annotation_font=dict(color="#e6b86b", size=13),
+        annotation_font=dict(color=charts.OBSIDIAN, size=13),
     )
     fig.update_layout(
-        height=170,
-        margin=dict(l=10, r=10, t=28, b=28),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#94a3b8"),
-        xaxis=dict(title=t("rl.real.xaxis"), gridcolor="rgba(148,163,184,.09)", zerolinecolor="rgba(148,163,184,.2)"),
-        yaxis=dict(visible=False, range=[0, 1]),
+        **charts.layout(
+            170,
+            dict(l=10, r=10, t=28, b=28),
+            xaxis=charts.axis(title=t("rl.real.xaxis"), zerolinecolor=charts.GRID_STRONG),
+            yaxis=dict(visible=False, range=[0, 1]),
+        )
     )
     return fig
 
@@ -328,7 +328,7 @@ def _comparison_chart(selected: list[dict], matrix: dict, metric_key: str) -> No
             continue
         xs.append(f"{country['flag']} {country['name']}")
         ys.append(float(cell["value"]))
-        colors.append("#fb7185" if "conflicting" in cell["warnings"] else "#fbbf24" if cell["warnings"] else "#e6b86b")
+        colors.append(charts.RED if "conflicting" in cell["warnings"] else charts.AMBER if cell["warnings"] else charts.OBSIDIAN)
     if not xs:
         st.caption(t("rl.comp.no_data"))
         return
@@ -339,18 +339,17 @@ def _comparison_chart(selected: list[dict], matrix: dict, metric_key: str) -> No
             marker=dict(color=colors, line=dict(width=0)),
             text=[f"{v:.1f}" for v in ys],
             textposition="outside",
-            textfont=dict(color="#cbd5e1", size=11),
+            textfont=dict(color=charts.SLATE, size=11),
         )
     )
     fig.update_layout(
-        height=300,
-        margin=dict(l=10, r=25, t=15, b=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#94a3b8"),
-        yaxis=dict(title=_metric_label(metric_key), gridcolor="rgba(148,163,184,.09)"),
-        xaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        showlegend=False,
+        **charts.layout(
+            300,
+            dict(l=10, r=25, t=15, b=10),
+            yaxis=charts.axis(title=_metric_label(metric_key)),
+            xaxis=charts.axis(gridcolor=charts.CLEAR),
+            showlegend=False,
+        )
     )
     st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 

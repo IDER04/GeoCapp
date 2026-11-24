@@ -29,7 +29,7 @@ INTENTS = [
     ("portfolio", "Analyser mon portefeuille"),
 ]
 
-ANALYST_SYSTEM_RULES = """Tu es l'analyste IA de GeoCapital, application pédagogique.
+ANALYST_SYSTEM_RULES = """Tu es l'analyste IA de GeoCapp, application pédagogique.
 Règles absolues :
 - Utilise UNIQUEMENT les faits fournis dans la section « FAITS VALIDÉS » du message.
   N'invente aucun chiffre, aucune date, aucune source et aucune donnée absente.
@@ -178,7 +178,7 @@ def missing_indicators(country: dict[str, Any]) -> list[dict[str, str]]:
             missing.append(
                 {
                     "label": label,
-                    "detail": "Non coté / non publié dans la base GeoCapital : à traiter comme « donnée non disponible ».",
+                    "detail": "Non coté / non publié dans la base GeoCapp : à traiter comme « donnée non disponible ».",
                 }
             )
     return missing
@@ -469,7 +469,7 @@ def build_messages(
     """Assemble système + historique (6 derniers échanges au plus) + question."""
     recent = (history or [])[-MAX_EXCHANGES * 2 :]
     context_root = (
-        "CONTEXTE : la base GeoCapital ne couvre que des données de référence "
+        "CONTEXTE : la base GeoCapp ne couvre que des données de référence "
         "2024-2025 ; les événements postérieurs sont hors du champ des faits.\n\n"
         "FAITS VALIDÉS :\n"
         + json.dumps(payload, ensure_ascii=False)
@@ -500,7 +500,7 @@ def editorial_answer(payload: dict[str, Any], question: str | None = None) -> st
         ke = score_block.get("rendement_exige") or {}
         if lang == "fr":
             lines.append(
-                f"Score GeoCapital : {score_block['score']}/100 ({score_block.get('profil')}) · "
+                f"Score GeoCapp : {score_block['score']}/100 ({score_block.get('profil')}) · "
                 f"verdict : {score_block.get('verdict')}."
             )
             if ke:
@@ -510,7 +510,7 @@ def editorial_answer(payload: dict[str, Any], question: str | None = None) -> st
                 )
         else:
             lines.append(
-                f"GeoCapital score: {score_block['score']}/100 ({score_block.get('profil')}) · "
+                f"GeoCapp score: {score_block['score']}/100 ({score_block.get('profil')}) · "
                 f"verdict: {score_block.get('verdict')}."
             )
             if ke:

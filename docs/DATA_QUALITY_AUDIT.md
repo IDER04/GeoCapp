@@ -1,4 +1,4 @@
-# GeoCapital — Data Quality Audit (Priority 7, increment 7.1)
+# GeoCapp — Data Quality Audit (Priority 7, increment 7.1)
 
 > **Review-first matrix** generated on 2026-10-25 from production data, with no changes to data, formulas, parameters, or app behavior.
 > Machine-readable companion: `data/audit/data_quality_audit.json`.

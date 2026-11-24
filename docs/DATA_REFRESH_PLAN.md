@@ -1,4 +1,4 @@
-# GeoCapital — Plan de rafraîchissement des données (Phase 1, incrément 1)
+# GeoCapp — Plan de rafraîchissement des données (Phase 1, incrément 1)
 
 > Priorité 6. Implémentation : `geocapital/refresh.py` · Première
 > exécution : rapport candidats `docs/REFRESH_CANDIDATES_BRA_LBN_SYR.md`
@@ -47,7 +47,7 @@ indicateurs de marché sans équivalent officiel gratuit unique
 (`policy_rate`, `rating`, `cds`, `crp`, `equity_index`, `currency`) ne
 sont **pas** mappés — sources manuelles obligatoires.
 
-| Indicateur GeoCapital | Série WB | Correspondance | Note de définition |
+| Indicateur GeoCapp | Série WB | Correspondance | Note de définition |
 |---|---|---|---|
 | `gdp_growth` | `NY.GDP.MKTP.KD.ZG` | `exact` | PIB réel, croissance annuelle % |
 | `inflation` | `FP.CPI.TOTL.ZG` | `exact` | IPC de consommation, moyenne annuelle % (pas un point fin d'année) |

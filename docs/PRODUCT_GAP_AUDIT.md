@@ -1,4 +1,4 @@
-# GeoCapital — Product Gap Audit (FR/EN, MVP 1.0)
+# GeoCapp — Product Gap Audit (FR/EN, MVP 1.0)
 
 Date: 2026-10-25 · Scope: 8 product sections, functional gaps prioritized
 (funcional completeness > visual polish). Verification for this audit:

@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "GeoCapital",
+    "name": "GeoCapp",
     "tagline": "Connaître le passé pour anticiper le futur.",
     "version": "MVP 1.0",
     "last_update": "Données de référence 2024-2025",
@@ -42,7 +42,7 @@
     },
     {
       "name": "Banque mondiale — Worldwide Governance Indicators",
-      "use": "Qualité de la gouvernance (score qualitatif GeoCapital)",
+      "use": "Qualité de la gouvernance (score qualitatif GeoCapp)",
       "url": "https://www.worldbank.org/en/publication/worldwide-governance-indicators"
     },
     {

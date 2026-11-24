@@ -1,4 +1,4 @@
-# GeoCapital — Revue des 8 candidats « manual » (Priorité 6, incrément 1)
+# GeoCapp — Revue des 8 candidats « manual » (Priorité 6, incrément 1)
 
 > Date de revue : 2026-10-25 · Portée : les **8 candidats classés
 > `manual`** dans `docs/REFRESH_CANDIDATES_BRA_LBN_SYR.md`.
@@ -225,7 +225,7 @@ réserves) — voir détail par entrée.
   dette du **gouvernement CENTRAL** (source : Government Finance
   Statistics Yearbook, FMI).
 - **Confrontation officielle (définition correcte)** : l'indicateur
-  GeoCapital correspond à la dette du **secteur public général** — au
+  GeoCapp correspond à la dette du **secteur public général** — au
   Brésil, la mesure officielle est la **DBGG (dívida bruta do governo
   geral)**, publiée par le Banco Central (SGS 13762, méthodologie 2008,
   alignée FMI) : **76,27 % du PIB en déc. 2024** et 78,64 % en déc.

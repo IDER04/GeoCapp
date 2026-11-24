@@ -20,7 +20,7 @@ INTENT_ICONS = {
     "portfolio": "◫",
 }
 
-FALLBACK_QUESTION = "Donne-moi une vue d'ensemble des pays couverts par GeoCapital."
+FALLBACK_QUESTION = "Donne-moi une vue d'ensemble des pays couverts par GeoCapp."
 
 
 def _init_state() -> None:
@@ -100,7 +100,7 @@ def _facts_expander(payload: dict, expanded: bool = False) -> None:
     with st.expander(t("an.facts.expander"), expanded=expanded):
         st.caption(t("an.facts.caption"))
         st.markdown(
-            "<pre style='font-size:.72rem;line-height:1.5;color:#a9b7cc;"
+            "<pre style='font-size:.72rem;line-height:1.5;color:var(--ink-2);"
             "white-space:pre-wrap'>"
             + ui.esc(json.dumps(payload, ensure_ascii=False, indent=2))
             + "</pre>",

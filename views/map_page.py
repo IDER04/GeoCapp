@@ -7,7 +7,7 @@ from typing import Any
 import plotly.graph_objects as go
 import streamlit as st
 
-from geocapital import ai, i18n, ui
+from geocapital import ai, charts, i18n, ui
 from geocapital.i18n import t
 from geocapital.data import countries
 from geocapital.scoring import (
@@ -159,8 +159,8 @@ def _map_figure(
         ]
         for row in rows
     ]
-    line_colors = ["#e6b86b" if row["country"]["id"] == selected_id else "#0b1220" for row in rows]
-    line_widths = [1.8 if row["country"]["id"] == selected_id else 0.9 for row in rows]
+    line_colors = [charts.OBSIDIAN if row["country"]["id"] == selected_id else charts.WHITE for row in rows]
+    line_widths = [2.2 if row["country"]["id"] == selected_id else 0.8 for row in rows]
     fig = go.Figure(
         go.Choropleth(
             locations=[row["country"]["iso3"] for row in rows],
@@ -168,23 +168,21 @@ def _map_figure(
             customdata=custom,
             locationmode="ISO-3",
             colorscale=[
-                [0.0, "#6b1f2a"],
-                [0.28, "#9a3412"],
-                [0.47, "#b45309"],
-                [0.62, "#a3a30d"],
-                [0.78, "#4d9b3a"],
-                [1.0, "#22c55e"],
+                [0.0, "#E9E9E6"],
+                [0.35, charts.LIGHT],
+                [0.65, charts.SLATE],
+                [1.0, charts.OBSIDIAN],
             ],
             zmin=0,
             zmax=100,
             marker_line_color=line_colors,
             marker_line_width=line_widths,
             colorbar=dict(
-                title=dict(text=metric_label, font=dict(color="#9aa8bd", size=11)),
-                thickness=9,
+                title=dict(text=metric_label, font=dict(color=charts.SLATE, size=11)),
+                thickness=8,
                 len=0.62,
                 x=1.01,
-                tickfont=dict(color="#7f8fa5", size=9),
+                tickfont=dict(color=charts.SLATE, size=9),
                 outlinewidth=0,
                 bgcolor="rgba(0,0,0,0)",
             ),
@@ -203,11 +201,10 @@ def _map_figure(
         showframe=False,
         showcoastlines=False,
         showland=True,
-        landcolor="#151d2d",
-        showocean=True,
-        oceancolor="#080e19",
+        landcolor="#ECECEA",
+        showocean=False,
         showcountries=True,
-        countrycolor="#2b3548",
+        countrycolor="#FFFFFF",
         bgcolor="rgba(0,0,0,0)",
         lataxis_range=[-58, 85],
         domain=dict(x=[0.0, 0.94], y=[0.0, 1.0]),
@@ -227,31 +224,20 @@ def _map_figure(
                 projection_rotation_lon=center_lon,
                 projection_rotation_lat=0,
             )
-    fig.update_layout(
-        height=540,
-        margin=dict(l=0, r=0, t=0, b=0),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#cbd5e1"),
-        hoverlabel=dict(
-            bgcolor="#0e1626",
-            bordercolor="#334155",
-            font=dict(color="#e9eef7", family="Manrope, sans-serif"),
-        ),
-        dragmode=False,
-    )
+    fig.update_layout(**charts.layout(540, dict(l=0, r=0, t=0, b=0), dragmode=False))
     return fig
 
 
 def _risk_return_figure(rows: list[dict[str, Any]]) -> go.Figure:
-    group_colors = {
-        "Développé": "#7dd3fc",
-        "Émergent": "#e6b86b",
-        "Golfe": "#a3e635",
-        "Frontière": "#fb7185",
+    # Groupes distingués par nuance de gris ET par symbole (monochrome).
+    group_style = {
+        "Développé": (charts.OBSIDIAN, "circle"),
+        "Émergent": (charts.SLATE, "diamond"),
+        "Golfe": (charts.SILVER, "square"),
+        "Frontière": (charts.GRAPHITE, "triangle-up"),
     }
     fig = go.Figure()
-    for group, color in group_colors.items():
+    for group, (color, symbol) in group_style.items():
         # Le filtre passe par le code de groupe (FR et EN mappent au même
         # code) : fonctionne avec des pays localisés ou non.
         subset = [r for r in rows if i18n.group_key(r["country"]["group"]) == i18n.group_key(group)]
@@ -266,12 +252,13 @@ def _risk_return_figure(rows: list[dict[str, Any]]) -> go.Figure:
                 name=group_label,
                 text=[r["country"]["name"] for r in subset],
                 textposition="top center",
-                textfont=dict(size=9, color="#aebaca"),
+                textfont=dict(size=9, color=charts.SLATE),
                 marker=dict(
                     size=[max(10, r["score"] * 0.38) for r in subset],
                     color=color,
-                    opacity=0.82,
-                    line=dict(width=1, color="#0b1220"),
+                    symbol=symbol,
+                    opacity=0.85,
+                    line=dict(width=1, color=charts.WHITE),
                 ),
                 customdata=[
                     [r["country"]["flag"], r["score"], t(f"verdict.{i18n.verdict_key(r['verdict'])}")]
@@ -286,33 +273,14 @@ def _risk_return_figure(rows: list[dict[str, Any]]) -> go.Figure:
                 ),
             )
         )
-    fig.add_vline(x=50, line_dash="dot", line_color="rgba(148,163,184,.25)")
-    fig.add_hline(y=12, line_dash="dot", line_color="rgba(148,163,184,.25)")
+    fig.add_vline(x=50, line_dash="dot", line_color=charts.GRID_STRONG)
+    fig.add_hline(y=12, line_dash="dot", line_color=charts.GRID_STRONG)
     fig.update_layout(
-        height=420,
-        margin=dict(l=10, r=10, t=10, b=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#94a3b8"),
-        xaxis=dict(
-            title=t("map.riskret.xaxis"),
-            range=[0, 100],
-            gridcolor="rgba(148,163,184,.09)",
-            zeroline=False,
-        ),
-        yaxis=dict(
-            title=t("map.riskret.yaxis"),
-            gridcolor="rgba(148,163,184,.09)",
-            zeroline=False,
-        ),
-        legend=dict(
-            orientation="h",
-            y=-0.18,
-            x=0,
-            font=dict(size=10),
-            bgcolor="rgba(0,0,0,0)",
-        ),
-        hoverlabel=dict(bgcolor="#0e1626", bordercolor="#334155"),
+        **charts.layout(
+            420,
+            xaxis=charts.axis(title=t("map.riskret.xaxis"), range=[0, 100]),
+            yaxis=charts.axis(title=t("map.riskret.yaxis")),
+        )
     )
     return fig
 
@@ -339,7 +307,7 @@ def render() -> None:
     with top_cols[0]:
         ui.kpi("10", t("map.kpi.countries"), t("map.kpi.countries_desc"))
     with top_cols[1]:
-        ui.kpi(f"{ranked[0]['score']:.0f}<small>/100</small>", t("map.kpi.best"), f"{ranked[0]['country']['flag']} {ranked[0]['country']['name']}")
+        ui.kpi(f"{ranked[0]['score']:.0f}<small>/100</small>", t("map.kpi.best"), f"{ranked[0]['country']['flag']} {ranked[0]['country']['name']}", dark=True)
     with top_cols[2]:
         median_ke = sorted(row["ke"] for row in rows)[len(rows) // 2]
         ui.kpi(f"{median_ke:.1f}<small> %</small>", t("map.kpi.median"), t("map.kpi.median_desc"))
@@ -465,7 +433,7 @@ def render() -> None:
                 <div class="gc-card" style="padding:14px;margin-bottom:8px">
                   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
                     <div><span style="font-size:1.4rem">{c['flag']}</span>
-                    <strong style="color:#f1f5fb;font-size:.88rem;margin-left:6px">{ui.esc(c['name'])}</strong></div>
+                    <strong style="color:var(--ink);font-size:.88rem;margin-left:6px">{ui.esc(c['name'])}</strong></div>
                     <strong style="color:var(--gold);font-size:1.2rem">{row['score']:.0f}</strong>
                   </div>
                   <div class="gc-small" style="margin-top:5px">{ui.esc(t(f"verdict.{i18n.verdict_key(row['verdict'])}"))} · Ke {row['ke']:.1f} %</div>

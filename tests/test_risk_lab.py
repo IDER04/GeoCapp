@@ -447,7 +447,16 @@ class RawKeyRegression(unittest.TestCase):
 
             # 2. Titre de page : traduit (dans un <h1> du page head).
             rendered = self._rendered_text(at)
-            self.assertIn(i18n.STRINGS[lang]["rl.title"], rendered, f"[{lang}] titre non traduit")
+            # Le titre est rendu par ui.page_head avec son dernier mot en italique :
+            # on exige le balisage exact produit par ui.editorial (aucun texte
+            # n'est retiré du rendu, donc une régression de rendu reste visible).
+            from geocapital import ui
+
+            self.assertIn(
+                ui.editorial(i18n.STRINGS[lang]["rl.title"]),
+                rendered,
+                f"[{lang}] titre non traduit ou mal rendu",
+            )
 
             # 3. Section « indisponible » groupée : titre traduit présent.
             #    (section_title échappe le HTML : comparer un fragment sans

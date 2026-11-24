@@ -1,4 +1,4 @@
-# GeoCapital — Limite de questions de l'Analyste IA (par session)
+# GeoCapp — Limite de questions de l'Analyste IA (par session)
 
 > Priorité 5 Phase 1. Implémentation : `geocapital/limits.py`,
 > câblée dans `views/analyst_page.py`. Config : `data/meta.json` →

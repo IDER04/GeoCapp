@@ -7,14 +7,15 @@ from typing import Any
 import plotly.graph_objects as go
 import streamlit as st
 
-from geocapital import ai, i18n, ui
+from geocapital import ai, charts, i18n, ui
 from geocapital.i18n import t
 from geocapital.data import countries
 from geocapital.scoring import overall_score, portfolio_metrics, required_return
 
+# Rampe de gris (monochrome) : 10 nuances, de l'obsidienne à l'argent clair.
 PALETTE = [
-    "#e6b86b", "#7dd3fc", "#a3e635", "#fbbf24", "#c084fc",
-    "#34d399", "#fb7185", "#93c5fd", "#f97316", "#94a3b8",
+    "#121212", "#2A2A2A", "#3F3F43", "#55555A", "#6E6E73",
+    "#86868B", "#A1A1A6", "#B8B8BD", "#CDCDD1", "#E1E1E4",
 ]
 
 PRESETS = {
@@ -51,26 +52,23 @@ def _donut(holdings: list[dict[str, Any]], portfolio: dict[str, Any]) -> go.Figu
             labels=labels,
             values=values,
             hole=0.64,
-            marker=dict(colors=colors, line=dict(color="#0b1423", width=2)),
+            marker=dict(colors=colors, line=dict(color=charts.WHITE, width=2)),
             textinfo="percent",
-            textfont=dict(size=10, color="#0b1423"),
+            textfont=dict(size=10, color=[charts.WHITE if i < 6 else charts.OBSIDIAN for i in range(len(active))]),
             hovertemplate="<b>%{label}</b><br>%{value:,.0f} €<br>%{percent}<extra></extra>",
             sort=False,
         )
     )
     fig.update_layout(
-        height=360,
-        margin=dict(l=0, r=0, t=0, b=0),
-        paper_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#94a3b8"),
+        **charts.layout(360, dict(l=0, r=0, t=0, b=0)),
         showlegend=False,
         annotations=[
             dict(
-                text=f"<b>{portfolio['expected_return']:.1f} %</b><br><span style='font-size:10px;color:#8fa0b6'>{t('pf.donut.ke_mean')}</span>",
+                text=f"<b>{portfolio['expected_return']:.1f} %</b><br><span style='font-size:10px;color:#6E6E73'>{t('pf.donut.ke_mean')}</span>",
                 x=0.5,
                 y=0.5,
                 showarrow=False,
-                font=dict(size=19, color="#f1f5fb"),
+                font=dict(size=19, color=charts.OBSIDIAN),
             )
         ],
     )
@@ -89,19 +87,18 @@ def _risk_contribution_chart(holdings: list[dict[str, Any]]) -> go.Figure:
             x=values,
             y=labels,
             orientation="h",
-            marker=dict(color=["#fb7185" if value > 8 else "#e6b86b" if value > 4 else "#4ade80" for value in values]),
+            marker=dict(color=[charts.RED if value > 8 else charts.SLATE if value > 4 else charts.SILVER for value in values]),
             hovertemplate=f"<b>%{{y}}</b><br>{t('pf.hover.contrib')} %{{x:.1f}}<extra></extra>",
         )
     )
     fig.update_layout(
-        height=330,
-        margin=dict(l=10, r=15, t=10, b=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Manrope, sans-serif", color="#94a3b8"),
-        xaxis=dict(title=t("pf.chart.weight_vol"), gridcolor="rgba(148,163,184,.09)"),
-        yaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        showlegend=False,
+        **charts.layout(
+            330,
+            dict(l=10, r=15, t=10, b=10),
+            xaxis=charts.axis(title=t("pf.chart.weight_vol")),
+            yaxis=charts.axis(gridcolor=charts.CLEAR),
+            showlegend=False,
+        )
     )
     return fig
 
@@ -181,18 +178,35 @@ def render() -> None:
         t("pf.subtitle"),
     )
 
-    preset_cols = st.columns([1, 1, 1, 2.2])
-    with preset_cols[0]:
-        st.button(t("pf.preset.defensive"), key="preset_defensive", width="stretch", on_click=_apply_preset, args=("Défensif",))
-    with preset_cols[1]:
-        st.button(t("pf.preset.balanced"), key="preset_balanced", width="stretch", on_click=_apply_preset, args=("Équilibré",))
-    with preset_cols[2]:
-        st.button(t("pf.preset.offensive"), key="preset_offensive", width="stretch", on_click=_apply_preset, args=("Offensif",))
-    with preset_cols[3]:
+    # Barre de presets (présentation seule) : le bouton du preset actif est mis
+    # en avant en comparant les montants de session au preset — sans rien écrire.
+    def _matches(name: str) -> bool:
+        target = PRESETS[name]
+        return all(
+            int(st.session_state.get(f"amount_{c['id']}", 0)) == int(target.get(c["id"], 0))
+            for c in countries()
+        )
+
+    with st.container(border=True):
         st.markdown(
-            f'<div class="gc-small" style="text-align:right;margin-top:9px">{t("pf.presets_hint")}</div>',
+            f'<div class="gc-preset-hint"><b>{ui.esc(t("pf.presets_label"))}</b><span>{ui.esc(t("pf.presets_hint"))}</span></div>',
             unsafe_allow_html=True,
         )
+        preset_cols = st.columns(3)
+        for col, key, label_key, name in (
+            (preset_cols[0], "preset_defensive", "pf.preset.defensive", "Défensif"),
+            (preset_cols[1], "preset_balanced", "pf.preset.balanced", "Équilibré"),
+            (preset_cols[2], "preset_offensive", "pf.preset.offensive", "Offensif"),
+        ):
+            with col:
+                st.button(
+                    t(label_key),
+                    key=key,
+                    width="stretch",
+                    on_click=_apply_preset,
+                    args=(name,),
+                    type="primary" if _matches(name) else "secondary",
+                )
 
     ui.section_title(t("pf.section.allocation"), t("pf.section.allocation_sub"))
     allocations = {}
@@ -201,7 +215,7 @@ def render() -> None:
         result = overall_score(country, profile)
         with cols[index % 5]:
             st.markdown(
-                f'<div style="display:flex;justify-content:space-between;align-items:center;margin:7px 0 3px"><span style="font-size:.79rem;color:#dce6f3;font-weight:700">{country["flag"]} {ui.esc(country["name"])}</span><span style="font-size:.67rem;color:#7f8fa5">{result["score"]:.0f}</span></div>',
+                f'<div style="display:flex;justify-content:space-between;align-items:center;margin:7px 0 3px"><span style="font-size:.79rem;color:var(--ink);font-weight:700">{country["flag"]} {ui.esc(country["name"])}</span><span style="font-size:.67rem;color:var(--ink-2)">{result["score"]:.0f}</span></div>',
                 unsafe_allow_html=True,
             )
             allocations[country["id"]] = st.number_input(
@@ -275,7 +289,7 @@ def render() -> None:
         ui.section_title(t("pf.section.chart"), t("pf.section.chart_sub"))
         st.plotly_chart(_donut(holdings, metrics), width="stretch", config={"displayModeBar": False})
         legend = "".join(
-            f'<div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid rgba(148,163,184,.10);font-size:.72rem"><span style="color:#aab7c9">{ui.esc(h["country"]["flag"])} {ui.esc(h["country"]["name"])}</span><span style="color:#7f8fa5">{h["weight"]*100:.1f} %</span></div>'
+            f'<div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line);font-size:.72rem"><span style="color:var(--ink-2)">{ui.esc(h["country"]["flag"])} {ui.esc(h["country"]["name"])}</span><span style="color:var(--ink-2)">{h["weight"]*100:.1f} %</span></div>'
             for h in sorted(holdings, key=lambda item: item["weight"], reverse=True)
             if h["weight"] > 0
         )
@@ -286,7 +300,7 @@ def render() -> None:
         st.markdown(
             f"""
             <div class="gc-card gc-card-gold">
-              <p style="font-size:.86rem;line-height:1.72;color:#c3cedd">{ui.esc(_commentary(holdings, metrics))}</p>
+              <p style="font-size:.86rem;line-height:1.72;color:var(--ink)">{ui.esc(_commentary(holdings, metrics))}</p>
             </div>
             """,
             unsafe_allow_html=True,

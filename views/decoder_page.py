@@ -60,8 +60,8 @@ def render() -> None:
           <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start">
             <div>
               <div class="gc-eyebrow">{ui.esc(event.get('category'))} · {ui.esc(country['flag'])} {ui.esc(country_loc['name'])}</div>
-              <h2 style="font-family:'DM Serif Display',Georgia,serif;font-weight:400;color:#f8f4e9;font-size:clamp(1.5rem,2.6vw,2.25rem);margin:.25rem 0 .55rem;line-height:1.1">{ui.esc(event.get('title'))}</h2>
-              <p style="color:#aab7c9;font-size:.88rem;max-width:780px;margin:0">{ui.esc(event.get('summary'))}</p>
+              <h2 style="font-family:var(--f-serif);font-weight:400;color:var(--ink);font-size:clamp(1.5rem,2.6vw,2.25rem);margin:.25rem 0 .55rem;line-height:1.1">{ui.esc(event.get('title'))}</h2>
+              <p style="color:var(--ink-2);font-size:.88rem;max-width:780px;margin:0">{ui.esc(event.get('summary'))}</p>
             </div>
             <div style="text-align:right">
               <span class="gc-chip gold">{ui.esc(event.get('date'))}</span>

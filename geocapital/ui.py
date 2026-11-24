@@ -13,12 +13,13 @@ from geocapital import i18n
 from geocapital.i18n import t
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "styles.css"
+# Tons sémantiques : variables CSS (adaptées au contexte clair/anthracite).
 TONE_COLORS = {
-    "green": "#4ade80",
-    "lime": "#a3e635",
-    "orange": "#fbbf24",
-    "red": "#fb7185",
-    "gold": "#e6b86b",
+    "green": "var(--green)",
+    "lime": "var(--lime)",
+    "orange": "var(--orange)",
+    "red": "var(--red)",
+    "gold": "var(--ink)",
 }
 
 
@@ -93,6 +94,14 @@ def install_markdown_normalizer() -> None:
     st.markdown = markdown
 
 
+def editorial(title: str) -> str:
+    """Titre échappé, dernier mot en italique (identité éditoriale)."""
+    words = str(title or "").split(" ")
+    if len(words) < 2:
+        return esc(title)
+    return f"{esc(' '.join(words[:-1]))} <em>{esc(words[-1])}</em>"
+
+
 def hero(eyebrow: str, title: str, subtitle: str, chips: list[str] | None = None) -> None:
     chip_html = "".join(f'<span class="gc-chip gold">{esc(chip)}</span>' for chip in (chips or []))
     st.markdown(
@@ -100,7 +109,7 @@ def hero(eyebrow: str, title: str, subtitle: str, chips: list[str] | None = None
         <div class="gc-hero">
           <div class="gc-hero-content">
             <div class="gc-eyebrow">{esc(eyebrow)}</div>
-            <h1>{esc(title)}</h1>
+            <h1>{editorial(title)}</h1>
             <p>{esc(subtitle)}</p>
             <div class="gc-hero-actions">{chip_html}</div>
           </div>
@@ -115,7 +124,7 @@ def page_head(eyebrow: str, title: str, subtitle: str) -> None:
         f"""
         <div class="gc-page-head">
           <div class="gc-eyebrow">{esc(eyebrow)}</div>
-          <h1>{esc(title)}</h1>
+          <h1>{editorial(title)}</h1>
           <p>{esc(subtitle)}</p>
         </div>
         """,
@@ -130,10 +139,10 @@ def section_title(title: str, note: str = "") -> None:
     )
 
 
-def kpi(value: str, label: str, note: str = "") -> None:
+def kpi(value: str, label: str, note: str = "", dark: bool = False) -> None:
     st.markdown(
         f"""
-        <div class="gc-kpi">
+        <div class="gc-kpi{" dark" if dark else ""}">
           <div class="gc-kpi-label">{esc(label)}</div>
           <div class="gc-kpi-value">{value}</div>
           <div class="gc-kpi-note">{esc(note)}</div>
@@ -190,7 +199,7 @@ def country_hero(country: dict[str, Any], score_payload: dict[str, Any]) -> None
             <div class="gc-flag">{country.get('flag', '🌍')}</div>
             <div>
               <div class="gc-eyebrow">{esc(country.get('region'))} · {esc(country.get('group'))}</div>
-              <h1>{esc(country['name'])}</h1>
+              <h1>{editorial(country['name'])}</h1>
               <p>{esc(country.get('headline', ''))}</p>
               <div class="gc-country-meta">
                 <span class="gc-chip">{esc(country.get('official_name', ''))}</span>
@@ -319,11 +328,29 @@ def winners_losers(winners: list[str], losers: list[str]) -> None:
     )
 
 
+def context_bar(page: str, country_label: str, profile_label: str, as_of: str) -> None:
+    """Barre de contexte flottante (lecture seule) : page, pays, profil, date."""
+    st.markdown(
+        f"""
+        <div class="gc-context">
+          <div class="gc-context-l">
+            <span class="gc-context-page">{esc(page)}</span>
+            <span class="gc-context-sep"></span>
+            <span class="gc-chip">{esc(country_label)}</span>
+            <span class="gc-chip gold">{esc(profile_label)}</span>
+          </div>
+          <div class="gc-context-r"><span class="gc-chip">{esc(as_of)}</span></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def footer() -> None:
     st.markdown(
         f"""
         <div class="gc-footer">
-          <div><strong>GeoCapital</strong> · {t('ui.footer.tagline')}<br>
+          <div><strong>GeoCapp</strong> · {t('ui.footer.tagline')}<br>
           {t('ui.footer.disclaimer')}</div>
           <div>{t('ui.footer.not_advice')}<br>
           {t('ui.footer.ai_line')}</div>

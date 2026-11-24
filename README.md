@@ -1,4 +1,4 @@
-# GeoCapital — Connaître le passé pour anticiper le futur
+# GeoCapp — Connaître le passé pour anticiper le futur
 
 Application Streamlit pédagogique qui relie **l'histoire d'un pays**, **ses indicateurs financiers** et **une décision d'investissement** lisible : score sur 100, rendement exigé (Ke, méthode Damodaran) et verdict en quatre niveaux.
 
@@ -34,11 +34,11 @@ Installation détaillée, configuration, tests et organisation du code : [`docs/
 ## Données et méthode
 
 - Un fichier JSON par pays dans `data/countries/`, complété par `data/meta.json` et `data/events.json`.
-- **Score GeoCapital** : cinq composantes (dynamisme, stabilité macro, solvabilité, institutions, ouverture & affaires), notées de 0 à 100 et pondérées selon le profil Prudent / Équilibré / Audacieux.
+- **Score GeoCapp** : cinq composantes (dynamisme, stabilité macro, solvabilité, institutions, ouverture & affaires), notées de 0 à 100 et pondérées selon le profil Prudent / Équilibré / Audacieux.
 - **Rendement exigé** : `Ke = 4,20 % + 1,0 × 4,50 % + prime de risque pays`.
 - **Prime de risque pays** : maximum entre le spread de notation et le spread CDS, multiplié par 1,5 (ratio volatilité actions/obligations de Damodaran).
 - **Données manquantes** : une notation absente ou un CDS non coté réduit la solvabilité et **bloque le verdict « Investir »**. Pour le Liban et la Syrie, le vide est traité comme un signal de risque.
-- Les scores qualitatifs (gouvernance, résilience, climat des affaires, ouverture, stabilité devise) sont des évaluations GeoCapital explicites, pas des données brutes.
+- Les scores qualitatifs (gouvernance, résilience, climat des affaires, ouverture, stabilité devise) sont des évaluations GeoCapp explicites, pas des données brutes.
 
 ## Intelligence artificielle (optionnelle)
 

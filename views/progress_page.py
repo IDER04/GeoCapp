@@ -57,7 +57,7 @@ def render() -> None:
         <div class="gc-card" style="margin-top:14px">
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
             <div><div class="gc-eyebrow">{t("pr.card.eyebrow")}</div><h4 style="font-size:1rem">{t("pr.card.title")}</h4></div>
-            <div style="color:#e6b86b;font-weight:800">{completion:.0f} %</div>
+            <div style="color:var(--gold);font-weight:800">{completion:.0f} %</div>
           </div>
           <div class="gc-progress"><div style="width:{completion:.1f}%"></div></div>
           <div class="gc-small">{t("pr.card.note")}</div>

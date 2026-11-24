@@ -14,16 +14,17 @@ from geocapital.i18n import t
 # Codes de route internes (stables, jamais traduits) — libellés via i18n.t().
 PAGES = ["map", "country", "compare", "decoder", "analyst", "risk_lab", "portfolio", "progress", "sources"]
 
+# Icônes Material (traits fins, monochromes) rendues par Streamlit dans les libellés.
 ICONS = {
-    "map": "◉",
-    "country": "▤",
-    "compare": "⇄",
-    "decoder": "⌁",
-    "analyst": "✎",
-    "risk_lab": "⚖",
-    "portfolio": "◫",
-    "progress": "✦",
-    "sources": "◎",
+    "map": ":material/public:",
+    "country": ":material/travel_explore:",
+    "compare": ":material/compare_arrows:",
+    "decoder": ":material/lightbulb:",
+    "analyst": ":material/auto_awesome:",
+    "risk_lab": ":material/balance:",
+    "portfolio": ":material/pie_chart:",
+    "progress": ":material/trending_up:",
+    "sources": ":material/menu_book:",
 }
 
 # Migration des sessions existantes créées avant i18n (nav stockée en libellé FR).
@@ -79,7 +80,7 @@ def _sidebar() -> None:
               <div class="gc-brand-row">
                 <div class="gc-brand-mark">◍</div>
                 <div>
-                  <div class="gc-brand-title">GeoCapital</div>
+                  <div class="gc-brand-title">GeoCapp</div>
                   <div class="gc-brand-sub">{t("side.brand_sub")}</div>
                 </div>
               </div>
@@ -97,7 +98,7 @@ def _sidebar() -> None:
         st.radio(
             t("side.navigation"),
             PAGES,
-            format_func=lambda page: f"{ICONS.get(page, '·')}  {t(f'nav.{page}')}",
+            format_func=lambda page: f"{ICONS.get(page, '·')} {t(f'nav.{page}')}",
             key="nav",
             label_visibility="collapsed",
         )
@@ -119,7 +120,7 @@ def _sidebar() -> None:
 
         if current:
             st.markdown(
-                f'<div style="margin-top:10px;color:#7f8ea4;font-size:.72rem;line-height:1.5">{t("side.last_sheet")} {current["flag"]} <strong style="color:#c8d4e3">{ui.esc(i18n.localize_country(current)["name"])}</strong></div>',
+                f'<div style="margin-top:10px;color:var(--ink-3);font-size:.72rem;line-height:1.5">{t("side.last_sheet")} {current["flag"]} <strong style="color:var(--ink)">{ui.esc(i18n.localize_country(current)["name"])}</strong></div>',
                 unsafe_allow_html=True,
             )
 
@@ -132,6 +133,22 @@ def _sidebar() -> None:
             f'<div class="gc-side-muted" style="margin-top:10px">{t("side.last_update", range=i18n.update_range())}<br>{t("side.prototype_line")}</div>',
             unsafe_allow_html=True,
         )
+
+
+def _context_bar(page: str) -> None:
+    """Barre de contexte flottante : présentation seule (aucun widget, aucun état)."""
+    from geocapital.data import country_by_id
+
+    cid = st.session_state.get("country_id", "usa")
+    current = country_by_id(cid)
+    country_label = f"{current['flag']} {i18n.country_name(cid)}" if current else ""
+    profile = st.session_state.get("profile", "Équilibré")
+    ui.context_bar(
+        t(f"nav.{page}") if page in PAGES else "",
+        country_label,
+        t(f"profile.{i18n.profile_key(profile)}"),
+        t("side.last_update", range=i18n.update_range()).replace("<br>", " "),
+    )
 
 
 def main() -> None:
@@ -160,6 +177,7 @@ def main() -> None:
     )
 
     page = st.session_state.get("nav", "map")
+    _context_bar(page)
     routes = {
         "map": map_page.render,
         "country": country_page.render,

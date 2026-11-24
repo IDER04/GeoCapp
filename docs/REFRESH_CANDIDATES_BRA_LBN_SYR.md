@@ -41,7 +41,7 @@ Comptage global : **0 safe · 8 manual · 6 reject · 1 gap** (15 candidats).
 - Proposé : 128.6413 % · 1999 · obs_status=actual · publication (dataupdated) : 2026-10-08 · « Banque mondiale (WDI), série GC.DOD.TOTL.GD.ZS »
 - Requête API : https://api.worldbank.org/v2/country/LBN/indicator/GC.DOD.TOTL.GD.ZS?format=json&per_page=60&page=1
 - Date de récupération : 2026-10-25
-- Écart de définition : GeoCapital suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées.
+- Écart de définition : GeoCapp suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées.
 - **Recommandation : `reject`** — série « dette du gouvernement central » obsolète (1999) et définition sous-couverte (gouvernement central ≠ dette générale) — conservé 2024: 150.
 
 ### reserves (lebanon)
@@ -51,7 +51,7 @@ Comptage global : **0 safe · 8 manual · 6 reject · 1 gap** (15 candidats).
 - Requête API : https://api.worldbank.org/v2/country/LBN/indicator/FI.RES.TOTL.CD?format=json&per_page=60&page=1
 - Date de récupération : 2026-10-25
 - Écart de définition : unité convertie (US$ → Mds $) : conversion définie, sans ambiguïté
-- Écart de définition : Unité demandée GeoCapital : Mds $ (US$ / 1e9). Certaines fiches de production (ex. Liban) documentent les réserves NETTES — écart de définition, alors rejeté.
+- Écart de définition : Unité demandée GeoCapp : Mds $ (US$ / 1e9). Certaines fiches de production (ex. Liban) documentent les réserves NETTES — écart de définition, alors rejeté.
 - **Recommandation : `reject`** — définitions incompatibles: la fiche documente des réserves NETTES (10 Mds $) alors que la série WB est TOTALE (brut, or inclus) (33.3 Mds $) — ne pas écraser.
 
 ## syria
@@ -87,7 +87,7 @@ Comptage global : **0 safe · 8 manual · 6 reject · 1 gap** (15 candidats).
 - Proposé : — (aucune observation exploitable)
 - Requête API : https://api.worldbank.org/v2/country/SYR/indicator/GC.DOD.TOTL.GD.ZS?format=json&per_page=60&page=1
 - Date de récupération : 2026-10-25
-- Écart de définition : GeoCapital suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées.
+- Écart de définition : GeoCapp suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées.
 - **Recommandation : `gap`** — aucune observation exploitable côté WDI — valeur existante conservée, écart signalé.
 
 ### reserves (syria)
@@ -132,7 +132,7 @@ Comptage global : **0 safe · 8 manual · 6 reject · 1 gap** (15 candidats).
 - Proposé : 81.8554 % · 2024 · obs_status=actual · publication (dataupdated) : 2026-10-08 · « Banque mondiale (WDI), série GC.DOD.TOTL.GD.ZS »
 - Requête API : https://api.worldbank.org/v2/country/BRA/indicator/GC.DOD.TOTL.GD.ZS?format=json&per_page=60&page=1
 - Date de récupération : 2026-10-25
-- Écart de définition : GeoCapital suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées.
+- Écart de définition : GeoCapp suit la dette OFFICIELLE (générale) du secteur public — la série WB « central government » sous-estime la dette générale (administration locale, entreprises publiques). Comparer avec précaution ; pour plusieurs pays la série s'arrête en années reculées.
 - **Recommandation : `manual`** — nouveau pays (expansion, aucun fichier de production) : définition à confirmer contre la future fiche et données croisées avec une seconde source officielle.
 
 ### reserves (brazil)

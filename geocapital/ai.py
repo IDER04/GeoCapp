@@ -24,7 +24,7 @@ MAX_TOKENS = 700
 
 _ENV_LOADED = False
 
-SYSTEM_RULES = """Tu es l'analyste pédagogique de GeoCapital.
+SYSTEM_RULES = """Tu es l'analyste pédagogique de GeoCapp.
 Règles absolues :
 - Explique uniquement à partir des faits fournis dans le message.
 - N'invente aucun chiffre, aucune date, aucune notation et aucun événement.
@@ -171,7 +171,7 @@ def country_brief(country: dict[str, Any], score_payload: dict[str, Any]) -> str
         },
     }
     prompt = (
-        "Rédige la synthèse GeoCapital de ce pays en 3 minutes de lecture. "
+        "Rédige la synthèse GeoCapp de ce pays en 3 minutes de lecture. "
         "Relie une cause historique à un risque financier actuel, puis explique le verdict. "
         "N'ajoute aucun chiffre absent des faits.\n\nFAITS:\n"
         + json.dumps(facts, ensure_ascii=False, indent=2)

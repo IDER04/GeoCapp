@@ -5,7 +5,7 @@
     "retrieved": "2026-10-25",
     "review_reference": "docs/REFRESH_REVIEW.md — candidats 4, 5, 6, 7, 8 (incrément 6.2)",
     "not_registered_in_production": true,
-    "resolution_policy": "Une valeur n'est retenue que si elle est officielle, directement vérifiée (source + URL) et comparable en définition avec l'indicateur GeoCapital ; sinon elle est omise et listée dans open_items.",
+    "resolution_policy": "Une valeur n'est retenue que si elle est officielle, directement vérifiée (source + URL) et comparable en définition avec l'indicateur GeoCapp ; sinon elle est omise et listée dans open_items.",
     "open_items": [
       "indicateurs de marché (policy_rate, rating, cds, crp, equity_index, currency) : non collectés — sources officielles à identifier avant toute intégration (BCB/Tarifas Selic, agences de notation, bourse/devise) ; aucune valeur n'est inventée",
       "contenu éditorial (headline, summary, history, institutions, relations, qualitative, strengths/risks/opportunities, quiz) : à rédiger lors de la préparation de la fiche, après revue",

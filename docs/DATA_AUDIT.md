@@ -1,4 +1,4 @@
-# GeoCapital — Data Audit Baseline (Priority 1, Phase 1 foundations)
+# GeoCapp — Data Audit Baseline (Priority 1, Phase 1 foundations)
 
 Date of audit / retrieval baseline: **2026-10-25** (`app.data_as_of` in
 `data/meta.json`). This document records **what is currently in the
@@ -10,7 +10,7 @@ database, where it came from, how old it is, and what needs refreshing** —
 | Term | Definition | Where it lives |
 |---|---|---|
 | Observation date | The period the data covers (e.g. `"2024"`, `"déc. 2024"`) | `indicators.*.date` in each `data/countries/*.json` |
-| Retrieval date (`data_as_of`) | The date GeoCapital verified the datum against its source | `app.data_as_of` in `data/meta.json` |
+| Retrieval date (`data_as_of`) | The date GeoCapp verified the datum against its source | `app.data_as_of` in `data/meta.json` |
 | Stale / "to refresh" | Observation year **< current year − 1** (in 2026: anything before 2025) | `geocapital/freshness.py` (display layer only — never affects scores) |
 
 Stale indicators carry a `⚠` marker on their dashboard card in FR and EN,

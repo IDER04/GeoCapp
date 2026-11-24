@@ -56,9 +56,9 @@ def _institution_card(institutions: dict[str, Any]) -> None:
             continue
         blocks.append(
             f"""
-            <div style="padding:9px 0;border-top:1px solid rgba(148,163,184,.11)">
-              <div style="color:#73849b;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;margin-bottom:2px">{ui.esc(label)}</div>
-              <div style="color:#c4d0df;font-size:.79rem;line-height:1.45">{ui.esc(value)}</div>
+            <div style="padding:9px 0;border-top:1px solid var(--line)">
+              <div style="color:var(--ink-2);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;margin-bottom:2px">{ui.esc(label)}</div>
+              <div style="color:var(--ink);font-size:.79rem;line-height:1.45">{ui.esc(value)}</div>
             </div>
             """
         )
@@ -104,14 +104,14 @@ def _render_reasons(country: dict[str, Any], profile: str) -> None:
     blocks = []
     for reason in _localized_reasons(country, profile):
         icon = "↗" if reason["kind"] == "positive" else "↘"
-        color = "#4ade80" if reason["kind"] == "positive" else "#fb7185"
+        color = "var(--green)" if reason["kind"] == "positive" else "var(--red)"
         blocks.append(
             f"""
-            <div style="display:flex;gap:11px;padding:10px 0;border-top:1px solid rgba(148,163,184,.11)">
+            <div style="display:flex;gap:11px;padding:10px 0;border-top:1px solid var(--line)">
               <div style="color:{color};font-weight:800;font-size:1rem;margin-top:1px">{icon}</div>
               <div>
-                <div style="color:#e4ecf6;font-size:.82rem;font-weight:750;margin-bottom:2px">{ui.esc(reason['title'])}</div>
-                <div style="color:#98a8bd;font-size:.76rem;line-height:1.5">{ui.esc(reason['text'])}</div>
+                <div style="color:var(--ink);font-size:.82rem;font-weight:750;margin-bottom:2px">{ui.esc(reason['title'])}</div>
+                <div style="color:var(--ink-2);font-size:.76rem;line-height:1.5">{ui.esc(reason['text'])}</div>
               </div>
             </div>
             """
@@ -247,7 +247,7 @@ def render() -> None:
         )
     with action_d:
         st.markdown(
-            f'<div style="text-align:right;color:#7f8fa5;font-size:.72rem;margin-top:8px">{t("country.updated")} {ui.esc(i18n.update_range())}</div>',
+            f'<div style="text-align:right;color:var(--ink-2);font-size:.72rem;margin-top:8px">{t("country.updated")} {ui.esc(i18n.update_range())}</div>',
             unsafe_allow_html=True,
         )
 
@@ -413,7 +413,7 @@ def render() -> None:
                 f"""
                 <div class="gc-card">
                   <div class="gc-eyebrow">{t("country.reasons.eyebrow")}</div>
-                  {''.join([f'<div style="padding:9px 0;border-top:1px solid rgba(148,163,184,.11)"><strong style="color:#e4ecf6;font-size:.82rem">{ui.esc(r["title"])}</strong><div style="color:#98a8bd;font-size:.76rem;line-height:1.5;margin-top:2px">{ui.esc(r["text"])}</div></div>' for r in _localized_reasons(country, profile)])}
+                  {''.join([f'<div style="padding:9px 0;border-top:1px solid var(--line)"><strong style="color:var(--ink);font-size:.82rem">{ui.esc(r["title"])}</strong><div style="color:var(--ink-2);font-size:.76rem;line-height:1.5;margin-top:2px">{ui.esc(r["text"])}</div></div>' for r in _localized_reasons(country, profile)])}
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -450,9 +450,9 @@ def render() -> None:
                 <div class="gc-card">
                   <div class="gc-eyebrow">{t("country.by_profile.eyebrow")}</div>
                   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px">
-                    {''.join([f'<div style="text-align:center;padding:11px 5px;border-radius:12px;background:{"rgba(230,184,107,.12)" if p == profile else "rgba(255,255,255,.035)"};border:1px solid {"rgba(230,184,107,.3)" if p == profile else "rgba(148,163,184,.14)"}"><div style="color:#e6b86b;font-weight:800;font-size:1.25rem">{scores[p]:.0f}</div><div style="color:#8fa0b6;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em">{ui.esc(t(f"profile.{i18n.profile_key(p)}"))}</div></div>' for p in PROFILES])}
+                    {''.join([f'<div style="text-align:center;padding:11px 5px;border-radius:12px;background:{"var(--tint-strong)" if p == profile else "var(--tint)"};border:1px solid {"var(--line-strong)" if p == profile else "var(--line)"}"><div style="color:var(--gold);font-weight:800;font-size:1.25rem">{scores[p]:.0f}</div><div style="color:var(--ink-2);font-size:.65rem;text-transform:uppercase;letter-spacing:.08em">{ui.esc(t(f"profile.{i18n.profile_key(p)}"))}</div></div>' for p in PROFILES])}
                   </div>
-                  <p style="font-size:.76rem;margin-top:10px;color:#8292a8;line-height:1.5">{t("country.by_profile.text")}</p>
+                  <p style="font-size:.76rem;margin-top:10px;color:var(--ink-2);line-height:1.5">{t("country.by_profile.text")}</p>
                 </div>
                 """,
                 unsafe_allow_html=True,

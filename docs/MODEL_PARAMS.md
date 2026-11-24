@@ -1,4 +1,4 @@
-# GeoCapital — Paramètres du modèle (source de vérité : `data/meta.json`)
+# GeoCapp — Paramètres du modèle (source de vérité : `data/meta.json`)
 
 > Priorité 3 Phase 1 — le modèle est désormais **piloté par la configuration**.
 > Ce document définit la signification de chaque paramètre et liste ce qui
