@@ -77,13 +77,8 @@ def _sidebar() -> None:
         st.markdown(
             f"""
             <div class="gc-brand">
-              <div class="gc-brand-row">
-                <div class="gc-brand-mark">◍</div>
-                <div>
-                  <div class="gc-brand-title">GeoCapp</div>
-                  <div class="gc-brand-sub">{t("side.brand_sub")}</div>
-                </div>
-              </div>
+              {ui.logo("lg")}
+              <div class="gc-brand-sub">{t("side.brand_sub")}</div>
             </div>
             """,
             unsafe_allow_html=True,

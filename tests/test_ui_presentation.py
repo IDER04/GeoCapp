@@ -161,5 +161,113 @@ class DesignSystem(unittest.TestCase):
             self.assertTrue(icon.startswith(":material/"))
 
 
+class OfficialLogo(unittest.TestCase):
+    """Logo animé officiel : asset conservé tel quel, rendu via <img>, accessible."""
+
+    asset = ROOT / "assets" / "geocapp-animated-logo.svg"
+
+    def test_asset_is_the_original_animated_svg(self):
+        raw = self.asset.read_bytes()
+        text = raw.decode("utf-8")
+        self.assertTrue(text.lstrip().startswith("<svg"))
+        self.assertIn('width="2000" height="2000"', text)
+        # animations CSS d'origine conservées
+        for token in ("@keyframes lm-trace", "@keyframes lm-fill", ".lm-dt", ".lm-df", "stroke-dasharray"):
+            self.assertIn(token, text)
+        # accessibilité : l'animation se coupe si l'utilisateur le demande (règle intégrée au SVG)
+        self.assertIn("prefers-reduced-motion", text)
+        # sûr : ni script, ni image raster embarquée, ni ressource externe
+        self.assertNotIn("<script", text.lower())
+        self.assertNotIn("<image", text.lower())
+        self.assertNotIn('href="http', text.lower())
+
+    def test_logo_is_black_monochrome_with_transparent_background(self):
+        text = self.asset.read_text(encoding="utf-8")
+        # plus aucune trace du bleu d'origine ni du fond crème
+        self.assertNotIn("rgb(3, 3, 49)", text)
+        self.assertNotIn("rgb(3,3,49)", text)
+        self.assertNotIn("#f9f9f3", text.lower())
+        # encre noire #111111 : traits, remplissages et flood des filtres
+        self.assertGreaterEqual(text.count("#111111"), 30)
+        # fond du canevas transparent
+        self.assertRegex(text, r'<rect width="2000" height="2000"[^>]*id="background"[^>]*fill="transparent"')
+        # géométrie et animation d'origine intactes (comptes mesurés sur le fichier d'origine :
+        # 8 tracés, 8 contours animés, 15 groupes de remplissage, 23 minuteries --d)
+        self.assertEqual(text.count("<path "), 8)
+        self.assertEqual(text.count('pathLength="1"'), 8)
+        self.assertEqual(text.count('class="lm-dt"'), 8)
+        self.assertEqual(text.count('class="lm-df"'), 15)
+        self.assertEqual(text.count("--d:"), 23)
+        self.assertIn("stroke-dasharray:1 1", text)
+
+    def test_logo_helper_serves_exact_asset_bytes_via_img(self):
+        import base64
+
+        markup = ui.logo("lg")
+        self.assertIn("<img ", markup)
+        self.assertIn('alt="Logo GeoCapp"', markup)
+        self.assertIn('role="img"', markup)
+        self.assertIn("gc-logo-lg", markup)
+        match = re.search(r'src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"', markup)
+        self.assertIsNotNone(match, "le logo doit être référencé comme SVG (pas de raster)")
+        self.assertEqual(base64.b64decode(match.group(1)), self.asset.read_bytes())
+        for raster in (".png", ".jpg", ".jpeg", ".gif", "image/png", "image/jpeg", "image/gif"):
+            self.assertNotIn(raster, markup)
+
+    def test_header_bar_carries_small_logo(self):
+        with mock.patch.object(ui.st, "markdown") as md:
+            ui.context_bar("Carte", "🇫🇷 France", "Équilibré", "2024-2025")
+        self.assertIn("gc-logo-sm", md.call_args.args[0])
+
+    def test_sidebar_has_logo_wordmark_and_slogan_in_both_languages(self):
+        from streamlit.testing.v1 import AppTest
+
+        for lang in ("fr", "en"):
+            at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120)
+            at.session_state["lang"] = lang
+            at.run()
+            self.assertFalse(bool(at.exception), at.exception)
+            side = "\n".join(m.value for m in at.sidebar.markdown)
+            self.assertIn("gc-logo-lg", side)
+            # Le logo SVG est l'unique marque : plus de mot-symbole « GeoCapp » texte dessous.
+            self.assertNotIn("gc-brand-title", side)
+            visible_text = re.sub(r"<[^>]+>", " ", side.split("gc-brand-sub")[0].split('class="gc-brand"')[1])
+            self.assertNotIn("GeoCapp", visible_text)
+            # La signature reste, sous le logo.
+            self.assertIn(i18n.STRINGS[lang]["side.brand_sub"], side)
+            self.assertLess(side.index("gc-logo-lg"), side.index(i18n.STRINGS[lang]["side.brand_sub"]))
+            self.assertEqual(side.count("<img "), 1, "un seul grand logo, pas de répétition")
+
+    def test_logo_is_not_repeated_in_page_bodies(self):
+        # Le grand logo n'apparaît que dans la barre latérale ; les pages n'embarquent que la mini-version.
+        for path in (ROOT / "views").glob("*.py"):
+            self.assertNotIn("ui.logo(", path.read_text(encoding="utf-8"), str(path))
+
+    def test_logo_css_has_no_plate_or_background(self):
+        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
+        block = css[css.index(".gc-logo {") : css.index(".gc-logo img {")]
+        self.assertIn("background: transparent", block)
+        self.assertIn("box-shadow: none", block)
+        self.assertNotIn("f9f9f3", css.lower())
+
+    def test_sidebar_is_fluid_glass_and_wordmark_rules_are_gone(self):
+        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
+        rule = css[css.index('[data-testid="stSidebar"] {') :]
+        rule = rule[: rule.index("}")]
+        self.assertIn("blur(44px) saturate(1.8)", rule)
+        self.assertIn("backdrop-filter", rule)
+        self.assertRegex(rule, r"rgba\(255, 255, 255, 0\.[0-5]\d*\)")  # translucent, never opaque
+        self.assertNotRegex(rule, r"background:\s*(#fff|white|rgb\(255)")
+        self.assertIn("border-right: 1px solid rgba(255, 255, 255", rule)
+        self.assertNotIn(".gc-brand-title", css)
+        self.assertNotIn(".gc-brand-row", css)
+
+    def test_css_frames_logo_without_distortion(self):
+        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
+        self.assertIn("aspect-ratio: 1700 / 978", css)
+        self.assertIn(".gc-logo img", css)
+        self.assertIn("width: 117.647%", css)  # 2000/1700 : échelle uniforme, aucune déformation
+
+
 if __name__ == "__main__":
     unittest.main()

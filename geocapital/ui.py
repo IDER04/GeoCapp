@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import html
 import re
 from pathlib import Path
@@ -13,6 +14,7 @@ from geocapital import i18n
 from geocapital.i18n import t
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets" / "styles.css"
+LOGO_ASSET = Path(__file__).resolve().parent.parent / "assets" / "geocapp-animated-logo.svg"
 # Tons sémantiques : variables CSS (adaptées au contexte clair/anthracite).
 TONE_COLORS = {
     "green": "var(--green)",
@@ -26,6 +28,30 @@ TONE_COLORS = {
 @st.cache_data(show_spinner=False)
 def _css() -> str:
     return ASSETS.read_text(encoding="utf-8")
+
+
+@st.cache_data(show_spinner=False)
+def _logo_data_uri() -> str:
+    """Le fichier SVG d'origine, tel quel, encodé en data URI.
+
+    Rendu via <img> : le SVG reste un fichier d'asset unique (aucun balisage
+    dupliqué dans le code) et ses animations CSS internes sont jouées par le
+    navigateur. Aucune conversion raster, aucune modification du dessin.
+    """
+    return "data:image/svg+xml;base64," + base64.b64encode(LOGO_ASSET.read_bytes()).decode("ascii")
+
+
+def logo(size: str = "lg") -> str:
+    """Logo officiel animé (assets/geocapp-animated-logo.svg).
+
+    ``size`` : "lg" (barre latérale) ou "sm" (en-tête). Le cadrage et le fondu
+    des bords sont gérés par CSS (.gc-logo) sans toucher au dessin.
+    """
+    return (
+        f'<span class="gc-logo gc-logo-{esc(size)}">'
+        f'<img src="{_logo_data_uri()}" alt="Logo GeoCapp" role="img" draggable="false">'
+        "</span>"
+    )
 
 
 def inject_css() -> None:
@@ -334,6 +360,7 @@ def context_bar(page: str, country_label: str, profile_label: str, as_of: str) -
         f"""
         <div class="gc-context">
           <div class="gc-context-l">
+            {logo("sm")}
             <span class="gc-context-page">{esc(page)}</span>
             <span class="gc-context-sep"></span>
             <span class="gc-chip">{esc(country_label)}</span>
