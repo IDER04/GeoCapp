@@ -200,24 +200,33 @@ class OfficialLogo(unittest.TestCase):
         self.assertEqual(text.count("--d:"), 23)
         self.assertIn("stroke-dasharray:1 1", text)
 
-    def test_logo_helper_serves_exact_asset_bytes_via_img(self):
+    def test_logo_markup_is_accessible_and_has_no_embedded_raster(self):
+        markup = ui.logo()
+        self.assertIn('class="gc-logo"', markup)
+        self.assertIn('role="img"', markup)
+        self.assertIn('aria-label="Logo GeoCapp"', markup)
+        self.assertNotIn("<img", markup)  # le dessin vient de --gc-logo, rien n'est dupliqué dans la page
+        self.assertNotIn("data:", markup)
+
+    def test_inject_css_serves_exact_asset_bytes_as_svg_variable(self):
         import base64
 
-        markup = ui.logo("lg")
-        self.assertIn("<img ", markup)
-        self.assertIn('alt="Logo GeoCapp"', markup)
-        self.assertIn('role="img"', markup)
-        self.assertIn("gc-logo-lg", markup)
-        match = re.search(r'src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"', markup)
-        self.assertIsNotNone(match, "le logo doit être référencé comme SVG (pas de raster)")
+        with mock.patch.object(ui.st, "markdown") as md:
+            ui.inject_css()
+        css = md.call_args.args[0]
+        match = re.search(r'--gc-logo:url\("data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"\)', css)
+        self.assertIsNotNone(match, "le logo doit être injecté comme SVG (pas de raster)")
         self.assertEqual(base64.b64decode(match.group(1)), self.asset.read_bytes())
-        for raster in (".png", ".jpg", ".jpeg", ".gif", "image/png", "image/jpeg", "image/gif"):
-            self.assertNotIn(raster, markup)
+        for raster in ("image/png", "image/jpeg", "image/gif", ".png", ".jpg", ".gif"):
+            self.assertNotIn(raster, css.split("--gc-logo")[1][:60])
 
-    def test_header_bar_carries_small_logo(self):
+    def test_header_bar_has_no_logo(self):
         with mock.patch.object(ui.st, "markdown") as md:
             ui.context_bar("Carte", "🇫🇷 France", "Équilibré", "2024-2025")
-        self.assertIn("gc-logo-sm", md.call_args.args[0])
+        markup = md.call_args.args[0]
+        self.assertNotIn("gc-logo", markup)
+        self.assertNotIn("<img", markup)
+        self.assertIn("gc-context-page", markup)  # le titre de page reste
 
     def test_sidebar_has_logo_wordmark_and_slogan_in_both_languages(self):
         from streamlit.testing.v1 import AppTest
@@ -228,15 +237,16 @@ class OfficialLogo(unittest.TestCase):
             at.run()
             self.assertFalse(bool(at.exception), at.exception)
             side = "\n".join(m.value for m in at.sidebar.markdown)
-            self.assertIn("gc-logo-lg", side)
+            self.assertIn("gc-logo", side)
             # Le logo SVG est l'unique marque : plus de mot-symbole « GeoCapp » texte dessous.
             self.assertNotIn("gc-brand-title", side)
             visible_text = re.sub(r"<[^>]+>", " ", side.split("gc-brand-sub")[0].split('class="gc-brand"')[1])
             self.assertNotIn("GeoCapp", visible_text)
             # La signature reste, sous le logo.
             self.assertIn(i18n.STRINGS[lang]["side.brand_sub"], side)
-            self.assertLess(side.index("gc-logo-lg"), side.index(i18n.STRINGS[lang]["side.brand_sub"]))
-            self.assertEqual(side.count("<img "), 1, "un seul grand logo, pas de répétition")
+            self.assertLess(side.index("gc-logo"), side.index(i18n.STRINGS[lang]["side.brand_sub"]))
+            self.assertEqual(side.count('class="gc-logo"'), 1, "un seul logo, dans la barre latérale")
+            self.assertNotIn("<img", side)
 
     def test_logo_is_not_repeated_in_page_bodies(self):
         # Le grand logo n'apparaît que dans la barre latérale ; les pages n'embarquent que la mini-version.
@@ -245,8 +255,8 @@ class OfficialLogo(unittest.TestCase):
 
     def test_logo_css_has_no_plate_or_background(self):
         css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
-        block = css[css.index(".gc-logo {") : css.index(".gc-logo img {")]
-        self.assertIn("background: transparent", block)
+        block = css[css.index(".gc-logo {") : css.index("@keyframes gc-logo-load")]
+        self.assertIn("background-color: transparent", block)
         self.assertIn("box-shadow: none", block)
         self.assertNotIn("f9f9f3", css.lower())
 
@@ -264,9 +274,46 @@ class OfficialLogo(unittest.TestCase):
 
     def test_css_frames_logo_without_distortion(self):
         css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
-        self.assertIn("aspect-ratio: 1700 / 978", css)
-        self.assertIn(".gc-logo img", css)
-        self.assertIn("width: 117.647%", css)  # 2000/1700 : échelle uniforme, aucune déformation
+        block = css[css.index(".gc-logo {") : css.index("@keyframes gc-logo-load")]
+        self.assertIn("aspect-ratio: 1700 / 978", block)
+        self.assertIn("background-size: 117.647% auto", block)  # 2000/1700 : échelle uniforme, aucune déformation
+        self.assertIn("background-position: center", block)
+        self.assertIn("background-repeat: no-repeat", block)
+
+    def test_desktop_defers_logo_load_but_mobile_is_unchanged(self):
+        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
+        # défaut (donc mobile) : chargement immédiat via var(--gc-logo)
+        base = css[css.index(".gc-logo {") : css.index("@keyframes gc-logo-load")]
+        self.assertIn("background-image: var(--gc-logo)", base)
+        self.assertNotIn("animation:", base)
+        # bureau seulement : chargement différé après la rafale de rendu initiale
+        self.assertIn("@keyframes gc-logo-load", css)
+        desktop = css[css.index("@media (min-width: 641px) {\n  .gc-logo") :]
+        desktop = desktop[: desktop.index("}\n}") + 3]
+        self.assertIn("background-image: none", desktop)
+        self.assertIn("animation: gc-logo-load", desktop)
+
+    def test_reduced_motion_keeps_logo_visible(self):
+        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
+        block = css[css.index("@media (prefers-reduced-motion: reduce) {") :]
+        self.assertIn(".gc-logo { background-image: var(--gc-logo) !important; }", block)
+
+    def test_desktop_sidebar_has_tonal_layers_mobile_does_not_get_them(self):
+        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
+        i = css.index("@media (min-width: 641px) {\n  .stApp")
+        block = css[i : css.index("\n}\n", css.index("var(--bg);", i)) + 3]
+        self.assertGreaterEqual(block.count("radial-gradient(3"), 3)  # 3 masses confinées à la colonne de 300px
+        self.assertIn("rgba(139, 127, 199", block)  # lavande
+        self.assertIn("rgba(18, 18, 20", block)  # graphite
+        # la règle mobile/base de .stApp reste inchangée (4 dégradés + fond)
+        base = css[css.index(".stApp {") : css.index("@media (min-width: 641px) {\n  .stApp")]
+        self.assertEqual(base.count("radial-gradient"), 4)
+
+    def test_no_logo_styles_left_for_header_or_img(self):
+        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
+        self.assertNotIn(".gc-logo-sm", css)
+        self.assertNotIn(".gc-logo-lg", css)
+        self.assertNotIn(".gc-logo img", css)
 
 
 if __name__ == "__main__":

@@ -32,30 +32,29 @@ def _css() -> str:
 
 @st.cache_data(show_spinner=False)
 def _logo_data_uri() -> str:
-    """Le fichier SVG d'origine, tel quel, encodé en data URI.
+    """Le fichier SVG d'origine, tel quel, encodé en data URI (une seule fois).
 
-    Rendu via <img> : le SVG reste un fichier d'asset unique (aucun balisage
-    dupliqué dans le code) et ses animations CSS internes sont jouées par le
-    navigateur. Aucune conversion raster, aucune modification du dessin.
+    Le SVG reste un fichier d'asset unique (aucun balisage dupliqué dans le
+    code) et ses animations CSS internes sont jouées par le navigateur. Aucune
+    conversion raster, aucune modification du dessin.
     """
     return "data:image/svg+xml;base64," + base64.b64encode(LOGO_ASSET.read_bytes()).decode("ascii")
 
 
-def logo(size: str = "lg") -> str:
-    """Logo officiel animé (assets/geocapp-animated-logo.svg).
+def logo() -> str:
+    """Logo officiel animé (assets/geocapp-animated-logo.svg) — barre latérale uniquement.
 
-    ``size`` : "lg" (barre latérale) ou "sm" (en-tête). Le cadrage et le fondu
-    des bords sont gérés par CSS (.gc-logo) sans toucher au dessin.
+    Rendu en image de fond CSS (--gc-logo, injectée par inject_css) : sur bureau,
+    son chargement est différé après la rafale de rendu initiale pour que le
+    dessin soit joué en entier (cf. .gc-logo dans styles.css). Accessible via
+    role="img" + aria-label.
     """
-    return (
-        f'<span class="gc-logo gc-logo-{esc(size)}">'
-        f'<img src="{_logo_data_uri()}" alt="Logo GeoCapp" role="img" draggable="false">'
-        "</span>"
-    )
+    return '<span class="gc-logo" role="img" aria-label="Logo GeoCapp"></span>'
 
 
 def inject_css() -> None:
-    st.markdown(f"<style>{_css()}</style>", unsafe_allow_html=True)
+    logo_var = f':root{{--gc-logo:url("{_logo_data_uri()}")}}'
+    st.markdown(f"<style>{logo_var}\n{_css()}</style>", unsafe_allow_html=True)
 
 
 def esc(value: Any) -> str:
@@ -360,7 +359,6 @@ def context_bar(page: str, country_label: str, profile_label: str, as_of: str) -
         f"""
         <div class="gc-context">
           <div class="gc-context-l">
-            {logo("sm")}
             <span class="gc-context-page">{esc(page)}</span>
             <span class="gc-context-sep"></span>
             <span class="gc-chip">{esc(country_label)}</span>

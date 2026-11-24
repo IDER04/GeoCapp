@@ -77,7 +77,7 @@ def _sidebar() -> None:
         st.markdown(
             f"""
             <div class="gc-brand">
-              {ui.logo("lg")}
+              {ui.logo()}
               <div class="gc-brand-sub">{t("side.brand_sub")}</div>
             </div>
             """,

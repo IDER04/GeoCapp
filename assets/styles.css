@@ -98,6 +98,26 @@ html, body, [class*="css"] {
   color: var(--ink);
 }
 
+/* Desktop only (docked sidebar, > 640px). On mobile the sidebar is an overlay, so its glass
+   blurs the page content beneath it (dark hero, cards), which gives the layered, tonal texture.
+   When docked, nothing sits under it, so we place the same kind of soft tonal masses behind
+   the sidebar column: a graphite body (the blurred dark hero) and a lavender top light.
+   They are confined to the sidebar width (300px) and fade out before the page content. */
+@media (min-width: 641px) {
+  .stApp {
+    background:
+      radial-gradient(360px 430px at 0 44%, rgba(18, 18, 20, 0.64) 0%, rgba(18, 18, 20, 0.42) 42%, transparent 80%),
+      radial-gradient(300px 240px at 0 18%, rgba(139, 127, 199, 0.34), transparent 72%),
+      radial-gradient(300px 260px at 0 100%, rgba(88, 88, 92, 0.22), transparent 74%),
+      radial-gradient(42rem 32rem at 8% -6%, rgba(139, 127, 199, 0.16), transparent 62%),
+      radial-gradient(40rem 30rem at 96% 8%, rgba(120, 120, 112, 0.20), transparent 60%),
+      radial-gradient(48rem 36rem at 72% 108%, rgba(200, 196, 182, 0.42), transparent 60%),
+      radial-gradient(34rem 26rem at 0% 96%, rgba(150, 156, 150, 0.18), transparent 62%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+}
+
 [data-testid="stAppViewContainer"] { background: transparent; }
 
 /* Native header kept (hosts the sidebar-expand control) but invisible */
@@ -179,23 +199,30 @@ p, li { line-height: 1.65; }
 }
 .gc-brand { text-align: center; }
 
-/* Official animated logo (assets/geocapp-animated-logo.svg, rendered via <img>).
+/* Official animated logo (assets/geocapp-animated-logo.svg, injected as --gc-logo).
    The SVG is transparent: only the black artwork is drawn, the glass shows through.
    The 2000x2000 canvas is framed on its central artwork band (crop of empty,
-   transparent margin only: x 150-1850, y 511-1489), uniformly scaled. */
+   transparent margin only: x 150-1850, y 511-1489), uniformly scaled: the band is
+   centred, so `center` + 117.647% width reproduces the crop exactly. */
 .gc-logo {
-  display: block; position: relative; overflow: hidden;
-  aspect-ratio: 1700 / 978; width: 100%; margin: 0 auto;
-  background: transparent; border: 0; box-shadow: none;
-  user-select: none;
+  display: block; width: 100%; max-width: 210px; margin: 0 auto;
+  aspect-ratio: 1700 / 978;
+  background-color: transparent;
+  background-image: var(--gc-logo);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 117.647% auto;
+  border: 0; box-shadow: none; user-select: none;
 }
-.gc-logo img {
-  position: absolute; display: block; max-width: none; height: auto;
-  width: 117.647%; left: -8.824%; top: -52.25%;
-  pointer-events: none;
+/* Desktop: the SVG's drawing clock starts when the image loads. The first render of a
+   wide page (Plotly map, dozens of glass layers) blocks the main thread for 1-3 s, which
+   swallowed the start of the drawing. We therefore load the image only after that burst:
+   the CSS animation applies the background once the thread is free, so the drawing is
+   played in full. Mobile (<= 640px) keeps the immediate load, unchanged. */
+@keyframes gc-logo-load { from { background-image: none; } to { background-image: var(--gc-logo); } }
+@media (min-width: 641px) {
+  .gc-logo { background-image: none; animation: gc-logo-load 1ms linear 1.8s forwards; }
 }
-.gc-logo-lg { max-width: 210px; }
-.gc-logo-sm { width: 66px; flex: 0 0 auto; }
 .gc-brand-sub {
   color: var(--ink-3); font-size: 0.72rem; font-style: italic;
   line-height: 1.35; margin-top: 8px;
@@ -704,6 +731,7 @@ hr { border-color: var(--line) !important; }
 .gc-hero, .gc-country-hero, .gc-page-head, .gc-kpi { animation: gc-rise .5s var(--ease) both; }
 
 @media (prefers-reduced-motion: reduce) {
+  .gc-logo { background-image: var(--gc-logo) !important; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .gc-card:hover, .gc-kpi:hover, .gc-ind:hover, .gc-tile:hover { transform: none; }
 }
