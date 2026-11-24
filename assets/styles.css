@@ -199,29 +199,19 @@ p, li { line-height: 1.65; }
 }
 .gc-brand { text-align: center; }
 
-/* Official animated logo (assets/geocapp-animated-logo.svg, injected as --gc-logo).
+/* Official animated logo (assets/geocapp-animated-logo.svg, rendered via <img>).
    The SVG is transparent: only the black artwork is drawn, the glass shows through.
    The 2000x2000 canvas is framed on its central artwork band (crop of empty,
-   transparent margin only: x 150-1850, y 511-1489), uniformly scaled: the band is
-   centred, so `center` + 117.647% width reproduces the crop exactly. */
+   transparent margin only: x 150-1850, y 511-1489), uniformly scaled. */
 .gc-logo {
-  display: block; width: 100%; max-width: 210px; margin: 0 auto;
-  aspect-ratio: 1700 / 978;
-  background-color: transparent;
-  background-image: var(--gc-logo);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 117.647% auto;
-  border: 0; box-shadow: none; user-select: none;
+  display: block; position: relative; overflow: hidden;
+  aspect-ratio: 1700 / 978; width: 100%; max-width: 210px; margin: 0 auto;
+  background-color: transparent; border: 0; box-shadow: none; user-select: none;
 }
-/* Desktop: the SVG's drawing clock starts when the image loads. The first render of a
-   wide page (Plotly map, dozens of glass layers) blocks the main thread for 1-3 s, which
-   swallowed the start of the drawing. We therefore load the image only after that burst:
-   the CSS animation applies the background once the thread is free, so the drawing is
-   played in full. Mobile (<= 640px) keeps the immediate load, unchanged. */
-@keyframes gc-logo-load { from { background-image: none; } to { background-image: var(--gc-logo); } }
-@media (min-width: 641px) {
-  .gc-logo { background-image: none; animation: gc-logo-load 1ms linear 1.8s forwards; }
+.gc-logo img {
+  position: absolute; display: block; max-width: none; height: auto;
+  width: 117.647%; left: -8.824%; top: -52.25%;
+  pointer-events: none;
 }
 .gc-brand-sub {
   color: var(--ink-3); font-size: 0.72rem; font-style: italic;
@@ -731,7 +721,6 @@ hr { border-color: var(--line) !important; }
 .gc-hero, .gc-country-hero, .gc-page-head, .gc-kpi { animation: gc-rise .5s var(--ease) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .gc-logo { background-image: var(--gc-logo) !important; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .gc-card:hover, .gc-kpi:hover, .gc-ind:hover, .gc-tile:hover { transform: none; }
 }

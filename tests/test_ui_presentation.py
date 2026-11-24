@@ -200,25 +200,28 @@ class OfficialLogo(unittest.TestCase):
         self.assertEqual(text.count("--d:"), 23)
         self.assertIn("stroke-dasharray:1 1", text)
 
-    def test_logo_markup_is_accessible_and_has_no_embedded_raster(self):
-        markup = ui.logo()
-        self.assertIn('class="gc-logo"', markup)
-        self.assertIn('role="img"', markup)
-        self.assertIn('aria-label="Logo GeoCapp"', markup)
-        self.assertNotIn("<img", markup)  # le dessin vient de --gc-logo, rien n'est dupliqué dans la page
-        self.assertNotIn("data:", markup)
-
-    def test_inject_css_serves_exact_asset_bytes_as_svg_variable(self):
+    def test_logo_is_an_accessible_svg_img_with_exact_asset_bytes(self):
         import base64
 
+        markup = ui.logo()
+        self.assertIn('class="gc-logo"', markup)
+        self.assertIn("<img ", markup)
+        self.assertIn('alt="Logo GeoCapp"', markup)
+        self.assertIn('role="img"', markup)
+        match = re.search(r'src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"', markup)
+        self.assertIsNotNone(match, "le logo doit être référencé comme SVG (pas de raster)")
+        self.assertEqual(base64.b64decode(match.group(1)), self.asset.read_bytes())
+        for raster in ("image/png", "image/jpeg", "image/gif", ".png", ".jpg", ".gif"):
+            self.assertNotIn(raster, markup)
+
+    def test_injected_css_keeps_font_import_first_and_has_no_logo_variable(self):
+        # Une règle avant @import l'invalide (polices non chargées) : il doit rester la 1re instruction.
         with mock.patch.object(ui.st, "markdown") as md:
             ui.inject_css()
         css = md.call_args.args[0]
-        match = re.search(r'--gc-logo:url\("data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"\)', css)
-        self.assertIsNotNone(match, "le logo doit être injecté comme SVG (pas de raster)")
-        self.assertEqual(base64.b64decode(match.group(1)), self.asset.read_bytes())
-        for raster in ("image/png", "image/jpeg", "image/gif", ".png", ".jpg", ".gif"):
-            self.assertNotIn(raster, css.split("--gc-logo")[1][:60])
+        self.assertTrue(css.startswith("<style>@import url("), css[:60])
+        self.assertNotIn("--gc-logo", css)
+        self.assertNotIn("data:image", css)  # le SVG n'est pas recopié dans la feuille de style
 
     def test_header_bar_has_no_logo(self):
         with mock.patch.object(ui.st, "markdown") as md:
@@ -246,7 +249,7 @@ class OfficialLogo(unittest.TestCase):
             self.assertIn(i18n.STRINGS[lang]["side.brand_sub"], side)
             self.assertLess(side.index("gc-logo"), side.index(i18n.STRINGS[lang]["side.brand_sub"]))
             self.assertEqual(side.count('class="gc-logo"'), 1, "un seul logo, dans la barre latérale")
-            self.assertNotIn("<img", side)
+            self.assertEqual(side.count("<img "), 1)
 
     def test_logo_is_not_repeated_in_page_bodies(self):
         # Le grand logo n'apparaît que dans la barre latérale ; les pages n'embarquent que la mini-version.
@@ -255,7 +258,7 @@ class OfficialLogo(unittest.TestCase):
 
     def test_logo_css_has_no_plate_or_background(self):
         css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
-        block = css[css.index(".gc-logo {") : css.index("@keyframes gc-logo-load")]
+        block = css[css.index(".gc-logo {") : css.index(".gc-logo img {")]
         self.assertIn("background-color: transparent", block)
         self.assertIn("box-shadow: none", block)
         self.assertNotIn("f9f9f3", css.lower())
@@ -274,29 +277,17 @@ class OfficialLogo(unittest.TestCase):
 
     def test_css_frames_logo_without_distortion(self):
         css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
-        block = css[css.index(".gc-logo {") : css.index("@keyframes gc-logo-load")]
-        self.assertIn("aspect-ratio: 1700 / 978", block)
-        self.assertIn("background-size: 117.647% auto", block)  # 2000/1700 : échelle uniforme, aucune déformation
-        self.assertIn("background-position: center", block)
-        self.assertIn("background-repeat: no-repeat", block)
+        self.assertIn("aspect-ratio: 1700 / 978", css)
+        img = css[css.index(".gc-logo img {") :]
+        img = img[: img.index("}")]
+        self.assertIn("width: 117.647%", img)  # 2000/1700 : échelle uniforme, aucune déformation
+        self.assertIn("left: -8.824%", img)
+        self.assertIn("top: -52.25%", img)
 
-    def test_desktop_defers_logo_load_but_mobile_is_unchanged(self):
+    def test_logo_has_no_deferral_or_variable_machinery(self):
         css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
-        # défaut (donc mobile) : chargement immédiat via var(--gc-logo)
-        base = css[css.index(".gc-logo {") : css.index("@keyframes gc-logo-load")]
-        self.assertIn("background-image: var(--gc-logo)", base)
-        self.assertNotIn("animation:", base)
-        # bureau seulement : chargement différé après la rafale de rendu initiale
-        self.assertIn("@keyframes gc-logo-load", css)
-        desktop = css[css.index("@media (min-width: 641px) {\n  .gc-logo") :]
-        desktop = desktop[: desktop.index("}\n}") + 3]
-        self.assertIn("background-image: none", desktop)
-        self.assertIn("animation: gc-logo-load", desktop)
-
-    def test_reduced_motion_keeps_logo_visible(self):
-        css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
-        block = css[css.index("@media (prefers-reduced-motion: reduce) {") :]
-        self.assertIn(".gc-logo { background-image: var(--gc-logo) !important; }", block)
+        self.assertNotIn("gc-logo-load", css)
+        self.assertNotIn("--gc-logo", css)
 
     def test_desktop_sidebar_has_tonal_layers_mobile_does_not_get_them(self):
         css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
@@ -313,7 +304,6 @@ class OfficialLogo(unittest.TestCase):
         css = (ROOT / "assets" / "styles.css").read_text(encoding="utf-8")
         self.assertNotIn(".gc-logo-sm", css)
         self.assertNotIn(".gc-logo-lg", css)
-        self.assertNotIn(".gc-logo img", css)
 
 
 if __name__ == "__main__":

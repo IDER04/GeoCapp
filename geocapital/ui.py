@@ -34,9 +34,8 @@ def _css() -> str:
 def _logo_data_uri() -> str:
     """Le fichier SVG d'origine, tel quel, encodé en data URI (une seule fois).
 
-    Le SVG reste un fichier d'asset unique (aucun balisage dupliqué dans le
-    code) et ses animations CSS internes sont jouées par le navigateur. Aucune
-    conversion raster, aucune modification du dessin.
+    Le SVG reste un fichier d'asset unique et ses animations CSS internes sont
+    jouées par le navigateur. Aucune conversion raster, aucune modification du dessin.
     """
     return "data:image/svg+xml;base64," + base64.b64encode(LOGO_ASSET.read_bytes()).decode("ascii")
 
@@ -44,17 +43,19 @@ def _logo_data_uri() -> str:
 def logo() -> str:
     """Logo officiel animé (assets/geocapp-animated-logo.svg) — barre latérale uniquement.
 
-    Rendu en image de fond CSS (--gc-logo, injectée par inject_css) : sur bureau,
-    son chargement est différé après la rafale de rendu initiale pour que le
-    dessin soit joué en entier (cf. .gc-logo dans styles.css). Accessible via
-    role="img" + aria-label.
+    Rendu via <img> (data URI construite une fois depuis l'asset) : c'est le mode
+    qui s'affiche de façon fiable sur Streamlit Cloud et qui conserve l'animation
+    CSS interne du SVG. Le cadrage est géré par CSS (.gc-logo) sans toucher au dessin.
     """
-    return '<span class="gc-logo" role="img" aria-label="Logo GeoCapp"></span>'
+    return (
+        '<span class="gc-logo">'
+        f'<img src="{_logo_data_uri()}" alt="Logo GeoCapp" role="img" draggable="false">'
+        "</span>"
+    )
 
 
 def inject_css() -> None:
-    logo_var = f':root{{--gc-logo:url("{_logo_data_uri()}")}}'
-    st.markdown(f"<style>{logo_var}\n{_css()}</style>", unsafe_allow_html=True)
+    st.markdown(f"<style>{_css()}</style>", unsafe_allow_html=True)
 
 
 def esc(value: Any) -> str:
