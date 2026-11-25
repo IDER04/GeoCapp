@@ -328,5 +328,51 @@ class TestLlmSettings(MockedEnvTestCase):
         self.assertEqual(self._request_for()["url"], ai.API_URL)
 
 
+class TestEmptyOrOddReplies(MockedEnvTestCase):
+    """Une réponse vide ne doit jamais s'afficher comme « None » (modèles gratuits / raisonnement)."""
+
+    def _answer_for(self, message, finish_reason="stop"):
+        body = json.dumps({"choices": [{"message": message, "finish_reason": finish_reason}]}).encode("utf-8")
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(body)):
+            return ai._call("Q")
+
+    def test_null_content_is_not_the_string_none(self):
+        self.assertIsNone(self._answer_for({"role": "assistant", "content": None, "reasoning": "..."}, "length"))
+
+    def test_missing_content_is_none(self):
+        self.assertIsNone(self._answer_for({"role": "assistant"}))
+
+    def test_blank_content_is_none(self):
+        self.assertIsNone(self._answer_for({"role": "assistant", "content": "   \n"}))
+
+    def test_literal_none_or_null_text_is_treated_as_empty(self):
+        for literal in ("None", "none", "null", " NULL "):
+            self.assertIsNone(self._answer_for({"role": "assistant", "content": literal}), literal)
+
+    def test_text_parts_are_joined(self):
+        parts = [{"type": "text", "text": "Bonjour"}, {"type": "text", "text": " monde"}]
+        self.assertEqual(self._answer_for({"role": "assistant", "content": parts}), "Bonjour monde")
+
+    def test_non_text_parts_are_ignored(self):
+        parts = [{"type": "image_url", "image_url": {"url": "x"}}, {"type": "text", "text": "ok"}]
+        self.assertEqual(self._answer_for({"role": "assistant", "content": parts}), "ok")
+
+    def test_normal_text_is_unchanged(self):
+        self.assertEqual(self._answer_for({"role": "assistant", "content": "  Analyse.  "}), "Analyse.")
+
+    def test_no_choices_or_bad_message_shape_is_none(self):
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        for body in ({"choices": []}, {"choices": [{"message": None}]}, {"choices": [{"message": "x"}]}, {}):
+            with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(json.dumps(body).encode("utf-8"))):
+                self.assertIsNone(ai._call("Q"), body)
+
+    def test_chat_returns_none_on_null_content_so_the_page_can_fall_back(self):
+        body = json.dumps({"choices": [{"message": {"role": "assistant", "content": None}}]}).encode("utf-8")
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(body)):
+            self.assertIsNone(ai.chat([{"role": "user", "content": "Explique le verdict de la France"}]))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -136,6 +136,31 @@ def is_available() -> bool:
     return bool(api_key())
 
 
+def _extract_text(message: Any) -> str | None:
+    """Texte d'une réponse OpenAI-compatible, ou None si elle est vide.
+
+    Certains modèles (notamment gratuits / « raisonnement ») renvoient
+    ``"content": null`` quand ils épuisent leur budget de jetons en réflexion,
+    ou un contenu découpé en parties ``[{"type": "text", "text": ...}]``.
+    Un contenu nul ne doit jamais devenir la chaîne « None ».
+    """
+    if not isinstance(message, dict):
+        return None
+    content = message.get("content")
+    if isinstance(content, list):
+        content = "".join(
+            str(part.get("text") or "")
+            for part in content
+            if isinstance(part, dict) and part.get("type", "text") == "text"
+        )
+    if not isinstance(content, str):
+        return None
+    text = content.strip()
+    if not text or text.lower() in {"none", "null"}:
+        return None
+    return text
+
+
 def _post(payload: dict[str, Any]) -> str | None:
     """Transport partagé : requête OpenRouter, parse compatible OpenAI, erreurs → None."""
     key = api_key()
@@ -156,9 +181,8 @@ def _post(payload: dict[str, Any]) -> str | None:
         with urllib.request.urlopen(request, timeout=30) as response:
             data = json.loads(response.read().decode("utf-8"))
         choices = data.get("choices", [])
-        content = choices[0].get("message", {}).get("content", "") if choices else ""
-        return str(content).strip() or None
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, KeyError, IndexError, TypeError):
+        return _extract_text(choices[0].get("message") if choices else None)
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, KeyError, IndexError, TypeError, AttributeError):
         return None
 
 
