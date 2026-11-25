@@ -4,10 +4,12 @@ L'IA ne reçoit que des faits déjà validés dans la base GeoCapital.
 Sans clé API, l'application reste entièrement fonctionnelle grâce aux
 contenus éditoriaux et aux explications déterministes.
 
-Configuration :
-- OPENROUTER_API_KEY : clé OpenRouter (variables d'environnement, fichier .env,
-  puis secrets Streamlit).
-- GEOCAPITAL_MODEL : identifiant du modèle, par exemple "openai/gpt-4o".
+Configuration (variables d'environnement, fichier .env, puis secrets Streamlit) :
+- OPENROUTER_API_KEY : clé OpenRouter.
+- LLM_MODEL : identifiant du modèle, par exemple "openrouter/free" (modèle gratuit)
+  ou "openai/gpt-4o". Prioritaire sur GEOCAPITAL_MODEL (conservé, compatibilité).
+- LLM_BASE_URL : URL de base de l'API compatible OpenAI, par défaut
+  "https://openrouter.ai/api/v1" (https obligatoire, sauf localhost).
 """
 
 from __future__ import annotations
@@ -18,7 +20,8 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-API_URL = "https://openrouter.ai/api/v1/chat/completions"
+DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
+API_URL = DEFAULT_BASE_URL + "/chat/completions"  # endpoint par défaut (compat.)
 DEFAULT_MODEL = "openai/gpt-4o"
 MAX_TOKENS = 700
 
@@ -84,11 +87,40 @@ def _from_secrets(name: str) -> str:
         return ""
 
 
-def api_model() -> str:
-    """Identifiant du modèle : env > secrets > défaut (openai/gpt-4o)."""
+def _setting(name: str) -> str:
+    """Réglage texte : variable d'environnement (ou .env) puis secrets Streamlit ; "" sinon."""
     _load_dotenv()
-    value = os.getenv("GEOCAPITAL_MODEL", "").strip()
-    return value or _from_secrets("GEOCAPITAL_MODEL") or DEFAULT_MODEL
+    value = os.getenv(name, "").strip()
+    return value or _from_secrets(name)
+
+
+def api_model() -> str:
+    """Identifiant du modèle : LLM_MODEL > GEOCAPITAL_MODEL > défaut (openai/gpt-4o).
+
+    Pour chaque nom : environnement/.env d'abord, puis secrets Streamlit.
+    """
+    return _setting("LLM_MODEL") or _setting("GEOCAPITAL_MODEL") or DEFAULT_MODEL
+
+
+def _is_safe_base_url(url: str) -> bool:
+    """https obligatoire (la clé API part dans l'en-tête) ; http toléré en local seulement."""
+    lowered = url.lower()
+    if lowered.startswith("https://"):
+        return len(lowered) > len("https://")
+    return lowered.startswith(("http://localhost", "http://127.0.0.1"))
+
+
+def api_base_url() -> str:
+    """URL de base de l'API (LLM_BASE_URL), sans « / » final ; défaut OpenRouter.
+
+    Une valeur non sûre (http distant, schéma inconnu) est ignorée au profit du défaut.
+    """
+    value = _setting("LLM_BASE_URL").rstrip("/")
+    return value if value and _is_safe_base_url(value) else DEFAULT_BASE_URL
+
+
+def api_url() -> str:
+    return api_base_url() + "/chat/completions"
 
 
 def api_key() -> str | None:
@@ -110,7 +142,7 @@ def _post(payload: dict[str, Any]) -> str | None:
     if not key:
         return None
     request = urllib.request.Request(
-        API_URL,
+        api_url(),
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Authorization": f"Bearer {key}",

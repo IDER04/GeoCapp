@@ -16,7 +16,7 @@ from unittest import mock
 
 from geocapital import ai
 
-ENV_KEYS = ["OPENROUTER_API_KEY", "GEOCAPITAL_MODEL"]
+ENV_KEYS = ["OPENROUTER_API_KEY", "GEOCAPITAL_MODEL", "LLM_MODEL", "LLM_BASE_URL"]
 
 
 def save_env():
@@ -239,6 +239,93 @@ class TestRequestPayload(MockedEnvTestCase):
         self.assertEqual(roles, ["system", "user"])
         self.assertIn("Authorization", captured["headers"])
         self.assertIn("Content-Type", captured["headers"])
+
+
+class TestLlmSettings(MockedEnvTestCase):
+    """LLM_MODEL / LLM_BASE_URL (ex. modèle gratuit « openrouter/free »)."""
+
+    def _request_for(self):
+        captured = {}
+
+        def fake_urlopen(request, timeout=None):
+            captured["url"] = request.full_url
+            captured["body"] = json.loads(request.data.decode("utf-8"))
+            captured["headers"] = {key.title(): value for key, value in request.header_items()}
+            return _FakeResponse(json.dumps(completions_payload("ok")).encode("utf-8"))
+
+        with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            self.assertEqual(ai._call("Q"), "ok")
+        return captured
+
+    def test_defaults_are_unchanged(self):
+        self.assertEqual(ai.api_base_url(), "https://openrouter.ai/api/v1")
+        self.assertEqual(ai.api_url(), ai.API_URL)
+        self.assertEqual(ai.api_model(), "openai/gpt-4o")
+
+    def test_llm_model_selects_the_free_model(self):
+        os.environ["LLM_MODEL"] = "openrouter/free"
+        self.assertEqual(ai.api_model(), "openrouter/free")
+
+    def test_llm_model_wins_over_legacy_name(self):
+        os.environ["LLM_MODEL"] = "openrouter/free"
+        os.environ["GEOCAPITAL_MODEL"] = "openai/gpt-4o"
+        self.assertEqual(ai.api_model(), "openrouter/free")
+
+    def test_blank_llm_model_falls_back_to_legacy_then_default(self):
+        os.environ["LLM_MODEL"] = "   "
+        os.environ["GEOCAPITAL_MODEL"] = "openai/gpt-4o-mini"
+        self.assertEqual(ai.api_model(), "openai/gpt-4o-mini")
+        os.environ.pop("GEOCAPITAL_MODEL")
+        self.assertEqual(ai.api_model(), ai.DEFAULT_MODEL)
+
+    def test_dotenv_style_lines_are_parsed(self):
+        values = ai._parse_env("LLM_BASE_URL=https://openrouter.ai/api/v1\nLLM_MODEL=openrouter/free\n")
+        self.assertEqual(values["LLM_BASE_URL"], "https://openrouter.ai/api/v1")
+        self.assertEqual(values["LLM_MODEL"], "openrouter/free")
+
+    def test_streamlit_secrets_are_used_when_env_is_empty(self):
+        secrets = {"LLM_MODEL": "openrouter/free", "LLM_BASE_URL": "https://openrouter.ai/api/v1/"}
+        with mock.patch.object(ai, "_from_secrets", side_effect=lambda name: secrets.get(name, "")):
+            self.assertEqual(ai.api_model(), "openrouter/free")
+            self.assertEqual(ai.api_base_url(), "https://openrouter.ai/api/v1")  # « / » final retiré
+
+    def test_environment_wins_over_secrets(self):
+        os.environ["LLM_MODEL"] = "openai/gpt-4o-mini"
+        with mock.patch.object(ai, "_from_secrets", return_value="openrouter/free"):
+            self.assertEqual(ai.api_model(), "openai/gpt-4o-mini")
+
+    def test_custom_https_base_url_is_used_without_trailing_slash(self):
+        os.environ["LLM_BASE_URL"] = "https://llm.example.org/v1/"
+        self.assertEqual(ai.api_base_url(), "https://llm.example.org/v1")
+        self.assertEqual(ai.api_url(), "https://llm.example.org/v1/chat/completions")
+
+    def test_unsafe_base_urls_fall_back_to_default(self):
+        for bad in ("http://evil.example.org/v1", "ftp://x/v1", "https://", "javascript:alert(1)", "openrouter.ai/api/v1"):
+            os.environ["LLM_BASE_URL"] = bad
+            self.assertEqual(ai.api_base_url(), ai.DEFAULT_BASE_URL, bad)
+
+    def test_local_http_is_tolerated(self):
+        os.environ["LLM_BASE_URL"] = "http://localhost:11434/v1"
+        self.assertEqual(ai.api_base_url(), "http://localhost:11434/v1")
+
+    def test_request_with_the_free_model_settings(self):
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        os.environ["LLM_BASE_URL"] = "https://openrouter.ai/api/v1"
+        os.environ["LLM_MODEL"] = "openrouter/free"
+        sent = self._request_for()
+        self.assertEqual(sent["url"], "https://openrouter.ai/api/v1/chat/completions")
+        self.assertEqual(sent["body"]["model"], "openrouter/free")
+        self.assertTrue(sent["headers"]["Authorization"].startswith("Bearer "))
+
+    def test_request_goes_to_the_configured_base_url(self):
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        os.environ["LLM_BASE_URL"] = "https://llm.example.org/v1"
+        self.assertEqual(self._request_for()["url"], "https://llm.example.org/v1/chat/completions")
+
+    def test_unsafe_base_url_never_receives_the_key(self):
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        os.environ["LLM_BASE_URL"] = "http://evil.example.org/v1"
+        self.assertEqual(self._request_for()["url"], ai.API_URL)
 
 
 if __name__ == "__main__":
