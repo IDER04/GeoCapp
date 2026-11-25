@@ -136,6 +136,47 @@ def is_available() -> bool:
     return bool(api_key())
 
 
+_LAST_ERROR = ""
+
+
+def last_error() -> str:
+    """Dernière cause d'échec de l'appel IA (vide si le dernier appel a réussi).
+
+    Texte technique court (code HTTP, message du fournisseur, délai dépassé…) destiné
+    à l'affichage de diagnostic ; il ne contient jamais la clé API.
+    """
+    return _LAST_ERROR
+
+
+def _set_error(message: str) -> None:
+    """Mémorise une cause d'échec nettoyée : clé masquée, espaces réduits, longueur bornée."""
+    global _LAST_ERROR
+    text = " ".join(str(message).split())
+    key = api_key()
+    if key:
+        text = text.replace(key, "***")
+    _LAST_ERROR = text[:240]
+
+
+def _http_error_detail(exc: urllib.error.HTTPError) -> str:
+    """« HTTP 402: message du fournisseur » à partir du corps JSON OpenRouter (si lisible)."""
+    detail = ""
+    try:
+        body = json.loads(exc.read().decode("utf-8"))
+        error = body.get("error") if isinstance(body, dict) else None
+        if isinstance(error, dict):
+            detail = str(error.get("message") or "")
+            raw = (error.get("metadata") or {}).get("raw") if isinstance(error.get("metadata"), dict) else None
+            if raw and not detail:
+                detail = str(raw)
+        elif isinstance(error, str):
+            detail = error
+    except Exception:  # corps absent / non JSON : on garde le code seul
+        detail = ""
+    reason = getattr(exc, "reason", "") or getattr(exc, "msg", "") or ""
+    return f"HTTP {exc.code}: {detail or reason}".rstrip(": ")
+
+
 def _extract_text(message: Any) -> str | None:
     """Texte d'une réponse OpenAI-compatible, ou None si elle est vide.
 
@@ -162,9 +203,15 @@ def _extract_text(message: Any) -> str | None:
 
 
 def _post(payload: dict[str, Any]) -> str | None:
-    """Transport partagé : requête OpenRouter, parse compatible OpenAI, erreurs → None."""
+    """Transport partagé : requête OpenRouter, parse compatible OpenAI, erreurs → None.
+
+    En cas d'échec, la cause (sans secret) est consultable via last_error().
+    """
+    global _LAST_ERROR
+    _LAST_ERROR = ""
     key = api_key()
     if not key:
+        _set_error("no API key")
         return None
     request = urllib.request.Request(
         api_url(),
@@ -180,9 +227,33 @@ def _post(payload: dict[str, Any]) -> str | None:
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             data = json.loads(response.read().decode("utf-8"))
+        if isinstance(data, dict) and data.get("error"):
+            error = data["error"]
+            _set_error(f"API error: {error.get('message') if isinstance(error, dict) else error}")
+            return None
         choices = data.get("choices", [])
-        return _extract_text(choices[0].get("message") if choices else None)
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, KeyError, IndexError, TypeError, AttributeError):
+        message = choices[0].get("message") if choices else None
+        text = _extract_text(message)
+        if text is None:
+            finish = choices[0].get("finish_reason") if choices else None
+            if not choices:
+                _set_error("empty reply (no choices returned)")
+            elif finish == "length":
+                _set_error("empty reply: the model used its whole token budget thinking (finish_reason=length)")
+            else:
+                _set_error(f"empty reply (finish_reason={finish})")
+        return text
+    except urllib.error.HTTPError as exc:
+        _set_error(_http_error_detail(exc))
+        return None
+    except urllib.error.URLError as exc:
+        _set_error(f"network error: {getattr(exc, 'reason', exc)}")
+        return None
+    except TimeoutError:
+        _set_error("timeout: no answer within 30 s")
+        return None
+    except (ValueError, KeyError, IndexError, TypeError, AttributeError) as exc:
+        _set_error(f"unreadable response ({type(exc).__name__})")
         return None
 
 

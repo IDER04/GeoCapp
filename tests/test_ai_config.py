@@ -374,5 +374,143 @@ class TestEmptyOrOddReplies(MockedEnvTestCase):
             self.assertIsNone(ai.chat([{"role": "user", "content": "Explique le verdict de la France"}]))
 
 
+class TestDiagnostics(MockedEnvTestCase):
+    """last_error() : cause réelle d'un échec, sans jamais exposer la clé API."""
+
+    KEY = "sk-or-v1-supersecretvalue1234567890"
+
+    def setUp(self):
+        super().setUp()
+        os.environ["OPENROUTER_API_KEY"] = self.KEY
+
+    def _http_error(self, code, body):
+        raw = json.dumps(body).encode("utf-8") if not isinstance(body, bytes) else body
+        return urllib.error.HTTPError(url=ai.API_URL, code=code, msg="Err", hdrs=None, fp=io.BytesIO(raw))
+
+    def _fail_with(self, exc):
+        with mock.patch("urllib.request.urlopen", side_effect=exc):
+            self.assertIsNone(ai._call("Q"))
+        return ai.last_error()
+
+    def test_http_402_payment_message_is_reported(self):
+        err = self._fail_with(self._http_error(402, {"error": {"message": "Insufficient credits", "code": 402}}))
+        self.assertEqual(err, "HTTP 402: Insufficient credits")
+
+    def test_http_404_data_policy_message_is_reported(self):
+        msg = "No endpoints found matching your data policy (Free model publication)"
+        self.assertIn("HTTP 404", self._fail_with(self._http_error(404, {"error": {"message": msg}})))
+        self.assertIn("data policy", ai.last_error())
+
+    def test_http_429_rate_limit_is_reported(self):
+        err = self._fail_with(self._http_error(429, {"error": {"message": "Rate limit exceeded: free-models-per-day"}}))
+        self.assertTrue(err.startswith("HTTP 429: Rate limit"))
+
+    def test_http_error_without_json_body_keeps_the_code(self):
+        err = self._fail_with(self._http_error(502, b"<html>Bad gateway</html>"))
+        self.assertTrue(err.startswith("HTTP 502"))
+
+    def test_http_error_without_body_at_all(self):
+        exc = urllib.error.HTTPError(url=ai.API_URL, code=401, msg="Unauthorized", hdrs=None, fp=None)
+        self.assertEqual(self._fail_with(exc), "HTTP 401: Unauthorized")
+
+    def test_network_and_timeout_are_distinguished(self):
+        self.assertIn("network error", self._fail_with(urllib.error.URLError("connection refused")))
+        self.assertIn("timeout", self._fail_with(TimeoutError()))
+
+    def test_unreadable_response(self):
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(b"not json")):
+            self.assertIsNone(ai._call("Q"))
+        self.assertIn("unreadable response", ai.last_error())
+
+    def test_error_body_with_http_200_is_reported(self):
+        body = json.dumps({"error": {"message": "Provider returned error", "code": 502}}).encode("utf-8")
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(body)):
+            self.assertIsNone(ai._call("Q"))
+        self.assertEqual(ai.last_error(), "API error: Provider returned error")
+
+    def test_empty_content_with_length_is_explained(self):
+        body = json.dumps({"choices": [{"message": {"content": None}, "finish_reason": "length"}]}).encode("utf-8")
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(body)):
+            self.assertIsNone(ai._call("Q"))
+        self.assertIn("token budget", ai.last_error())
+        self.assertIn("finish_reason=length", ai.last_error())
+
+    def test_empty_content_without_length_and_no_choices(self):
+        body = json.dumps({"choices": [{"message": {"content": ""}, "finish_reason": "stop"}]}).encode("utf-8")
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(body)):
+            ai._call("Q")
+        self.assertIn("finish_reason=stop", ai.last_error())
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(b'{"choices": []}')):
+            ai._call("Q")
+        self.assertIn("no choices", ai.last_error())
+
+    def test_missing_key_is_reported(self):
+        os.environ.pop("OPENROUTER_API_KEY")
+        with mock.patch("urllib.request.urlopen") as mocked:
+            self.assertIsNone(ai._call("Q"))
+        mocked.assert_not_called()
+        self.assertEqual(ai.last_error(), "no API key")
+
+    def test_success_clears_the_previous_error(self):
+        self._fail_with(TimeoutError())
+        self.assertTrue(ai.last_error())
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(json.dumps(completions_payload("ok")).encode("utf-8"))):
+            self.assertEqual(ai._call("Q"), "ok")
+        self.assertEqual(ai.last_error(), "")
+
+    def test_the_api_key_is_never_exposed_even_if_the_provider_echoes_it(self):
+        echoed = {"error": {"message": f"Invalid key {self.KEY} for this request"}}
+        err = self._fail_with(self._http_error(401, echoed))
+        self.assertNotIn(self.KEY, err)
+        self.assertIn("***", err)
+
+    def test_message_is_bounded_and_single_line(self):
+        err = self._fail_with(self._http_error(500, {"error": {"message": "line one\n\n" + "x" * 1000}}))
+        self.assertLessEqual(len(err), 240)
+        self.assertNotIn("\n", err)
+
+
+class TestAnalystShowsTheReason(MockedEnvTestCase):
+    """La page Analyste affiche la vraie cause quand la clé est présente mais l'appel échoue."""
+
+    def _ask(self, side_effect=None, return_value=None):
+        from pathlib import Path
+
+        from streamlit.testing.v1 import AppTest
+
+        root = Path(__file__).resolve().parent.parent
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-v1-supersecretvalue1234567890"
+        os.environ["LLM_MODEL"] = "nvidia/nemotron-3.5-super-vl:free"
+        with mock.patch("urllib.request.urlopen", side_effect=side_effect, return_value=return_value):
+            at = AppTest.from_file(str(root / "app.py"), default_timeout=120)
+            at.session_state["nav"] = "analyst"
+            at.run()
+            at.chat_input[0].set_value("Explique le verdict de la France").run()
+        self.assertFalse(bool(at.exception), at.exception)
+        return "\n".join(m.value for m in at.markdown)
+
+    def test_reason_and_model_are_shown_on_failure(self):
+        exc = urllib.error.HTTPError(
+            url=ai.API_URL, code=404, msg="x", hdrs=None,
+            fp=io.BytesIO(json.dumps({"error": {"message": "No endpoints found matching your data policy"}}).encode("utf-8")),
+        )
+        shown = self._ask(side_effect=exc)
+        self.assertIn("Détail technique : HTTP 404: No endpoints found matching your data policy", shown)
+        self.assertIn("modèle : nvidia/nemotron-3.5-super-vl:free", shown)
+        self.assertNotIn("sk-or-v1-supersecretvalue", shown)
+        self.assertIn("Faits validés", shown)  # le repli éditorial reste fourni
+
+    def test_empty_reply_reason_is_shown(self):
+        body = json.dumps({"choices": [{"message": {"content": None}, "finish_reason": "length"}]}).encode("utf-8")
+        shown = self._ask(return_value=_FakeResponse(body))
+        self.assertIn("token budget", shown)
+
+    def test_no_reason_line_on_success(self):
+        body = json.dumps(completions_payload("France : investir avec prudence.")).encode("utf-8")
+        shown = self._ask(return_value=_FakeResponse(body))
+        self.assertNotIn("Détail technique", shown)
+        self.assertIn("Interprétation IA", shown)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -137,6 +137,10 @@ def _handle_question(prompt: str) -> None:
             st.markdown(f'<span class="gc-chip gold">{ui.esc(t("an.chip.interpretation"))}</span>', unsafe_allow_html=True)
         else:
             ui.callout(t("an.unavailable"), "orange")
+            if ai.is_available() and ai.last_error():
+                # Clé présente mais appel échoué : on montre la vraie cause (jamais la clé).
+                reason = t("an.reason", reason=ai.last_error(), model=ai.api_model())
+                st.markdown(f'<div class="gc-small">{ui.esc(reason)}</div>', unsafe_allow_html=True)
             response = analyst.editorial_answer(payload, prompt)
             st.markdown(f'<span class="gc-chip orange">{ui.esc(t("an.chip.facts_python"))}</span>', unsafe_allow_html=True)
         st.markdown(response)
