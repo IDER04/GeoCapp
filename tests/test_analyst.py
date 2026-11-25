@@ -339,5 +339,90 @@ class TestPromptConstruction(unittest.TestCase):
         self.assertIn("pays_disponibles", payload)
 
 
+class TestQuestionOverridesSelector(unittest.TestCase):
+    """Un pays nommé dans la question prime sur le pays présélectionné (cas réel : États-Unis
+    présélectionnés, question sur la France → l'IA ne recevait que les faits américains)."""
+
+    def test_detect_countries_finds_all_mentions_in_order(self):
+        self.assertEqual(analyst.detect_countries("Compare la France et le Japon"), ["france", "japan"])
+        self.assertEqual(analyst.detect_countries("Le Japon puis la France"), ["japan", "france"])
+        self.assertEqual(analyst.detect_countries("Explique le verdict de la France"), ["france"])
+
+    def test_detect_countries_accepts_english_names(self):
+        self.assertEqual(analyst.detect_countries("Explain Japan's verdict"), ["japan"])
+        self.assertEqual(analyst.detect_countries("South Africa and Saudi Arabia"), ["south_africa", "saudi"])
+        self.assertEqual(analyst.detect_countries("What about the United States?"), ["usa"])
+
+    def test_detect_countries_has_no_substring_false_positives(self):
+        self.assertEqual(analyst.detect_countries("une grande crise"), [])  # « rand » dans « grande »
+        self.assertEqual(analyst.detect_countries("Quelle heure est-il ?"), [])
+        self.assertEqual(analyst.detect_countries(""), [])
+        self.assertEqual(analyst.detect_countries("Le rand sud-africain est faible"), ["south_africa"])
+
+    def test_detect_countries_tolerates_word_variants_and_accents(self):
+        self.assertEqual(analyst.detect_countries("La croissance chinoise"), ["china"])
+        self.assertEqual(analyst.detect_countries("L'ÉCONOMIE FRANÇAISE"), ["france"])
+        self.assertEqual(analyst.detect_countries("Et l'Arabie saoudite ?"), ["saudi"])
+
+    def _name(self, payload):
+        return payload["identite"]["name"]
+
+    def test_france_asked_with_usa_selected_sends_france(self):
+        for intent in ("country", "verdict", "capital"):
+            payload = analyst.build_context(intent, "Explique le verdict de la France", country_id="usa")
+            blob = json.dumps(payload, ensure_ascii=False)
+            self.assertIn("France", blob, intent)
+            self.assertNotIn("États-Unis", blob.split("informations_manquantes")[0][:400], intent)
+
+    def test_country_intent_payload_is_the_mentioned_country(self):
+        payload = analyst.build_context("country", "Explique le verdict de la France", country_id="usa")
+        self.assertEqual(self._name(payload), "France")
+
+    def test_selector_is_kept_when_the_question_names_no_country(self):
+        payload = analyst.build_context("country", "Explique ce verdict", country_id="morocco")
+        self.assertEqual(self._name(payload), "Maroc")
+
+    def test_two_countries_in_a_single_country_intent_become_a_comparison(self):
+        payload = analyst.build_context("verdict", "Compare la France et le Japon", country_id="usa")
+        self.assertEqual(payload["pays_selectionnes"], ["France", "Japon"])
+
+    def test_compare_intent_uses_countries_named_in_the_question(self):
+        payload = analyst.build_context(
+            "compare", "Compare la France et le Japon", compare_ids=["usa", "china"]
+        )
+        self.assertEqual(payload["pays_selectionnes"], ["France", "Japon"])
+
+    def test_compare_intent_keeps_selection_with_fewer_than_two_mentions(self):
+        payload = analyst.build_context("compare", "Et la France ?", compare_ids=["usa", "china"])
+        self.assertEqual(len(payload["pays_selectionnes"]), 2)
+        self.assertNotIn("France", payload["pays_selectionnes"])
+
+    def test_at_most_four_countries_in_a_comparison(self):
+        payload = analyst.build_context(
+            "country", "France Japon Maroc Chine Liban Syrie", country_id="usa"
+        )
+        self.assertEqual(len(payload["pays_selectionnes"]), 4)
+
+    def test_portfolio_and_event_intents_ignore_mentions(self):
+        payload = analyst.build_context("portfolio", "Parle de la France", amounts={"usa": 50000})
+        self.assertEqual(payload["metriques"]["top_country"], "États-Unis")
+        event = data.load_events()[0]
+        payload = analyst.build_context("event", "Parle de la France", event_id=event["id"])
+        self.assertIn("faits_etablis", payload)
+        expected_country = data.country_by_id(event["country"])["name"]
+        self.assertEqual(payload["pays_concerne"]["name"], expected_country)  # le pays de l'événement, pas la France
+
+    def test_france_payload_carries_france_score_not_usa(self):
+        payload = analyst.build_context("country", "Explique le verdict de la France", country_id="usa")
+        expected = scoring.overall_score(data.country_by_id("france"))["score"]
+        self.assertEqual(payload["score_geo_capital"]["score"], expected)
+
+    def test_editorial_fallback_answers_about_the_named_country(self):
+        question = "Explique le verdict de la France"
+        payload = analyst.build_context("country", question, country_id="usa")
+        france_score = f"{scoring.overall_score(data.country_by_id('france'))['score']}"
+        self.assertIn(france_score.split(".")[0], analyst.editorial_answer(payload, question))
+
+
 if __name__ == "__main__":
     unittest.main()

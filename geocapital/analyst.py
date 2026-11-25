@@ -103,16 +103,16 @@ def detect_question_language(question: str) -> str:
     return "fr"
 
 ALIASES: dict[str, list[str]] = {
-    "usa": ["etats-unis", "amerique", "eeuu", "united states", "fed"],
-    "china": ["chine", "chinois", "pekin", "beijing"],
+    "usa": ["etats-unis", "amerique", "eeuu", "united states", "america", "fed"],
+    "china": ["chine", "chinois", "chinese", "pekin", "beijing"],
     "france": ["francais", "francaise"],
-    "japan": ["japon", "tokyo", "nippone"],
+    "japan": ["japon", "japanese", "tokyo", "nippone"],
     "lebanon": ["liban", "beyrouth", "beirut"],
     "morocco": ["maroc", "rabat", "bank al-maghrib"],
-    "saudi": ["arabie", "riyad"],
-    "south_africa": ["afrique du sud", "johannesburg", "rand"],
+    "saudi": ["arabie", "saudi arabia", "riyad"],
+    "south_africa": ["afrique du sud", "south africa", "johannesburg", "rand"],
     "syria": ["syrie", "damas"],
-    "uae": ["emirats", "dubai", "abu dhabi"],
+    "uae": ["emirats", "emirates", "dubai", "abu dhabi"],
 }
 
 EVENT_ALIASES: dict[str, list[str]] = {
@@ -149,6 +149,32 @@ def detect_country(question: str) -> str | None:
         probes += ALIASES.get(country["id"], [])
         candidates.append((str(country["id"]), probes))
     return _match_entity(question, candidates)
+
+
+def _probe_pattern(probe: str) -> str:
+    """Mot entier pour les sondes courtes (« rand », « fed »), préfixe de mot sinon.
+
+    Évite les faux positifs par sous-chaîne (« une grande crise » ≠ « rand »)
+    tout en tolérant les variantes (« chinois/chinoise », « francais/francaise »).
+    """
+    body = re.escape(probe)
+    return rf"\b{body}\b" if len(probe) <= 4 else rf"\b{body}"
+
+
+def detect_countries(question: str) -> list[str]:
+    """Tous les pays cités dans la question (FR/EN), dans l'ordre d'apparition."""
+    normalized = _strip_accents(question or "")
+    found: list[tuple[int, str]] = []
+    for country in data.countries():
+        probes = [str(country["id"]), country["name"], *ALIASES.get(country["id"], [])]
+        positions = []
+        for probe in probes:
+            match = re.search(_probe_pattern(_strip_accents(probe)), normalized)
+            if match:
+                positions.append(match.start())
+        if positions:
+            found.append((min(positions), str(country["id"])))
+    return [country_id for _, country_id in sorted(found)]
 
 
 def detect_event(question: str) -> str | None:
@@ -421,6 +447,18 @@ def build_context(
     default_country = (
         data.country_by_id(country_id or "usa") or data.countries()[0]
     )
+    # Un pays nommé dans la question prime sur le sélecteur : « Explique le verdict de la
+    # France » avec les États-Unis présélectionnés doit envoyer les faits de la France.
+    mentioned = detect_countries(question or "")
+    if intent in ("country", "verdict", "capital"):
+        if len(mentioned) == 1:
+            default_country = data.country_by_id(mentioned[0]) or default_country
+        elif len(mentioned) >= 2:
+            named = [c for c in (data.country_by_id(cid) for cid in mentioned[:4]) if c]
+            if len(named) >= 2:
+                return payload_comparison(named, profile)
+    if intent == "compare" and len(mentioned) >= 2:
+        compare_ids = mentioned[:4]
     if intent == "country":
         return payload_country(default_country, profile)
     if intent == "compare":
