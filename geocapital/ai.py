@@ -23,7 +23,13 @@ from typing import Any
 DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
 API_URL = DEFAULT_BASE_URL + "/chat/completions"  # endpoint par défaut (compat.)
 DEFAULT_MODEL = "openai/gpt-4o"
-MAX_TOKENS = 700
+MAX_TOKENS = 700  # longueur visible visée d'une réponse (le prompt demande 120 à 180 mots)
+# Les modèles « raisonnement » (dont plusieurs modèles gratuits) dépensent des jetons à réfléchir
+# AVANT d'écrire ; ces jetons comptent dans max_tokens. Sans marge, la réponse arrive vide
+# (finish_reason=length). La marge est ajoutée au plafond envoyé ; la longueur de la réponse reste
+# bornée par le prompt, donc pour un modèle classique rien ne change (plafond, pas consommation).
+REASONING_HEADROOM = 4000
+REQUEST_TIMEOUT = 90  # secondes : la réflexion de ces modèles est bien plus longue que 30 s
 
 _ENV_LOADED = False
 
@@ -213,6 +219,9 @@ def _post(payload: dict[str, Any]) -> str | None:
     if not key:
         _set_error("no API key")
         return None
+    requested = payload.get("max_tokens")
+    if isinstance(requested, int):
+        payload = {**payload, "max_tokens": requested + REASONING_HEADROOM}
     request = urllib.request.Request(
         api_url(),
         data=json.dumps(payload).encode("utf-8"),
@@ -225,7 +234,7 @@ def _post(payload: dict[str, Any]) -> str | None:
         method="POST",
     )
     try:
-        with urllib.request.urlopen(request, timeout=30) as response:
+        with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:
             data = json.loads(response.read().decode("utf-8"))
         if isinstance(data, dict) and data.get("error"):
             error = data["error"]
@@ -239,7 +248,10 @@ def _post(payload: dict[str, Any]) -> str | None:
             if not choices:
                 _set_error("empty reply (no choices returned)")
             elif finish == "length":
-                _set_error("empty reply: the model used its whole token budget thinking (finish_reason=length)")
+                _set_error(
+                    "empty reply: the model used its whole token budget thinking "
+                    f"(finish_reason=length, budget {payload.get('max_tokens')})"
+                )
             else:
                 _set_error(f"empty reply (finish_reason={finish})")
         return text
@@ -250,7 +262,7 @@ def _post(payload: dict[str, Any]) -> str | None:
         _set_error(f"network error: {getattr(exc, 'reason', exc)}")
         return None
     except TimeoutError:
-        _set_error("timeout: no answer within 30 s")
+        _set_error(f"timeout: no answer within {REQUEST_TIMEOUT} s")
         return None
     except (ValueError, KeyError, IndexError, TypeError, AttributeError) as exc:
         _set_error(f"unreadable response ({type(exc).__name__})")

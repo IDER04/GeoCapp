@@ -234,7 +234,7 @@ class TestRequestPayload(MockedEnvTestCase):
         self.assertEqual(captured["url"], ai.API_URL)
         self.assertIn("openrouter.ai/api/v1/chat/completions", captured["url"])
         self.assertEqual(captured["body"]["model"], "openai/gpt-4o-mini")
-        self.assertEqual(captured["body"]["max_tokens"], 700)
+        self.assertEqual(captured["body"]["max_tokens"], 700 + ai.REASONING_HEADROOM)  # 700 visibles + marge de réflexion
         roles = [message["role"] for message in captured["body"]["messages"]]
         self.assertEqual(roles, ["system", "user"])
         self.assertIn("Authorization", captured["headers"])
@@ -510,6 +510,93 @@ class TestAnalystShowsTheReason(MockedEnvTestCase):
         shown = self._ask(return_value=_FakeResponse(body))
         self.assertNotIn("Détail technique", shown)
         self.assertIn("Interprétation IA", shown)
+
+
+class TestReasoningHeadroom(MockedEnvTestCase):
+    """Les modèles « raisonnement » (ex. modèles gratuits) ont besoin de jetons pour réfléchir."""
+
+    def _capture(self, call):
+        captured = {}
+
+        def fake_urlopen(request, timeout=None):
+            captured["body"] = json.loads(request.data.decode("utf-8"))
+            captured["timeout"] = timeout
+            return _FakeResponse(json.dumps(completions_payload("ok")).encode("utf-8"))
+
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            self.assertEqual(call(), "ok")
+        return captured
+
+    def test_constants_leave_real_room_to_think(self):
+        self.assertGreaterEqual(ai.REASONING_HEADROOM, 2000)
+        self.assertEqual(ai.MAX_TOKENS, 700)  # la longueur visible visée ne change pas
+        self.assertGreaterEqual(ai.REQUEST_TIMEOUT, 60)
+
+    def test_call_sends_visible_budget_plus_headroom(self):
+        sent = self._capture(lambda: ai._call("Q"))
+        self.assertEqual(sent["body"]["max_tokens"], ai.MAX_TOKENS + ai.REASONING_HEADROOM)
+
+    def test_every_helper_gets_the_headroom(self):
+        country = {"name": "Maroc", "indicators": {}}
+        score = {"score": 6.5, "verdict": "Modéré"}
+        for call, visible in (
+            (lambda: ai.country_brief(country, score), 700),
+            (lambda: ai.explain_verdict(country, score), 500),
+            (lambda: ai.decode_event({"title": "t"}, country), 550),
+            (lambda: ai.portfolio_commentary([], {}), 500),
+            (lambda: ai.explain_quiz(country, {"question": "Q", "options": ["a", "b"], "answer": 0}, True), 350),
+        ):
+            sent = self._capture(call)
+            self.assertEqual(sent["body"]["max_tokens"], visible + ai.REASONING_HEADROOM)
+
+    def test_chat_gets_the_headroom(self):
+        sent = self._capture(lambda: ai.chat([{"role": "user", "content": "Q"}]))
+        self.assertEqual(sent["body"]["max_tokens"], ai.MAX_TOKENS + ai.REASONING_HEADROOM)
+
+    def test_caller_payload_is_not_mutated(self):
+        payload = {"model": "m", "max_tokens": 100, "messages": []}
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(json.dumps(completions_payload("ok")).encode("utf-8"))):
+            ai._post(payload)
+        self.assertEqual(payload["max_tokens"], 100)
+
+    def test_payload_without_max_tokens_is_left_alone(self):
+        sent = {}
+
+        def fake_urlopen(request, timeout=None):
+            sent["body"] = json.loads(request.data.decode("utf-8"))
+            return _FakeResponse(json.dumps(completions_payload("ok")).encode("utf-8"))
+
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            ai._post({"model": "m", "messages": []})
+        self.assertNotIn("max_tokens", sent["body"])
+
+    def test_longer_timeout_is_used(self):
+        sent = self._capture(lambda: ai._call("Q"))
+        self.assertEqual(sent["timeout"], ai.REQUEST_TIMEOUT)
+
+    def test_timeout_message_mentions_the_actual_limit(self):
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", side_effect=TimeoutError()):
+            self.assertIsNone(ai._call("Q"))
+        self.assertIn(f"{ai.REQUEST_TIMEOUT} s", ai.last_error())
+
+    def test_reasoning_style_reply_with_text_is_accepted(self):
+        body = json.dumps({"choices": [{"message": {"role": "assistant", "content": "France : investir avec prudence.", "reasoning": "réflexion interne très longue"}, "finish_reason": "stop"}]}).encode("utf-8")
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(body)):
+            answer = ai._call("Q")
+        self.assertEqual(answer, "France : investir avec prudence.")
+        self.assertNotIn("réflexion", answer)  # le raisonnement interne n'est jamais affiché
+
+    def test_length_failure_reports_the_budget_used(self):
+        body = json.dumps({"choices": [{"message": {"content": None}, "finish_reason": "length"}]}).encode("utf-8")
+        os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
+        with mock.patch("urllib.request.urlopen", return_value=_FakeResponse(body)):
+            self.assertIsNone(ai._call("Q"))
+        self.assertIn(f"budget {ai.MAX_TOKENS + ai.REASONING_HEADROOM}", ai.last_error())
 
 
 if __name__ == "__main__":

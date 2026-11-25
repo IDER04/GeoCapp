@@ -72,7 +72,7 @@ class TestChat(MockedEnvTestCase):
         os.environ["OPENROUTER_API_KEY"] = "sk-or-test-value"
         with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
             ai.chat([{"role": "user", "content": "Q"}], max_tokens=350)
-        self.assertEqual(captured["body"]["max_tokens"], 350)
+        self.assertEqual(captured["body"]["max_tokens"], 350 + ai.REASONING_HEADROOM)  # 350 visibles + marge de réflexion
 
 
 if __name__ == "__main__":
