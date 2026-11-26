@@ -1,212 +1,209 @@
-# GeoCapital — Plan de rafraîchissement des données (Phase 1, incrément 1)
+# GeoCapp — Data Refresh Plan (Phase 1, increment 1)
 
-> Priorité 6. Implémentation : `geocapital/refresh.py` · Première
-> exécution : rapport candidats `docs/REFRESH_CANDIDATES_BRA_LBN_SYR.md`
-> (+ `.json`) — Brésil, Liban, Syrie.
+> Priority 6. Implementation: `geocapital/refresh.py` · First run:
+> candidate report `docs/REFRESH_CANDIDATES_BRA_LBN_SYR.md`
+> (+ `.json`) — Brazil, Lebanon, Syria.
 >
-> **Statut : revue avant application.** Aucun fichier de production
-> (`data/countries/*.json`) n'a été modifié par cet incrément.
+> **Status: review before application.** No production file
+> (`data/countries/*.json`) was modified by this increment.
 
-## 1. Objectif et principes
+## 1. Objective and principles
 
-Améliorer la **fraîcheur** et la **traçabilité** des données sans jouer
-avec le modèle de scoring, sans écraser silencieusement une valeur et
-sans invention de chiffres, dates ou URL. Trois principes :
+Improve the **freshness** and **traceability** of the data without
+tampering with the scoring model, without silently overwriting a value,
+and without inventing figures, dates or URLs. Three principles:
 
-1. **Review-first** : l'API fournit des *candidats* ; rien n'est
-   appliqué automatiquement. Chaque candidat porte une recommandation
-   (`safe` / `manual` / `reject` / `gap`), une explication et son URL de
-   requête.
-2. **Correspondance par définition, pas par nom** : une série WB n'est
-   mappée que si sa définition couvre réellement celle de la fiche ; les
-   chevauchements partiels sont documentés (`match: "partial"`) et
-   orientés vers de la revue manuelle ou du rejet.
-3. **Provenance** : chaque observation distingue
-   - la **période d'observation** (ex. 2024 — jamais assimilée à
-     l'année en cours),
-   - la **date de publication/actualisation** de la source
-     (`meta.lastupdated` de la réponse, quand disponible),
-   - la **date de récupération** (horodatée à l'exécution du
-     générateur),
-   - le **statut d'observation** WDI (`obs_status`).
+1. **Review-first**: the API provides *candidates*; nothing is applied
+   automatically. Each candidate carries a recommendation
+   (`safe` / `manual` / `reject` / `gap`), an explanation and its
+   request URL.
+2. **Matching by definition, not by name**: a World Bank (WB) series is
+   mapped only if its definition genuinely covers that of the country
+   profile; partial overlaps are documented (`match: "partial"`) and
+   routed to manual review or rejection.
+3. **Provenance**: each observation distinguishes
+   - the **observation period** (e.g. 2024 — never treated as the
+     current year),
+   - the source's **publication/update date**
+     (`meta.lastupdated` of the response, when available),
+   - the **retrieval date** (timestamped when the generator runs),
+   - the WDI **observation status** (`obs_status`).
 
-## 2. Sémantique des statuts d'observation (WDI)
+## 2. Observation status semantics (WDI)
 
-| `obs_status` | Sens | Traitement |
+| `obs_status` | Meaning | Handling |
 |---|---|---|
-| `` (vide) ou `A` | observation réelle | acceptée comme `actual` |
-| `E` | estimation officielle | acceptée, signalée `estimate` (croisement conseillé) |
-| `F` | prévision | **exclue** de `latest_actual()` — une prévision ne remplace pas une observation ; rejet explicite si proposée |
-| `NA` | non disponible | ignorée |
+| `` (empty) or `A` | actual observation | accepted as `actual` |
+| `E` | official estimate | accepted, flagged `estimate` (cross-checking recommended) |
+| `F` | forecast | **excluded** from `latest_actual()` — a forecast does not replace an observation; explicitly rejected if proposed |
+| `NA` | not available | ignored |
 
-## 3. Cartographie des indicateurs (WB WDI v2 uniquement)
+## 3. Indicator mapping (WB WDI v2 only)
 
-Source : API Indicators de la Banque mondiale, v2
-(`https://api.worldbank.org/v2/...`, gratuite, sans clé). Les
-indicateurs de marché sans équivalent officiel gratuit unique
-(`policy_rate`, `rating`, `cds`, `crp`, `equity_index`, `currency`) ne
-sont **pas** mappés — sources manuelles obligatoires.
+Source: World Bank Indicators API, v2
+(`https://api.worldbank.org/v2/...`, free, no key). Market indicators
+with no single free official equivalent (`policy_rate`, `rating`, `cds`,
+`crp`, `equity_index`, `currency`) are **not** mapped — manual sources
+are mandatory.
 
-| Indicateur GeoCapital | Série WB | Correspondance | Note de définition |
+| GeoCapp indicator | WB series | Match | Definition note |
 |---|---|---|---|
-| `gdp_growth` | `NY.GDP.MKTP.KD.ZG` | `exact` | PIB réel, croissance annuelle % |
-| `inflation` | `FP.CPI.TOTL.ZG` | `exact` | IPC de consommation, moyenne annuelle % (pas un point fin d'année) |
-| `unemployment` | `SL.UEM.TOTL.ZS` | `partial` | série **modélisée** OIT — peut diverger fortement des estimations de crise (Liban, Syrie) |
-| `debt_gdp` | `GC.DOD.TOTL.GD.ZS` | `partial` | dette du **gouvernement central** ≠ dette du secteur public général (sous-estime) ; série souvent arrêtée dans les années reculées |
-| `reserves` | `FI.RES.TOTL.CD` | `exact_for_total` | réserves **totales** (or inclus), US$ ; conversion définie US$ → Mds $ (×10⁻⁹). ⚠️ si la fiche documente des réserves **nettes** → définition incompatible, rejet |
+| `gdp_growth` | `NY.GDP.MKTP.KD.ZG` | `exact` | Real GDP, annual growth % |
+| `inflation` | `FP.CPI.TOTL.ZG` | `exact` | Consumer price index, annual average % (not an end-of-year point) |
+| `unemployment` | `SL.UEM.TOTL.ZS` | `partial` | ILO **modeled** series — can diverge strongly from crisis estimates (Lebanon, Syria) |
+| `debt_gdp` | `GC.DOD.TOTL.GD.ZS` | `partial` | **Central government** debt ≠ general public-sector debt (understates it); series often discontinued in earlier years |
+| `reserves` | `FI.RES.TOTL.CD` | `exact_for_total` | **Total** reserves (gold included), US$; defined conversion US$ → US$ billions (×10⁻⁹). ⚠️ if the profile documents **net** reserves → incompatible definition, rejected |
 
-## 4. Règles de recommandation (résumé)
+## 4. Recommendation rules (summary)
 
-- `gap` — récupération impossible ou aucune ligne exploitable : la
-  valeur existante est conservée, l'écart est documenté (lui revenir
-  côté freshness, Priorité 2).
-- `reject` — observation *plus ancienne* que l'existant ; prévision ;
-  série dette centrale dépassée ; réserves nettes ≠ totales.
-- `manual` — millésime plus récent ; même millésime avec valeur
-  divergente ; pays nouveau (expansion) ; divergence > 10 points sur le
-  chômage modélisé. Aucune application sans arbitrage humain.
-- `safe` — réservé à de futurs automatisements explicitement approuvés.
-  **Aucun candidat « safe » n'a été produit dans cet incrément** : en
-  revue-first, tout changement de valeur passe d'abord par une personne.
+- `gap` — retrieval impossible or no usable row: the existing value is
+  kept and the gap is documented (to be followed up on the freshness
+  side, Priority 2).
+- `reject` — observation *older* than the existing one; forecast;
+  outdated central-government debt series; net ≠ total reserves.
+- `manual` — more recent vintage; same vintage with a diverging value;
+  new country (expansion); divergence of more than 10 points on modeled
+  unemployment. Nothing is applied without human judgment.
+- `safe` — reserved for future, explicitly approved automation.
+  **No "safe" candidate was produced in this increment**: under
+  review-first, every value change goes through a person first.
 
-## 5. Premier tirage — Liban, Syrie, Brésil (2026-10-25)
+## 5. First run — Lebanon, Syria, Brazil (2026-10-25)
 
-Résultats : **15 candidats → 0 safe · 8 manual · 6 reject · 1 gap**.
+Results: **15 candidates → 0 safe · 8 manual · 6 reject · 1 gap**.
 
-Constats clés (détail dans le rapport) :
+Key findings (details in the report):
 
-- **Liban** : PIB −7,08 % (2024, WB) vs −6,5 % (fiche, FMI) → revue de
-  provenance ; inflation 2025 = 14,6 % (décrue) → revue ; chômage
-  modélisé OIT 2023 = 11,0 % vs estimation de crise 30 % → série
-  modélisée non alignée sur la rupture, rejetée au profit de l'existant
-  ; réserves BRUTES 33,3 Mds $ vs réserves NETTES 10 Mds $ (BDL/FMI) →
-  **définition incompatible, rejet** ; dette centrale arrêtée en 1999 →
-  rejet.
-- **Syrie** : couverture WDI gravement lacunaire (PIB fin 2022, IPC fin
-  2019, échec de la dette, réserves fin 2010, une seule valeur de
-  chômage modélisée 2025 = 13,6 %) → essentiellement des écarts, à
-  combler ailleurs.
-- **Brésil** : toutes les séries sont fraîches (2024–2025) et
-  complètes ; candidats d'**expansion** (aucun fichier de production),
-  donc tous « manual » par construction.
+- **Lebanon**: GDP −7.08% (2024, WB) vs −6.5% (profile, IMF) →
+  provenance review; 2025 inflation = 14.6% (easing) → review; ILO
+  modeled unemployment 2023 = 11.0% vs crisis estimate of 30% → the
+  modeled series is not aligned with the breakdown and was rejected in
+  favor of the existing value; GROSS reserves US$33.3 bn vs NET reserves
+  US$10 bn (BDL/IMF) → **incompatible definition, rejected**; central
+  government debt discontinued in 1999 → rejected.
+- **Syria**: WDI coverage is severely incomplete (GDP ends 2022, CPI
+  ends 2019, debt retrieval failed, reserves end 2010, a single modeled
+  unemployment value for 2025 = 13.6%) → mostly gaps, to be filled
+  elsewhere.
+- **Brazil**: all series are fresh (2024–2025) and complete; these are
+  **expansion** candidates (no production file), so all are "manual" by
+  construction.
 
-### Sources officielles à mobiliser pour les écarts (Liban / Syrie)
+### Official sources to use for the gaps (Lebanon / Syria)
 
-- **FMI — WEO et Article IV** : PIB, inflation, dette et réserves du
-  Liban et de la Syrie (estimations staff, définition « secteur public
-  général » pour la dette). `imf.org/weo`, notes-pays Article IV.
-- **Banque du Liban (BDL)** : policy rate, réserves nettes et libres,
-  base monétaire. `bdl.gov.lb` (séries « Bulletin BDL »).
-- **Banque centrale de Syrie** : policy rate, réserves (informations
-  éparses) ; *Central Bureau of Statistics* syrien pour l'IPC quand il
-  publie.
-- **Banque mondiale** : `SL.UEM.TOTL.ZS` (chômage modélisé OIT) — à
-  croiser avec les estimations « crise » (OIT, études nationales) avant
-  toute substitution.
+- **IMF — WEO and Article IV**: GDP, inflation, debt and reserves for
+  Lebanon and Syria (staff estimates, "general public sector"
+  definition for debt). `imf.org/weo`, Article IV country reports.
+- **Banque du Liban (BDL)**: policy rate, net and free reserves, monetary
+  base. `bdl.gov.lb` ("BDL Bulletin" series).
+- **Central Bank of Syria**: policy rate, reserves (scattered
+  information); the Syrian *Central Bureau of Statistics* for CPI when
+  it publishes.
+- **World Bank**: `SL.UEM.TOTL.ZS` (ILO modeled unemployment) — to be
+  cross-checked against "crisis" estimates (ILO, national studies)
+  before any substitution.
 
-Ces récupérations hors WB ne font pas partie de l'incrément 1 (pas de
-connecteur) ; elles passent par une reprise manuelle documentée avec
-URL + date, puis le même circuit de revue.
+These non-WB retrievals are not part of increment 1 (no connector); they
+go through a documented manual entry with URL + date, then the same
+review process.
 
-## 6. Workflow complet (cible)
+## 6. Full workflow (target)
 
 1. `refresh.candidate_pack(cid)` / `pack_for_new_country(snapshot)` →
-   candidats d'un pays (API WB, timeout, sans clé).
-2. `build_candidate()` → recommandation + explication + métadonnées.
+   candidates for one country (WB API, timeout, no key).
+2. `build_candidate()` → recommendation + explanation + metadata.
 3. `generate_report()` → `docs/REFRESH_CANDIDATES_*.md` + `.json`
-   (écriture **uniquement** sous `docs/`).
-4. Revue humaine : arbitrer chaque `manual`, accepter/rejeter les
-   `reject`, tracer les `gap` vers leur source officielle.
-5. Incrément futur (non implémenté) : écriture contrôlée des candidats
-   approuvés dans `data/countries/*.json` — avec conservation des
-   champs `source`, `note`, millésime et `data_as_of` de `meta.json`,
-   puis exécution de la suite de tests + vérification du scoring de
-   référence figé.
+   (writes **only** under `docs/`).
+4. Human review: decide each `manual`, accept/reject the `reject`
+   entries, trace each `gap` to its official source.
+5. Future increment (not implemented): controlled writing of approved
+   candidates into `data/countries/*.json` — keeping the `source`,
+   `note` and vintage fields and `data_as_of` from `meta.json`, then
+   running the test suite + checking the frozen reference scoring.
 
-## 7. Limites connues
+## 7. Known limitations
 
-- Ne couvre que WB WDI v2 ; pas de connecteur FMI/BDL/BCS (incrément
-  suivant probable).
-- Une « date de publication » fine n'est pas exposée par observation par
-  l'API (seule la date de mise à jour de la base l'est) — d'où le champ
-  `lastupdated` tracé, distinct de la période d'observation.
-- `per_page=60` couvre largement les séries annuelles ; une série
-  paginée au-delà nécessiterait une boucle (non nécessaire à ce stade).
-- Les valeurs WDI sont parfois révisées à posteriori : un candidat
-  `manual` doit toujours être recoupé avec une seconde source avant
-  application.
-- Le compteur `per_page`, les erreurs réseau et les JSON malformés sont
-  convertis en `gap` traçable, jamais en valeur replacée par une
-  estimation interne.
+- Covers only WB WDI v2; no IMF/BDL/Central Bank of Syria connector
+  (probable next increment).
+- A fine-grained "publication date" is not exposed per observation by
+  the API (only the database update date is) — hence the traced
+  `lastupdated` field, distinct from the observation period.
+- `per_page=60` comfortably covers annual series; a series paginated
+  beyond that would require a loop (not needed at this stage).
+- WDI values are sometimes revised after the fact: a `manual` candidate
+  must always be cross-checked against a second source before being
+  applied.
+- The `per_page` counter, network errors and malformed JSON are
+  converted into a traceable `gap`, never into a value replaced by an
+  internal estimate.
 
-## 8. Suivi — évidence restante pour les trois cas non tranchés (2026-10-25)
+## 8. Follow-up — remaining evidence for the three unresolved cases (2026-10-25)
 
-Suite à la revue `docs/REFRESH_REVIEW.md`, aucun des trois cas ci-dessous
-ne peut être arbitré par défaut : toute application reste bloquée tant
-que cette évidence n'est pas rassemblée. **Aucune de ces trois valeurs
-n'a été modifiée en production dans cet incrément.**
+Following the review in `docs/REFRESH_REVIEW.md`, none of the three cases
+below can be decided by default: any application remains blocked until
+this evidence is gathered. **None of these three values was modified in
+production in this increment.**
 
-### 8.1 Liban — `gdp_growth` 2024 (écart FMI vs Banque mondiale)
+### 8.1 Lebanon — `gdp_growth` 2024 (IMF vs World Bank gap)
 
-Trois vintages officiels coexistent pour 2024 : la fiche (−6,5 %,
-source « FMI / estimations »), la Banque mondiale (WDI et LEM :
-−7,1 %), le FMI WEO d'octobre 2026 (−5,2 %). Évidence à réunir avant
-tout choix :
+Three official vintages coexist for 2024: the profile (−6.5%, source
+"IMF / estimates"), the World Bank (WDI and LEM: −7.1%), and the IMF WEO
+of October 2026 (−5.2%). Evidence to gather before any choice:
 
-- **Réconciliation interne au FMI** : identifier ce qui se cache derrière
-  l'existant (« FMI / estimations ») et le confronter au WEO DataMapper
-  (`NGDP_RPCH`) : vintages différents, révisions chronologiques, et
-  éventuelle note de pays Article IV Liban expliquant l'écart ;
-- **Base des comptes nationaux** : déterminer si −7,1 vs −5,2 provient
-  d'une révision de base des comptes nationaux libanais ou d'hypothèses
-  de staff différentes (séquelles du conflit de 2024, points d'entrée
-  et de sortie du PIB) ;
-- **Citation LEM précise** : édition LEM printemps 2025 (révision
-  −5,7 → −7,1) — retrancher la page exacte et le millésime pour tracer
-  la chronologie des révisions.
+- **IMF internal reconciliation**: identify what lies behind the
+  existing value ("IMF / estimates") and compare it with the WEO
+  DataMapper (`NGDP_RPCH`): different vintages, chronological revisions,
+  and any Lebanon Article IV country note explaining the gap;
+- **National accounts basis**: determine whether −7.1 vs −5.2 stems from
+  a base revision of Lebanon's national accounts or from different staff
+  assumptions (aftermath of the 2024 conflict, GDP entry and exit
+  points);
+- **Precise LEM citation**: Spring 2025 LEM edition (revision
+  −5.7 → −7.1) — pin down the exact page and vintage to trace the
+  chronology of revisions.
 
-Sans cela, `seek_better_source` reste en vigueur (appliquer −7,1
-reviendrait à arbitrer un désaccord inter-institutions de 1,9 point).
+Without this, `seek_better_source` remains in force (applying −7.1
+would amount to settling a 1.9-point disagreement between institutions).
 
-### 8.2 Liban — `unemployment` (divergence triple)
+### 8.2 Lebanon — `unemployment` (triple divergence)
 
-Trois valeurs coexistent dans les sources officielles consultées :
-fiche 30 % (2024) · ILO modélisé 11,0 % (2023 ; 2024/25 **nuls** dans
-WDI) · MPO avril 2026 ~22,8 % (2024). Évidence à réunir :
+Three values coexist in the official sources consulted: profile 30%
+(2024) · ILO modeled 11.0% (2023; 2024/25 are **null** in WDI) · MPO
+April 2026 ~22.8% (2024). Evidence to gather:
 
-- **ILOSTAT ILOEST Liban** : télécharger la série Liban et vérifier
-  l'année de référence exacte du 11,0 % ainsi que la note
-  méthodologique (estimation modélisée, absence d'enquête récente) ;
-- **Enquêtes nationales récentes** : rechercher auprès du CAS et de
-  l'OLM (Observatoire libanais du marché du travail) toute publication
-  post-2019 confirmant ou démentant le ~30 % de la fiche ;
-- **LEM/MPO** : localiser la page exacte du 22,8 % (2024) dans la
-  feuille MPO d'avril 2026, avec définition, période et statut
-  (estimé vs observé).
+- **ILOSTAT ILOEST Lebanon**: download the Lebanon series and check the
+  exact reference year of the 11.0% as well as the methodological note
+  (modeled estimate, no recent survey);
+- **Recent national surveys**: look for any post-2019 publication from
+  the CAS and the OLM (Lebanese labor market observatory) confirming or
+  contradicting the profile's ~30%;
+- **LEM/MPO**: locate the exact page of the 22.8% (2024) in the April
+  2026 MPO sheet, with definition, period and status (estimated vs
+  observed).
 
-Sans enquête sous-jacente, aucune des trois valeurs ne peut remplacer
-l'autre de façon justifiable — d'où `seek_better_source` maintenu.
+Without an underlying survey, none of the three values can justifiably
+replace another — hence `seek_better_source` is maintained.
 
-### 8.3 Syrie — `unemployment` 2025
+### 8.3 Syria — `unemployment` 2025
 
-Trois valeurs centrées sur la rupture de décembre 2024 : fiche 50 %
-(2024, « Estimation OIT », citation jamais traçable) · ILO modélisé
-13,6 % (2025) · EUAA COI 24 % (2024). Évidence à réunir :
+Three values centered on the December 2024 break: profile 50% (2024,
+"ILO estimate", citation never traceable) · ILO modeled 13.6% (2025) ·
+EUAA COI 24% (2024). Evidence to gather:
 
-- **ILOSTAT ILOEST Syrie** : série complète + note méthodologique ILO
-  (« lack of recent labour market data ») — la valeur 13,6 % est une
-  sortie de modèle, pas une observation;
-- **Premières enquêtes du gouvernement syrien post-décembre 2024** :
-  toute enquête post-transition exploitable (Echo, REACH, OCHA, ONS
-  syrien si reprise) — une enquête directe, si elle est publiée, serait
-  la première depuis des années ;
-- **Publications post-conflit WB/FMI** : le FMI exclut la Syrie du WEO
-  depuis 2011 ; toute réinclusion serait un signal de nouvelle donnée
-  disponible à exploiter ;
-- **Citation de l'existant 50 %** : retrouver la publication exacte
-  derrière l'estimation de crise (fiches UNOCHA/EUAA/RNIS 2023-24)
-  pour dater et qualifier ce niveau avant toute décision.
+- **ILOSTAT ILOEST Syria**: full series + ILO methodological note
+  ("lack of recent labour market data") — the 13.6% value is a model
+  output, not an observation;
+- **First surveys by the Syrian government after December 2024**: any
+  usable post-transition survey (Echo, REACH, OCHA, Syrian ONS if
+  resumed) — a direct survey, if published, would be the first in
+  years;
+- **Post-conflict WB/IMF publications**: the IMF has excluded Syria from
+  the WEO since 2011; any reinclusion would signal new data available
+  to exploit;
+- **Citation of the existing 50%**: find the exact publication behind
+  the crisis estimate (UNOCHA/EUAA/RNIS fact sheets 2023–24) to date and
+  qualify this level before any decision.
 
-Les valeurs modélisées post-conflit (13,6 %) ne doivent **pas** être
-appliquées sans enquête corroborante : elles reposent sur un modèle
-sans visibilité sur la transition.
+Post-conflict modeled values (13.6%) must **not** be applied without a
+corroborating survey: they rest on a model with no visibility on the
+transition.

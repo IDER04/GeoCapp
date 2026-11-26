@@ -1,6 +1,6 @@
 # Development guide
 
-How to install, configure, run and test GeoCapital locally, and how the codebase is organized. The product overview and methodology live in the [README](../README.md); this document is for people who want to run or modify the code.
+How to install, configure, run and test GeoCapp locally, and how the codebase is organized. The product overview and methodology live in the [README](../README.md); this document is for people who want to run or modify the code.
 
 ## Requirements
 

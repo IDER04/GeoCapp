@@ -1,12 +1,12 @@
-# Contributing to GeoCapital
+# Contributing to GeoCapp
 
-Thanks for your interest in GeoCapital. This is an educational project, and suggestions, bug reports and pull requests are welcome.
+Thanks for your interest in GeoCapp. This is an educational project, and suggestions, bug reports and pull requests are welcome.
 
 ## Before you start
 
 - Set up your environment and run the tests with the steps in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
 - For anything beyond a small fix, open an issue first so we can agree on the approach.
-- GeoCapital is a teaching tool. It places no orders and is not investment advice, and contributions should keep that framing.
+- GeoCapp is a teaching tool. It places no orders and is not investment advice, and contributions should keep that framing.
 
 ## Reporting issues
 
