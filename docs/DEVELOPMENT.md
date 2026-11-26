@@ -4,7 +4,7 @@ How to install, configure, run and test GeoCapital locally, and how the codebase
 
 ## Requirements
 
-- Python 3.13 (the version used by the CI workflow in `.github/workflows/tests.yml`)
+- Python 3.13 (the version used by the CI workflow in `.github/workflows/tests.yml`). A Dev Container definition is also provided in `.devcontainer/`.
 - The runtime dependencies in `requirements.txt`: Streamlit, Plotly and pandas. The test suite uses the standard library only (`unittest` and `unittest.mock`), so there are no extra test dependencies.
 - No database, paid service or bank connection is needed. The AI analyst is optional.
 
@@ -43,14 +43,16 @@ The suite needs no network access, no API key and no `.env` file. Calls to the A
 
 ## Configuration
 
-The application runs fully without AI, using editorial content and deterministic calculations. To enable the optional AI analyst (served through OpenRouter), provide a key and, optionally, a model.
+The application runs fully without AI, using editorial content and deterministic calculations. To enable the optional AI analyst (an OpenAI-compatible API, OpenRouter by default), provide a key and, optionally, a model and base URL.
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
 | `OPENROUTER_API_KEY` | For AI only | none | API key for the AI analyst |
-| `GEOCAPITAL_MODEL` | No | `openai/gpt-4o` | Model identifier sent to OpenRouter |
+| `LLM_MODEL` | No | `openai/gpt-4o` | Model identifier, for example `openrouter/free` for a free OpenRouter model. Takes precedence over `GEOCAPITAL_MODEL` |
+| `LLM_BASE_URL` | No | `https://openrouter.ai/api/v1` | Base URL of the OpenAI-compatible API. HTTPS is required, except for localhost |
+| `GEOCAPITAL_MODEL` | No | none | Legacy name for the model setting, still accepted |
 
-Lookup order, highest priority first:
+Each setting is looked up in this order, highest priority first:
 
 1. Process environment variables
 2. A `.env` file in the project root
@@ -60,7 +62,7 @@ Lookup order, highest priority first:
 
 ```env
 OPENROUTER_API_KEY="your-key"
-GEOCAPITAL_MODEL="openai/gpt-4o"
+LLM_MODEL="openai/gpt-4o"
 ```
 
 **Local development with Streamlit secrets:** copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and fill in your key.
@@ -85,13 +87,15 @@ geocapital/
   refresh.py              Review-first data refresh candidates (World Bank API)
   data_quality_audit.py   Data-quality audit generator
   ui.py                   Shared HTML/CSS components
+  charts.py               Shared Plotly chart styling (presentation only)
 views/                    One module per page
 data/
   countries/*.json        One file per country
   events.json, meta.json  Decoder events; sources, parameters and scoring model
   i18n/en/*.json          English overlays for narrative content
   audit/, candidates/     Generated audit data and refresh candidates
-assets/styles.css         Visual theme
+assets/                   styles.css (visual theme) and logo
+.devcontainer/            Dev Container definition
 tests/                    unittest suite
 docs/                     Methodology, model parameters and data-quality documents
 ```
