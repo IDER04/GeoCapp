@@ -1,321 +1,306 @@
-# GeoCapp — Revue des 8 candidats « manual » (Priorité 6, incrément 1)
+# GeoCapp — Review of the 8 "manual" candidates (Priority 6, increment 1)
 
-> Date de revue : 2026-10-25 · Portée : les **8 candidats classés
-> `manual`** dans `docs/REFRESH_CANDIDATES_BRA_LBN_SYR.md`.
-> **Statut : document de revue.** Aucune donnée de production
-> (`data/countries/*.json`, `data/meta.json`) n'a été modifiée ;
-> `data_as_of` reste `2026-10-25`.
+> Review date: 2026-10-25 · Scope: the **8 candidates classified as
+> `manual`** in `docs/REFRESH_CANDIDATES_BRA_LBN_SYR.md`.
+> **Status: review document.** No production data
+> (`data/countries/*.json`, `data/meta.json`) was modified;
+> `data_as_of` remains `2026-10-25`.
 
-## Méthode et preuves utilisées
+## Method and evidence used
 
-Les candidats n'ont **pas** été validés sur la seule base du rapport ;
-les sources officielles ont été consultées directement :
+The candidates were **not** validated on the report alone; the official
+sources were consulted directly:
 
-- **API Indicators Banque mondiale v2** (observations + métadonnées de
-  série : définition, institution source) — y compris la vérification
-  que LBN `SL.UEM` 2024/2025 sont **nulles** (gaps) ;
-- **API officielle des statistiques du FMI (WEO DataMapper)** —
-  `NGDP_RPCH` (croissance PIB réel) et `PCPIPCH` (inflation) pour LBN et
-  BRA ; la Syrie y est **exclue** (« Data are excluded from 2011 onward
-  because of the uncertain political situation », appendice
-  statistique WEO) ;
-- **API BCB (SGS)** série `13762` — « Dívida bruta do governo geral
-  (% PIB) » méthodologie 2008 (dette brute du **Gouvernement général**) ;
-- **Publications nationales** : IBGE (PIB 2025 = 2,3 %, IPCA 2025 =
-  4,26 %, PNAD Contínua — desocupação 2025 = 5,6 % annuel) ;
-  Banco Central (Relatório de Gestão das Reservas 2026 : US$ 358,23
-  Md au 31/12/2025) ;
-- **Banque mondiale, monitoring pays** : Lebanon Economic Monitor
-  (communiqués 19/06/2025 et 22/01/2026), feuille de données MPO/Lebanon
-  (avril 2026) ;
-- **ILO/OIT** : ILOSTAT + fiche-emploi Syrie ILO
-  (juillet 2025), rapport EUAA COI Syrie (juillet 2025).
+- **World Bank Indicators API v2** (observations + series metadata:
+  definition, source institution) — including verification that LBN
+  `SL.UEM` 2024/2025 are **null** (gaps);
+- **IMF official statistics API (WEO DataMapper)** — `NGDP_RPCH` (real
+  GDP growth) and `PCPIPCH` (inflation) for LBN and BRA; Syria is
+  **excluded** there ("Data are excluded from 2011 onward because of the
+  uncertain political situation", WEO statistical appendix);
+- **BCB API (SGS)** series `13762` — "Dívida bruta do governo geral
+  (% PIB)", 2008 methodology (gross debt of the **general government**);
+- **National publications**: IBGE (GDP 2025 = 2.3%, IPCA 2025 = 4.26%,
+  PNAD Contínua — unemployment (desocupação) 2025 = 5.6% annual);
+  Banco Central (Relatório de Gestão das Reservas 2026: US$358.23 bn
+  at 31/12/2025);
+- **World Bank country monitoring**: Lebanon Economic Monitor (releases
+  of 19/06/2025 and 22/01/2026), MPO/Lebanon data sheet (April 2026);
+- **ILO**: ILOSTAT + ILO Syria employment fact sheet (July 2025), EUAA
+  COI Syria report (July 2025).
 
-Normes conservatrices appliquées : une valeur plus récente n'est
-**pas** approuvée par défaut ; chaque proposition doit être recoupée
-avec une seconde source officielle et comparable en définition, unité
-et période. Si l'évidence se contredit ou reste insuffisante →
-`seek_better_source`.
+Conservative standards applied: a more recent value is **not** approved
+by default; each proposal must be cross-checked against a second
+official source and be comparable in definition, unit and period. If the
+evidence is contradictory or remains insufficient → `seek_better_source`.
 
-Codes de recommandation : `approve_candidate` (candidat validé en
-l'état, application future après signal utilisateur),
-`retain_existing` (garder la valeur de production),
-`seek_better_source` (ni l'existant ni la proposition ne sont
-évaluables — il faut une source meilleure).
+Recommendation codes: `approve_candidate` (candidate validated as is,
+future application after a signal from the user), `retain_existing`
+(keep the production value), `seek_better_source` (neither the existing
+value nor the proposal can be assessed — a better source is needed).
 
 ---
 
-## Table de décision (8 candidats `manual`)
+## Decision table (8 `manual` candidates)
 
-| # | Pays | Indicateur | Recommandation |
-|---|------|-----------|----------------|
-| 1 | Liban | PIB réel 2024 | **`seek_better_source`** |
-| 2 | Liban | Inflation | **`approve_candidate`** |
-| 3 | Syrie | Chômage | **`seek_better_source`** |
-| 4 | Brésil | PIB réel 2025 | **`approve_candidate`** |
-| 5 | Brésil | Inflation 2025 | **`seek_better_source`** |
-| 6 | Brésil | Chômage 2025 | **`approve_candidate`** |
-| 7 | Brésil | Dette/PIB | **`seek_better_source`** |
-| 8 | Brésil | Réserves 2025 | **`approve_candidate`** |
+| # | Country | Indicator | Recommendation |
+|---|---------|-----------|----------------|
+| 1 | Lebanon | Real GDP 2024 | **`seek_better_source`** |
+| 2 | Lebanon | Inflation | **`approve_candidate`** |
+| 3 | Syria | Unemployment | **`seek_better_source`** |
+| 4 | Brazil | Real GDP 2025 | **`approve_candidate`** |
+| 5 | Brazil | Inflation 2025 | **`seek_better_source`** |
+| 6 | Brazil | Unemployment 2025 | **`approve_candidate`** |
+| 7 | Brazil | Debt/GDP | **`seek_better_source`** |
+| 8 | Brazil | Reserves 2025 | **`approve_candidate`** |
 
-Comptage : **4 × `approve_candidate` · 0 × `retain_existing` ·
-4 × `seek_better_source`.** Aucun de ces candidats ne doit être appliqué
-sans signalement explicite de l'utilisateur ; les 4 approbations
-concernent l'inflation du Liban et trois candidats Brésil (PIB, chômage,
-réserves) — voir détail par entrée.
-
----
-
-### 1) Liban — `gdp_growth` (PIB réel, %, 2024)
-
-- **Existant** : −6,5 % · 2024 · unité % · source « FMI / estimations ».
-- **Proposé** : −7,08 % · 2024 · unité % · source Banque mondiale
-  (WDI `NY.GDP.MKTP.KD.ZG`), `obs_status` vide = **actuel**, base WDI
-  mise à jour 2026-10-08, récupéré 2026-10-25.
-- **Comparabilité** : même définition (croissance du PIB réel, moyenne
-  annuelle), même unité et même période → comparables à condition de
-  concilier l'écart des sources.
-- **Écart non résolu entre institutions** : WDI et le Lebanon Economic
-  Monitor affichent **−7,1 % pour 2024** (révision LEM de −5,7 % à
-  −7,1 % au printemps 2025 ; feuille de données MPO avril 2026 :
-  −7,1 % en 2024, en cohérence avec les valeurs historiques de la
-  même série : −6,9 % en 2019, −21,4 % en 2020, −7,0 % en 2021, −0,6 %
-  en 2022, −0,8 % en 2023) ; en revanche le FMI (WEO, vintage octobre
-  2026), affiche **−5,2 % pour 2024**. L'existant −6,5 % (FMI) se
-  situe entre les deux.
-- **Source officielle ?** Oui (WDI, institution « Country official
-  statistics… + Staff estimates, World Bank ») ; observation **actuelle**
-  (pas une prévision).
-- **Effet d'une substitution** : écart de portée narrative modérée
-  (−6,5 → −7,08) qui pourrait durcir l'analyse, mais l'approuver
-  aujourd'hui signifierait arbitrer un désaccord FMI/Banque mondiale de
-  1,9 point sans l'avoir concilié ; la production pourrait migrer vers
-  −7,1 plus tard ou vers une révision FMI plus claire.
-- **Décision : `seek_better_source`** — la Banque mondiale fournit trois
-  publications cohérentes sur −7,1, le FMI en dit −5,2 ; la levée de la
-  divergence (vintage, base de comptabilité nationale, estimation
-  conflit/dommage vs estimation staff) exige une vérification ciblée
-  (WEO Lebanon country page + Article IV si publié). En attendant, la
-  valeur existante et l'ordre de grandeur restent valides.
-
-### 2) Liban — `inflation` (IPC annuel, %, 2025)
-
-- **Existant** : 45,0 % · 2024 · source « Administration centrale de la
-  statistique / FMI ». **Recoupé** : le FMI (WEO Oct. 2026) affiche
-  45,2 % pour 2024 → l'existant est validé à 2 décimales près.
-- **Proposé** : 14,60 % (14,5976) · **2025** · source Banque mondiale
-  (WDI `FP.CPI.TOTL.ZG`, série alimentée par les IFS/FMI), `obs_status`
-  vide = **actuel** ; WDI mis à jour 2026-10-08 ; récupéré 2026-10-25.
-- **Comparabilité** : même concept (variation annuelle de l'IPC
-  consommation, moyenne de l'année), même unité (%), 2025 plus récent
-  que 2024. **Recoupement fort** : FMI WEO = **14,6 %** pour 2025, soit
-  exactement la même valeur — cohérent car les deux séries dérivent du
-  même écosystème (CAS via IFS).
-- **Source officielle ?** Oui (Banque mondiale/IFS + CAS via FMI).
-  Observation **actuelle**, estimée par les deux institutions de façon
-  concordante.
-- **Effet de la substitution** : fort et **favorable** — passe la fiche
-  d'un régime « inflation très élevée (45 %) » à un régime de
-  **désinflation** avec stabilité du taux de change (converge avec le LEM :
-  « inflation projected to moderate to 15.2% in 2025 »). Il faut mettre
-  à jour `note` et `date` de la fiche lors de l'application ; la note
-  actuelle mentionne l'effondrement de la livre, le texte deviendra
-  obsolète.
-- **Décision : `approve_candidate`** — double-corroboration exacte
-  (WDI = WEO = 14,6), actuelle et comparable ; candidat le plus solide
-  du lot. L'application restera un geste séparé signé par l'utilisateur
-  (avec adoption de `date` 2025, `source` mise à jour et `note`
-  réécrite).
-
-### 3) Syrie — `unemployment` (chômage total, %, 2025)
-
-- **Existant** : 50,0 % · 2024 · source « Estimation OIT »
-  (citation détaillée manquante en production).
-- **Proposé** : 13,57 % (13,569) · 2025 · source Banque mondiale (WDI
-  `SL.UEM.TOTL.ZS`) = **estimation modélisée ILO** (`ILOEST`), base
-  consultée : janvier 2026, `obs_status` vide ; WDI mis à jour
-  2026-10-08 ; récupéré 2026-10-25.
-- **Contexte méthodologique documenté** : l'ILO lui-même écrit (fiche
-  Syrie, juillet 2025) que « there is a lack of recent labour market
-  data for Syria, requiring the use of modelled estimates » — la valeur
-  13 % (2024) est une **sortie de modèle avec grande incertitude** dans
-  un contexte de conflit/transitions. Un rapport indépendant (EUAA COI
-  Syrie, juillet 2025) avançait **24 % en 2024**. L'existant 50 %
-  provient d'estimations de crise dépourvues, en production, de
-  citation précise et non retrouvée. Enfin, le FMI **exclut**
-  systématiquement la Syrie du WEO depuis 2011 — aucune validation
-  possible côté FMI.
-- **Comparabilité** : concept identique (chômage % de la population
-  active, OIT) mais bases divergentes d'un facteur ~2-4 — non
-  conciliable en l'état.
-- **Source officielle ?** Oui (WDI/ILO), mais **estimation modélisée**,
-  pas une observation d'enquête.
-- **Effet de la substitution** : majeur et **trompeur potentiellement** —
-  50 → 13,6 transformerait « moitié de la population active sans
-  emploi » en « chômage modéré », ce qui n'est soutenu par aucune
-  enquête récente syrienne ; le modèle ILO n'a pas de visibilité sur la
-  transition post-2024.
-- **Décision : `seek_better_source`** — ni le candidat ni l'existant ne
-  sont assis sur une enquête solide. Action prospective : la future
-  revue doit chercher la série Syria ILOEST sur ILOSTAT (13,6 attendue
-  pour 2025), les
-  premières enquêtes du gouvernement syrien post-transition et, le cas
-  échéant, les publications post-conflit de la Banque mondiale ; en
-  attendant, conserver la valeur de
-  production avec son label « estimation ».
-
-### 4) Brésil — `gdp_growth` (PIB réel, %, 2025) — candidat d'expansion
-
-- **Existant** : — (aucun fichier de production ; Brésil n'est pas
-  couvert ; 10 pays actuels).
-- **Proposé** : 2,29 % (2,2857) · 2025 · actuel ; source WDI
-  `NY.GDP.MKTP.KD.ZG` (« Country official statistics… »), WDI 2026-10-08.
-- **Comparabilité — triple accord** : IBGE (communiqué 03/03/2026) :
-  **2,3 % en 2025** (5ᵉ année consécutive de croissance) ; FMI WEO :
-  2,3 % ; WDI : 2,29 %. Définition identique (PIB réel, année).
-- **Décision : `approve_candidate`** — soutien le plus solide pour le
-  futur workflow d'expansion (base WDI, corroboré par la statistique
-  nationale et le FMI). À l'écriture de la fiche, la source principale
-  restera citée : « IBGE / Banque mondiale (WDI) ».
-
-### 5) Brésil — `inflation` (IPC, %, 2025) — candidat d'expansion
-
-- **Existant** : — (expansion).
-- **Proposé** : 5,02 % (5,0168) · 2025 · actuel ; WDI `FP.CPI.TOTL.ZG`,
-  institution « International Financial Statistics database, IMF ».
-- **Confrontation officielle** : l'inflation **officielle** de référence
-  (IBGE, IPCA — indice national large) a atteint **4,26 % en 2025**
-  (cadré sous la cible de 4,5 %). L'écart de 0,76 point avec WDI/IFS
-  (5,02) n'est pas explicable à ce stade : l'IPC exact utilisé par les
-  IFS pour le Brésil (IPCA, INPC, IPC général FGV, différence
-  année-moyenne vs déc.) n'a **pas** pu être réconcilié en ligne —
-  aucune supposition n'est faite ici.
-- **Source officielle ?** Oui, mais divergente de la source nationale.
-- **Effet de la substitution (fiche future)** : présenter 5,02 %
-  afficherait une inflation au-dessus de la cible
-  alors que l'IBGE officiel dit l'inverse (4,26 ≤ 4,5) — risque de
-  signaler le « mauvais » régime de politique monétaire.
-- **Décision : `seek_better_source`** — préférer l'IBGE/IPCA (4,26 %,
-  année 2025) et vérifier le libellé exact de la série IFS avant tout
-  usage. Ne pas présenter la valeur WB en l'état.
-
-### 6) Brésil — `unemployment` (chômage, %, 2025) — candidat d'expansion
-
-- **Existant** : — (expansion).
-- **Proposé** : 5,97 % · 2025 · actuel (sur le papier) ; WDI
-  `SL.UEM.TOTL.ZS` = **estimation modélisée ILO** (base janvier 2026).
-- **Confrontation officielle** : IBGE, PNAD Contínua (communiqué
-  30/01/2026) : taux annuel (« desocupação ») = **5,6 % en 2025** (années
-  antérieures : 6,6 % en 2024) — définition comparable (chômage % de
-  la population active). Écart WB↔IBGE : 0,37 point (modélisé vs
-  enquête).
-- **Source officielle ?** Oui ; le candidat WDI/OIT est une estimation
-  modélisée, l'IBGE est une véritable enquête.
-- **Effet** : faible — les deux valeurs installent le même récit
-  (marché du travail au meilleur niveau de la série).
-- **Décision : `approve_candidate`** avec mention : à la création de la
-  fiche, la **source primaire = IBGE PNAD Contínua (5,6 %)**, la
-  valeur WB n'étant qu'un recoupement ; le champ `source` de la fiche
-  doit porter le nom d'IBGE si cette valeur-là est choisie.
-
-### 7) Brésil — `debt_gdp` (dette/PIB, %, 2024) — candidat d'expansion
-
-- **Existant** : — (expansion).
-- **Proposé** : 81,86 % · **2024** · WDI `GC.DOD.TOTL.GD.ZS` =
-  dette du **gouvernement CENTRAL** (source : Government Finance
-  Statistics Yearbook, FMI).
-- **Confrontation officielle (définition correcte)** : l'indicateur
-  GeoCapp correspond à la dette du **secteur public général** — au
-  Brésil, la mesure officielle est la **DBGG (dívida bruta do governo
-  geral)**, publiée par le Banco Central (SGS 13762, méthodologie 2008,
-  alignée FMI) : **76,27 % du PIB en déc. 2024** et 78,64 % en déc.
-  2025. La proposition WB (gouvernement central) est **5,6 points
-  plus élevée** en 2024 — l'écart ne peut pas être concilié en
-  changeant simplement d'année.
-- **Source officielle ?** Oui (les deux), mais **définitions
-  incompatibles** (central ≠ général), offrant un mauvais signal de
-  soutenabilité si utilisée telle quelle.
-- **Effet** : surestimerait la dette brute de ~5,6 p.p., poussant le
-  récit « dette très élevée » et surinterprétation du risque fiscal.
-- **Décision : `seek_better_source`** — la future fiche Brésil doit
-  porter la DBGG (76,3 % en 2024, 78,6 % en 2025, source Banco Central
-  do Brasil, série SGS 13762) ; un connecteur conditionné à
-  l'incrément suivant (API SGS gratuite).
-- (Note méthodologique : une tentative de rapprochement via le code
-  DataMapper `GGXWDG_NGDP` n'a pas abouti — ce code ne mesure pas la
-  dette — et n'est **pas** utilisée comme preuve ici.)
-
-### 8) Brésil — `reserves` (réserves, Mds $, 2025) — candidat d'expansion
-
-- **Existant** : — (expansion).
-- **Proposé** : 358,5 Mds $ · 2025 · actuel ; WDI `FI.RES.TOTL.CD`
-  (réserves totales, **or inclus**, US$) converti US$ → Mds $ (×10⁻⁹,
-  conversion définie); source « IFS, FMI ».
-- **Confrontation officielle** : Banco Central do Brasil,
-  *Relatório de Gestão das Reservas Internacionais* (mars 2026) :
-  **US$ 358,23 Md au 31/12/2025** (« conceito caixa »), contre
-  US$ 329,73 Md au 31/12/2024. Écart WB↔BCB : 0,08 % — les deux
-  figures décrivent la même quantité au même concept (total incl. or ;
-  différence fine : caixa vs accrual).
-- **Source officielle ?** Oui ; observation **actuelle**.
-- **Effet** : nul sur l'interprétation (même ordre de grandeur).
-- **Décision : `approve_candidate`** — avec mention d'unité (Mds $)
-  et, au moment d'écrire la fiche, délibération sur le concept à
-  inscrire (ici **total, or inclus** — ce qui doit être explicité dans
-  `note`, la fiche Liban documente pour sa part des réserves **nettes**).
+Count: **4 × `approve_candidate` · 0 × `retain_existing` ·
+4 × `seek_better_source`.** None of these candidates should be applied
+without an explicit signal from the user; the 4 approvals concern
+Lebanon's inflation and three Brazil candidates (GDP, unemployment,
+reserves) — see the detail for each entry.
 
 ---
 
-## Annexes — cas déjà rejetés / reportés, indiquant les écarts à traiter
+### 1) Lebanon — `gdp_growth` (real GDP, %, 2024)
 
-Ces candidats ont déjà un `reject/gap` documenté dans le premier rapport
-; ils n'appartiennent pas aux 8 `manual`. Les faits nouveaux relevés
-lors de cette revue serviront d'inputs aux futurs incréments :
+- **Existing**: −6.5% · 2024 · unit % · source "IMF / estimates".
+- **Proposed**: −7.08% · 2024 · unit % · source World Bank (WDI
+  `NY.GDP.MKTP.KD.ZG`), `obs_status` empty = **actual**, WDI base
+  updated 2026-10-08, retrieved 2026-10-25.
+- **Comparability**: same definition (real GDP growth, annual average),
+  same unit and same period → comparable provided the discrepancy
+  between sources is reconciled.
+- **Unresolved gap between institutions**: WDI and the Lebanon Economic
+  Monitor show **−7.1% for 2024** (LEM revision from −5.7% to −7.1% in
+  spring 2025; MPO data sheet April 2026: −7.1% in 2024, consistent with
+  the historical values of the same series: −6.9% in 2019, −21.4% in
+  2020, −7.0% in 2021, −0.6% in 2022, −0.8% in 2023); the IMF (WEO,
+  October 2026 vintage), however, shows **−5.2% for 2024**. The existing
+  −6.5% (IMF) lies between the two.
+- **Official source?** Yes (WDI, institution "Country official
+  statistics… + Staff estimates, World Bank"); **actual** observation
+  (not a forecast).
+- **Effect of a substitution**: a gap of moderate narrative weight
+  (−6.5 → −7.08) that could harden the analysis, but approving it today
+  would mean settling an IMF/World Bank disagreement of 1.9 points
+  without having reconciled it; production could later move to −7.1 or
+  to a clearer IMF revision.
+- **Decision: `seek_better_source`** — the World Bank provides three
+  consistent publications at −7.1, while the IMF says −5.2; resolving
+  the divergence (vintage, national accounts basis, conflict/damage
+  estimate vs staff estimate) requires a targeted check (WEO Lebanon
+  country page + Article IV if published). In the meantime, the
+  existing value and order of magnitude remain valid.
 
-- **Liban — chômage (reject/2023 = 11,0 %)** : la revue a établi une
-  triple divergence : ILO modélisé 2023 = 11,0 % (2024/2025 **nuls**),
-  feuille de données MPO/Lebanon avril 2026 : 2023 = 23,3 %, **2024 =
-  22,8 %, 2025e = 22,8 %**, et la fiche de production = 30 (2024,
-  « Estimation OIT / Banque mondiale », citation proche des taux de
-  chômage issus des enquêtes libanaises récentes ~30 %). Aucun arbitrage
-  automatique : trouver dépend d'un travail sur ILOSTAT et les enquêtes
-  nationales (Pas de candidature WB exploitable — les séries WDI
-  LBN 2024/2025 sont nulles).
-- **Liban dette/reserves, SYR gdp/inflation/debt/reserves** : les motifs
-  de rejet du premier rapport restent valables (définition centrale vs
-  générale ; brut vs net ; millésimes antérieurs et lacunes WDI
-  documentées, p. ex. SYR dette = 0 ligne).
+### 2) Lebanon — `inflation` (annual CPI, %, 2025)
 
-### Brésil — lecture « workflow d'expansion »
+- **Existing**: 45.0% · 2024 · source "Central Administration of
+  Statistics / IMF". **Cross-checked**: the IMF (WEO Oct. 2026) shows
+  45.2% for 2024 → the existing value is validated to within 0.2 points.
+- **Proposed**: 14.60% (14.5976) · **2025** · source World Bank (WDI
+  `FP.CPI.TOTL.ZG`, series fed by IMF IFS), `obs_status` empty =
+  **actual**; WDI updated 2026-10-08; retrieved 2026-10-25.
+- **Comparability**: same concept (annual change in the consumer price
+  index, yearly average), same unit (%), 2025 more recent than 2024.
+  **Strong cross-check**: IMF WEO = **14.6%** for 2025, exactly the same
+  value — consistent because both series derive from the same ecosystem
+  (CAS via IFS).
+- **Official source?** Yes (World Bank/IFS + CAS via IMF). **Actual**
+  observation, estimated consistently by both institutions.
+- **Effect of the substitution**: strong and **favorable** — moves the
+  profile from a "very high inflation (45%)" regime to a
+  **disinflation** regime with a stable exchange rate (converges with
+  the LEM: "inflation projected to moderate to 15.2% in 2025"). The
+  profile's `note` and `date` must be updated when applying; the
+  current note mentions the collapse of the pound, and the text will
+  become obsolete.
+- **Decision: `approve_candidate`** — exact double corroboration
+  (WDI = WEO = 14.6), current and comparable; the strongest candidate
+  of the batch. Applying it remains a separate action signed off by the
+  user (adopting `date` 2025, an updated `source` and a rewritten
+  `note`).
 
-Candidats par candidat, la future fiche Brésil peut s'appuyer sur :
+### 3) Syria — `unemployment` (total unemployment, %, 2025)
 
-| Indicateur | Candidat WB | Statut de revue | Meilleure source connue |
+- **Existing**: 50.0% · 2024 · source "ILO estimate" (detailed citation
+  missing in production).
+- **Proposed**: 13.57% (13.569) · 2025 · source World Bank (WDI
+  `SL.UEM.TOTL.ZS`) = **ILO modeled estimate** (`ILOEST`), database
+  consulted: January 2026, `obs_status` empty; WDI updated 2026-10-08;
+  retrieved 2026-10-25.
+- **Documented methodological context**: the ILO itself writes (Syria
+  fact sheet, July 2025) that "there is a lack of recent labour market
+  data for Syria, requiring the use of modelled estimates" — the 13%
+  value (2024) is a **model output with high uncertainty** in a context
+  of conflict and transitions. An independent report (EUAA COI Syria,
+  July 2025) put it at **24% in 2024**. The existing 50% comes from
+  crisis estimates that lack a precise citation in production and could
+  not be traced. Finally, the IMF has systematically **excluded** Syria
+  from the WEO since 2011 — no validation is possible on the IMF side.
+- **Comparability**: identical concept (unemployment as % of the labor
+  force, ILO) but bases diverge by a factor of ~2–4 — not reconcilable
+  as things stand.
+- **Official source?** Yes (WDI/ILO), but a **modeled estimate**, not a
+  survey observation.
+- **Effect of the substitution**: major and **potentially misleading** —
+  50 → 13.6 would turn "half of the labor force without a job" into
+  "moderate unemployment", which no recent Syrian survey supports; the
+  ILO model has no visibility on the post-2024 transition.
+- **Decision: `seek_better_source`** — neither the candidate nor the
+  existing value rests on a solid survey. Forward-looking action: the
+  next review should look for the Syria ILOEST series on ILOSTAT (13.6
+  expected for 2025), the first surveys by the Syrian government after
+  the transition and, where applicable, post-conflict World Bank
+  publications; in the meantime, keep the production value with its
+  "estimate" label.
+
+### 4) Brazil — `gdp_growth` (real GDP, %, 2025) — expansion candidate
+
+- **Existing**: — (no production file; Brazil is not covered; 10
+  current countries).
+- **Proposed**: 2.29% (2.2857) · 2025 · actual; source WDI
+  `NY.GDP.MKTP.KD.ZG` ("Country official statistics…"), WDI 2026-10-08.
+- **Comparability — triple agreement**: IBGE (release of 03/03/2026):
+  **2.3% in 2025** (5th consecutive year of growth); IMF WEO: 2.3%;
+  WDI: 2.29%. Identical definition (real GDP, year).
+- **Decision: `approve_candidate`** — the strongest support for the
+  future expansion workflow (WDI base, corroborated by national
+  statistics and the IMF). When the profile is written, the primary
+  source will still be cited: "IBGE / World Bank (WDI)".
+
+### 5) Brazil — `inflation` (CPI, %, 2025) — expansion candidate
+
+- **Existing**: — (expansion).
+- **Proposed**: 5.02% (5.0168) · 2025 · actual; WDI `FP.CPI.TOTL.ZG`,
+  institution "International Financial Statistics database, IMF".
+- **Official cross-check**: the **official** reference inflation (IBGE,
+  IPCA — broad national index) reached **4.26% in 2025** (within the
+  4.5% target). The 0.76-point gap with WDI/IFS (5.02) cannot be
+  explained at this stage: the exact CPI used by IFS for Brazil (IPCA,
+  INPC, FGV general CPI, annual average vs December difference) could
+  **not** be reconciled online — no assumption is made here.
+- **Official source?** Yes, but divergent from the national source.
+- **Effect of the substitution (future profile)**: presenting 5.02%
+  would show inflation above target, while the official IBGE figure says
+  the opposite (4.26 ≤ 4.5) — risk of signaling the "wrong" monetary
+  policy regime.
+- **Decision: `seek_better_source`** — prefer IBGE/IPCA (4.26%, year
+  2025) and verify the exact label of the IFS series before any use. Do
+  not present the World Bank value as is.
+
+### 6) Brazil — `unemployment` (unemployment, %, 2025) — expansion candidate
+
+- **Existing**: — (expansion).
+- **Proposed**: 5.97% · 2025 · actual (on paper); WDI `SL.UEM.TOTL.ZS` =
+  **ILO modeled estimate** (January 2026 base).
+- **Official cross-check**: IBGE, PNAD Contínua (release of
+  30/01/2026): annual rate ("desocupação") = **5.6% in 2025** (earlier
+  years: 6.6% in 2024) — comparable definition (unemployment as % of
+  the labor force). WB↔IBGE gap: 0.37 points (modeled vs survey).
+- **Official source?** Yes; the WDI/ILO candidate is a modeled
+  estimate, while IBGE is a genuine survey.
+- **Effect**: low — both values establish the same story (labor market
+  at the best level of the series).
+- **Decision: `approve_candidate`** with a caveat: when the profile is
+  created, the **primary source = IBGE PNAD Contínua (5.6%)**, the World
+  Bank value serving only as a cross-check; the profile's `source` field
+  must carry IBGE's name if that value is chosen.
+
+### 7) Brazil — `debt_gdp` (debt/GDP, %, 2024) — expansion candidate
+
+- **Existing**: — (expansion).
+- **Proposed**: 81.86% · **2024** · WDI `GC.DOD.TOTL.GD.ZS` =
+  **CENTRAL government** debt (source: Government Finance Statistics
+  Yearbook, IMF).
+- **Official cross-check (correct definition)**: the GeoCapp
+  indicator corresponds to **general government** debt — in Brazil, the
+  official measure is the **DBGG (dívida bruta do governo geral)**,
+  published by the Banco Central (SGS 13762, 2008 methodology,
+  IMF-aligned): **76.27% of GDP in Dec. 2024** and 78.64% in Dec. 2025.
+  The World Bank proposal (central government) is **5.6 points higher**
+  in 2024 — the gap cannot be reconciled simply by changing the year.
+- **Official source?** Yes (both), but **incompatible definitions**
+  (central ≠ general), giving a misleading sustainability signal if used
+  as is.
+- **Effect**: would overstate gross debt by ~5.6 p.p., feeding a "very
+  high debt" narrative and overinterpretation of fiscal risk.
+- **Decision: `seek_better_source`** — the future Brazil profile must
+  carry the DBGG (76.3% in 2024, 78.6% in 2025, source Banco Central do
+  Brasil, SGS series 13762); a connector is conditional on the next
+  increment (free SGS API).
+- (Methodological note: an attempt to reconcile via the DataMapper code
+  `GGXWDG_NGDP` was unsuccessful — that code does not measure debt — and
+  is **not** used as evidence here.)
+
+### 8) Brazil — `reserves` (reserves, US$ bn, 2025) — expansion candidate
+
+- **Existing**: — (expansion).
+- **Proposed**: US$358.5 bn · 2025 · actual; WDI `FI.RES.TOTL.CD` (total
+  reserves, **gold included**, US$) converted US$ → US$ bn (×10⁻⁹,
+  defined conversion); source "IFS, IMF".
+- **Official cross-check**: Banco Central do Brasil, *Relatório de
+  Gestão das Reservas Internacionais* (March 2026): **US$358.23 bn at
+  31/12/2025** ("conceito caixa"), versus US$329.73 bn at 31/12/2024.
+  WB↔BCB gap: 0.08% — both figures describe the same quantity under the
+  same concept (total incl. gold; fine difference: cash vs accrual).
+- **Official source?** Yes; **actual** observation.
+- **Effect**: none on interpretation (same order of magnitude).
+- **Decision: `approve_candidate`** — with a unit caveat (US$ bn) and,
+  when the profile is written, a deliberate choice of the concept to
+  record (here **total, gold included** — which must be made explicit
+  in `note`; the Lebanon profile, for its part, documents **net**
+  reserves).
+
+---
+
+## Appendices — cases already rejected / deferred, noting the gaps to address
+
+These candidates already have a documented `reject/gap` in the first
+report; they are not among the 8 `manual`. The new facts gathered during
+this review will serve as inputs for future increments:
+
+- **Lebanon — unemployment (reject/2023 = 11.0%)**: the review
+  established a triple divergence: ILO modeled 2023 = 11.0% (2024/2025
+  **null**), MPO/Lebanon data sheet April 2026: 2023 = 23.3%, **2024 =
+  22.8%, 2025e = 22.8%**, and the production profile = 30 (2024, "ILO /
+  World Bank estimate", a citation close to the unemployment rates from
+  recent Lebanese surveys, ~30%). No automatic decision: resolving it
+  depends on work with ILOSTAT and national surveys (no usable WB
+  candidate — the WDI series for LBN 2024/2025 are null).
+- **Lebanon debt/reserves, SYR gdp/inflation/debt/reserves**: the
+  rejection reasons from the first report remain valid (central vs
+  general definition; gross vs net; earlier vintages and documented WDI
+  gaps, e.g. SYR debt = 0 rows).
+
+### Brazil — "expansion workflow" reading
+
+Candidate by candidate, the future Brazil profile can rely on:
+
+| Indicator | WB candidate | Review status | Best known source |
 |---|---|---|---|
-| PIB 2025 | 2,29 % | `approve_candidate` | IBGE 2,3 % (+ FMI 2,3 %) — accord triple |
-| Chômage 2025 | 5,97 % | `approve_candidate` (recoupé) | **IBGE PNADC 5,6 %** (source primaire souhaitée à l'écriture de la fiche) |
-| Réserves 2025 | 358,5 Mds $ | `approve_candidate` | BCB 358,23 Md$ (accr.) — accord 0,08 % |
-| Inflation 2025 | 5,02 % | `seek_better_source` | **IBGE IPCA 4,26 %** ; série IFS à identifier avant usage |
-| Dette/PIB 2024 | 81,86 % central | `seek_better_source` | **BCB DBGG 76,3 % (2024)** — définition générale à privilégier |
+| GDP 2025 | 2.29% | `approve_candidate` | IBGE 2.3% (+ IMF 2.3%) — triple agreement |
+| Unemployment 2025 | 5.97% | `approve_candidate` (cross-checked) | **IBGE PNADC 5.6%** (primary source desired when the profile is written) |
+| Reserves 2025 | US$358.5 bn | `approve_candidate` | BCB US$358.23 bn (accrual) — 0.08% agreement |
+| Inflation 2025 | 5.02% | `seek_better_source` | **IBGE IPCA 4.26%**; IFS series to be identified before use |
+| Debt/GDP 2024 | 81.86% central | `seek_better_source` | **BCB DBGG 76.3% (2024)** — general definition to be preferred |
 
-**Bilan expansion Brésil : 3/5 candidats utilisables dès maintenant,
-2/5 nécessitent une source meilleure — et aucun n'autorise l'écriture
-de `data/countries/brazil.json` sans le signalement séparé de
-l'utilisateur.**
+**Brazil expansion outcome: 3/5 candidates usable now, 2/5 need a
+better source — and none authorizes writing
+`data/countries/brazil.json` without a separate signal from the user.**
 
-## Limites de l'évidence
+## Limits of the evidence
 
-- Aucune revue ne peut raisonnablement résoudre la divergence FMI/Banque
-  mondiale sur le PIB libanais 2024 dans ce cadre : les deux
-  institutions publient des vintages-estimations valides (−5,2 vs
-  −7,1), sans base de conciliation publique connue ici.
-- Les valeurs de chômage Syrie (modélisé) et Liban (modélisé vs MPO)
-  ne sont pas des enquêtes directes : c'est une limite structurelle
-  (conflit/transitions) documentée par l'ILO, non un défaut de
-  récupération.
-- L'identification de l'IPC exact derrière la série IFS/WDI du Brésil
-  (5,02 vs IPCA 4,26) reste à clarifier (hypothèse non testée dans ce
-  document : IPC FGV/année décalée) — aucune supposition n'entérinée.
-- Pas de date de publication par-observation côté WDI : on a la date
-  de dernière mise à jour de la base WDI (2026-10-08) comme proxy
-  horodaté, en plus des dates de récupération (2026-10-25).
+- No review can reasonably resolve the IMF/World Bank divergence on
+  Lebanon's 2024 GDP within this framework: both institutions publish
+  valid vintage estimates (−5.2 vs −7.1), with no public reconciliation
+  basis known here.
+- The unemployment values for Syria (modeled) and Lebanon (modeled vs
+  MPO) are not direct surveys: this is a structural limit
+  (conflict/transitions) documented by the ILO, not a retrieval defect.
+- The identification of the exact CPI behind Brazil's IFS/WDI series
+  (5.02 vs IPCA 4.26) remains to be clarified (untested hypothesis in
+  this document: FGV CPI / shifted year) — no assumption is endorsed.
+- There is no per-observation publication date on the WDI side: the
+  date of the last update of the WDI database (2026-10-08) serves as a
+  timestamped proxy, in addition to the retrieval dates (2026-10-25).

@@ -1,106 +1,106 @@
-# GeoCapp — Connaître le passé pour anticiper le futur
+# GeoCapp — Know the past to anticipate the future
 
-Application Streamlit pédagogique qui relie **l'histoire d'un pays**, **ses indicateurs financiers** et **une décision d'investissement** lisible : score sur 100, rendement exigé (Ke, méthode Damodaran) et verdict en quatre niveaux.
+An educational Streamlit application that connects **a country's history**, **its financial indicators** and **a readable investment decision**: a score out of 100, a required return (Ke, Damodaran method) and a four-level verdict.
 
-> Prototype pédagogique. Les données sont préparées, datées et sourcées. L'application ne passe aucun ordre et ne constitue pas un conseil en investissement.
+> Educational prototype. The data is curated, dated and sourced. The application places no orders and does not constitute investment advice.
 
-## Le parcours
+## User journey
 
-1. **Carte vivante** — carte choroplèthe des 10 pays, filtres attractivité / risque / croissance / devise, trois profils investisseur.
-2. **Fiche pays** — frise historique, institutions, relations (alliés, rivaux, dépendances), forces, risques, opportunités.
-3. **Tableau de bord** — 11 indicateurs avec feu vert / orange / rouge, source, millésime et explication simple.
-4. **Score & verdict** — décomposition transparente en 5 composantes, Ke, verdict et trois raisons.
-5. **Décodeur d'actualité** — chaîne causale fait → économie → finance → gagnants/perdants, avec écho historique.
-6. **Analyste IA** — posez vos questions en français ou en anglais ; la réponse suit la langue de votre question et s'appuie uniquement sur les faits validés de la base.
-7. **Portefeuille mondial** — 100 000 € fictifs, rendement exigé pondéré, volatilité, diversification, diagnostic.
-8. **Progression** — carte mentale, quiz éclair, badges.
-9. **Sources & méthode** — formules, pondérations, limites et avertissements.
+1. **Living map** — choropleth map of the 10 countries, with attractiveness / risk / growth / currency filters and three investor profiles.
+2. **Country profile** — historical timeline, institutions, relationships (allies, rivals, dependencies), strengths, risks and opportunities.
+3. **Dashboard** — 11 indicators with green / orange / red status, source, reference year and a plain-language explanation.
+4. **Score & verdict** — transparent breakdown into 5 components, Ke, verdict and three reasons.
+5. **News decoder** — causal chain from event to economy to finance to winners and losers, with a historical parallel.
+6. **AI analyst** — ask your questions in French or English; the answer follows the language of your question and relies only on the validated facts in the database.
+7. **Global portfolio** — a fictional €100,000, weighted required return, volatility, diversification and diagnosis.
+8. **Progress** — mind map, quick quiz and badges.
+9. **Sources & method** — formulas, weightings, limitations and disclaimers.
 
-## Les 10 pays du MVP
+## The 10 MVP countries
 
-États-Unis, France, Japon, Chine, Arabie saoudite, Émirats arabes unis, Maroc, Afrique du Sud, Liban, Syrie.
+United States, France, Japan, China, Saudi Arabia, United Arab Emirates, Morocco, South Africa, Lebanon, Syria.
 
-## Lancer en local
+## Run locally
 
 ```powershell
 py -m pip install -r requirements.txt
 py -m streamlit run app.py
 ```
 
-L'application s'ouvre sur <http://localhost:8501>.
+The application opens at <http://localhost:8501>.
 
-Installation détaillée, configuration, tests et organisation du code : [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Contribuer : [`CONTRIBUTING.md`](CONTRIBUTING.md).
+For detailed installation, configuration, testing and code organization, see [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). To contribute, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## Données et méthode
+## Data and methodology
 
-- Un fichier JSON par pays dans `data/countries/`, complété par `data/meta.json` et `data/events.json`.
-- **Score GeoCapp** : cinq composantes (dynamisme, stabilité macro, solvabilité, institutions, ouverture & affaires), notées de 0 à 100 et pondérées selon le profil Prudent / Équilibré / Audacieux.
-- **Rendement exigé** : `Ke = 4,20 % + 1,0 × 4,50 % + prime de risque pays`.
-- **Prime de risque pays** : maximum entre le spread de notation et le spread CDS, multiplié par 1,5 (ratio volatilité actions/obligations de Damodaran).
-- **Données manquantes** : une notation absente ou un CDS non coté réduit la solvabilité et **bloque le verdict « Investir »**. Pour le Liban et la Syrie, le vide est traité comme un signal de risque.
-- Les scores qualitatifs (gouvernance, résilience, climat des affaires, ouverture, stabilité devise) sont des évaluations GeoCapp explicites, pas des données brutes.
+- One JSON file per country in `data/countries/`, complemented by `data/meta.json` and `data/events.json`.
+- **GeoCapp score**: five components (dynamism, macro stability, solvency, institutions, openness & business climate), each rated from 0 to 100 and weighted according to the Prudent / Balanced / Bold profile.
+- **Required return**: `Ke = 4.20% + 1.0 × 4.50% + country risk premium`.
+- **Country risk premium**: the maximum of the rating spread and the CDS spread, multiplied by 1.5 (Damodaran's equity/bond volatility ratio).
+- **Missing data**: a missing rating or an unquoted CDS lowers the solvency component and **blocks the "Invest" verdict**. For Lebanon and Syria, the absence of data is treated as a risk signal.
+- Qualitative scores (governance, resilience, business climate, openness, currency stability) are explicit GeoCapp assessments, not raw data.
 
-## Intelligence artificielle (optionnelle)
+## Artificial intelligence (optional)
 
-L'application fonctionne **entièrement sans IA** grâce aux contenus éditoriaux et aux calculs déterministes.
+The application works **entirely without AI**, thanks to editorial content and deterministic calculations.
 
-Pour activer l'IA (OpenRouter, modèle `openai/gpt-4o` par défaut) :
+To enable AI (OpenRouter, default model `openai/gpt-4o`):
 
-1. Créer un fichier `.env` à la racine du projet (jamais commité, exclus par `.gitignore`) :
+1. Create a `.env` file at the project root (never committed; excluded by `.gitignore`):
 
 ```env
-OPENROUTER_API_KEY = "votre_cle"
+OPENROUTER_API_KEY = "your_key"
 GEOCAPITAL_MODEL = "openai/gpt-4o"
 ```
 
-2. ou, sur Streamlit Community Cloud, ajouter la clé dans les *secrets* :
+2. Or, on Streamlit Community Cloud, add the key to the app's *secrets*:
 
 ```toml
-OPENROUTER_API_KEY = "votre_cle"
+OPENROUTER_API_KEY = "your_key"
 GEOCAPITAL_MODEL = "openai/gpt-4o"
 ```
 
-## Analyste IA (OpenRouter)
+## AI analyst (OpenRouter)
 
-La page « Analyste » propose une interface conversationnelle bilingue : la réponse suit la langue de la question posée (français ou anglais), indépendamment de la langue d'affichage de l'interface. Elle combine :
+The "Analyst" page offers a bilingual conversational interface: the answer follows the language of the question (French or English), regardless of the interface display language. It combines:
 
-1. **Récupération locale** : fiches pays, comparateur, verdicts, coût du capital (Damodaran), événements du décodeur et portefeuille. Les calculs restent déterministes (Python) ; le modèle ne calcule rien.
-2. **Cadrage strict** : chaque question n'envoie qu'un ensemble de faits validés (avec sources et dates) pour l'intention choisie ; les données absentes sont listées comme « donnée non disponible ».
-3. **Trois registres rendus visibles** : ● Faits validés, ◆ Interprétation IA, ○ Hypothèse. Le modèle doit qualifier ses phrases (« Interprétation : … », « Hypothèse : … »).
-4. **Mémoire locale** : la conversation vit dans `session_state` Streamlit (aucune persistance, aucune fuite entre sessions) ; le bouton « Effacer la conversation » la réinitialise, et seuls les 6 derniers échanges sont renvoyés à l'API.
-5. **Repli sans API** : sans clé ou en cas d'échec OpenRouter, la page affiche le même contexte factuel et l'analyse déterministe (dans la langue de la question) avec une notice explicite.
+1. **Local retrieval**: country profiles, comparator, verdicts, cost of capital (Damodaran), decoder events and portfolio. Calculations remain deterministic (Python); the model computes nothing.
+2. **Strict framing**: each question sends only a set of validated facts (with sources and dates) for the selected intent; missing data is listed as "data not available".
+3. **Three visible registers**: ● Validated facts, ◆ AI interpretation, ○ Hypothesis. The model must qualify its sentences ("Interpretation: …", "Hypothesis: …").
+4. **Local memory**: the conversation lives in Streamlit's `session_state` (no persistence, no leakage between sessions); the "Clear conversation" button resets it, and only the last 6 exchanges are sent back to the API.
+5. **Fallback without API**: without a key, or if OpenRouter fails, the page displays the same factual context and the deterministic analysis (in the language of the question) with an explicit notice.
 
-L'IA reçoit uniquement les faits déjà validés dans la base. Elle explique, reformule et relie ; elle ne crée aucun chiffre, aucune date et aucune notation.
+The AI receives only facts already validated in the database. It explains, rephrases and connects; it creates no figure, no date and no rating.
 
 ## Structure
 
 ```
-app.py                     # point d'entrée, navigation, session_state
+app.py                     # entry point, navigation, session_state
 geocapital/
-  scoring.py               # score, Ke, verdicts, métriques de portefeuille
-  data.py                  # chargement JSON, formats, comparaisons
-  i18n.py                  # libellés FR/EN centralisés, t(), store de langue
-  ai.py                    # couche IA optionnelle via OpenRouter
-  analyst.py               # faits validés et cadrage de l'analyste IA
-  ui.py                    # composants HTML/CSS
-views/                     # 8 pages, dont l'Analyste
+  scoring.py               # score, Ke, verdicts, portfolio metrics
+  data.py                  # JSON loading, formatting, comparisons
+  i18n.py                  # centralized FR/EN labels, t(), language store
+  ai.py                    # optional AI layer via OpenRouter
+  analyst.py               # validated facts and framing for the AI analyst
+  ui.py                    # HTML/CSS components
+views/                     # 8 pages, including the Analyst
 data/
-  countries/*.json         # 10 fiches pays
-  meta.json                # sources, paramètres, méthode
-  events.json              # 10 événements du décodeur
-assets/styles.css          # thème sombre et composants
-.streamlit/config.toml     # thème Streamlit
+  countries/*.json         # 10 country profiles
+  meta.json                # sources, parameters, methodology
+  events.json              # 10 decoder events
+assets/styles.css          # dark theme and components
+.streamlit/config.toml     # Streamlit theme
 ```
 
-## Déploiement
+## Deployment
 
-1. Pousser le dépôt sur GitHub.
-2. Sur [Streamlit Community Cloud](https://share.streamlit.io), créer une app avec `app.py` comme fichier principal.
-3. Ajouter éventuellement `OPENROUTER_API_KEY` dans les secrets.
-4. Aucune base de données, aucun service payant, aucune connexion bancaire n'est nécessaire.
+1. Push the repository to GitHub.
+2. On [Streamlit Community Cloud](https://share.streamlit.io), create an app with `app.py` as the main file.
+3. Optionally add `OPENROUTER_API_KEY` to the secrets.
+4. No database, paid service or bank connection is required.
 
-## Limites
+## Limitations
 
-- Données de référence 2024-2025, non actualisées en temps réel.
-- Modèle de portefeuille simplifié : corrélations par groupe de pays, volatilité pédagogique, pas de couverture de change.
-- Le score ne remplace ni une due diligence, ni une analyse de valorisation, ni un conseil personnalisé.
+- Reference data covers 2024–2025 and is not updated in real time.
+- Simplified portfolio model: correlations by country group, educational volatility, no currency hedging.
+- The score does not replace due diligence, a valuation analysis or personalized advice.
