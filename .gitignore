@@ -10,6 +10,11 @@ dist/
 venv/
 env/
 
+# Caches d'outils
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
 # Streamlit
 .streamlit/secrets.toml
 
@@ -18,6 +23,7 @@ env/
 .env.*
 .env.rtf
 !.env.example
+secrets.toml
 
 # Outils et système
 .vscode/
@@ -30,6 +36,3 @@ desktop.ini
 preview_*.png
 *.log
 geocapital_*.csv
-# Additional local secrets
-.streamlit/secrets.toml
-secrets.toml

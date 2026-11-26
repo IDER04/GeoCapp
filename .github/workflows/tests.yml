@@ -11,8 +11,8 @@ name: tests
 # les données versionnées.
 #
 # Version de Python : 3.13, alignée sur l'environnement de développement
-# documenté (PROJECT_CONTEXT.md — Python 3.13.5) et couvert par les
-# bornes de requirements.txt (streamlit>=1.41 supporte 3.13, wheel 3.13
+# documenté (docs/DEVELOPMENT.md) et couvert par les bornes de
+# requirements.txt (streamlit>=1.41 supporte 3.13, wheel 3.13
 # disponible depuis 1.41).
 
 permissions:
@@ -46,7 +46,7 @@ jobs:
       - name: Show installed versions
         run: pip list
 
-      # Commande établie du projet (PROJECT_CONTEXT.md §189) :
+      # Commande établie du projet (docs/DEVELOPMENT.md) :
       #   python3 -m unittest discover -s tests
       # unittest retourne un code de sortie non nul en cas d'échec, ce qui
       # fait échouer le job ; les tracebacks s'affichent dans les logs.

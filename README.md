@@ -29,6 +29,8 @@ py -m streamlit run app.py
 
 L'application s'ouvre sur <http://localhost:8501>.
 
+Installation détaillée, configuration, tests et organisation du code : [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). Contribuer : [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Données et méthode
 
 - Un fichier JSON par pays dans `data/countries/`, complété par `data/meta.json` et `data/events.json`.
