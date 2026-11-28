@@ -1735,3 +1735,42 @@ STRINGS["en"].update({
     "sub.v.access_higher": "Raised limits",
     "sub.v.access_highest": "Highest limits",
 })
+
+# ---------------------------------------------------------------------------
+# Accueil (page d'accueil) : libellés de la page d'entrée. Les dossiers
+# décrivent des fonctionnalités réellement présentes dans GeoCapp.
+# ---------------------------------------------------------------------------
+STRINGS["fr"].update({
+    "nav.home": "Accueil",
+    "home.eyebrow": "Accueil",
+    "home.title.1": "Comprendre le monde.",
+    "home.title.2": "Quantifier le risque.",
+    "home.title.3": "Investir en confiance.",
+    "home.subtitle": "Explorez le risque pays, comprenez les indicateurs de risque souverain et transformez l'information économique en analyses financières utiles.",
+    "home.cta": "Explorer GeoCapp",
+    "home.note.1": "Chaque pays raconte une histoire. Comprenez ses risques avant votre prochaine décision d'investissement.",
+    "home.note.2": "Passé → présent → décision",
+    "home.folder.ai.title": "Assistant IA",
+    "home.folder.ai.text": "Explorez des questions financières, comprenez l'information sur le risque pays et obtenez des éclairages grâce à l'assistant IA de GeoCapp.",
+    "home.folder.risk.title": "Risque souverain",
+    "home.folder.risk.text": "Explorez les profils de risque pays, l'historique, les indicateurs de risque et les évaluations de risque souverain.",
+    "home.folder.finance.title": "Analyse financière",
+    "home.folder.finance.text": "Reliez le risque pays à la valorisation financière grâce à la prime de risque pays, au coût des fonds propres et à l'analyse d'investissement.",
+})
+STRINGS["en"].update({
+    "nav.home": "Home",
+    "home.eyebrow": "Home",
+    "home.title.1": "Understand the world.",
+    "home.title.2": "Quantify risk.",
+    "home.title.3": "Invest with confidence.",
+    "home.subtitle": "Explore country risk, understand sovereign risk indicators and transform economic information into meaningful financial insights.",
+    "home.cta": "Explore GeoCapp",
+    "home.note.1": "Every country tells a story. Understand its risks before making your next investment decision.",
+    "home.note.2": "Past → present → decision",
+    "home.folder.ai.title": "AI Assistant",
+    "home.folder.ai.text": "Explore financial questions, understand country-risk information and discover insights through the GeoCapp AI assistant.",
+    "home.folder.risk.title": "Sovereign Risk",
+    "home.folder.risk.text": "Explore country risk profiles, historical information, risk indicators and sovereign risk assessments.",
+    "home.folder.finance.title": "Financial Analysis",
+    "home.folder.finance.text": "Connect country risk to financial valuation through Country Risk Premium, cost of equity and investment analysis.",
+})

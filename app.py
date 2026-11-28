@@ -12,10 +12,11 @@ from geocapital import i18n, ui
 from geocapital.i18n import t
 
 # Codes de route internes (stables, jamais traduits) — libellés via i18n.t().
-PAGES = ["map", "country", "compare", "decoder", "analyst", "risk_lab", "portfolio", "progress", "subscriptions", "sources"]
+PAGES = ["home", "map", "country", "compare", "decoder", "analyst", "risk_lab", "portfolio", "progress", "subscriptions", "sources"]
 
 # Icônes Material (traits fins, monochromes) rendues par Streamlit dans les libellés.
 ICONS = {
+    "home": ":material/home:",
     "map": ":material/public:",
     "country": ":material/travel_explore:",
     "compare": ":material/compare_arrows:",
@@ -45,7 +46,7 @@ def _init_state() -> None:
     from geocapital.data import countries
 
     st.session_state.setdefault("lang", i18n.DEFAULT_LANG)
-    st.session_state.setdefault("nav", "map")
+    st.session_state.setdefault("nav", "home")
     st.session_state.setdefault("country_id", "usa")
     st.session_state.setdefault("profile", "Équilibré")
     st.session_state.setdefault("map_metric", "Attractivité")
@@ -165,6 +166,7 @@ def main() -> None:
         comparator_page,
         country_page,
         decoder_page,
+        home_page,
         map_page,
         methodology_page,
         portfolio_page,
@@ -176,6 +178,7 @@ def main() -> None:
     page = st.session_state.get("nav", "map")
     _context_bar(page)
     routes = {
+        "home": home_page.render,
         "map": map_page.render,
         "country": country_page.render,
         "compare": comparator_page.render,
