@@ -50,18 +50,15 @@ def _continue() -> None:
     st.toast(t("sub.sel.toast"), icon=":material/info:")
 
 
-def _bullet(key: str, value: subs.Value, core_n: int) -> str:
-    if value is False:
-        text = f'{t(f"sub.f.{key}")} · {t("sub.no")}'
-        return f'<li class="off"><span class="gc-plan-check">—</span><span>{ui.esc(text)}</span></li>'
-    return f'<li><span class="gc-plan-check">✓</span><span>{ui.esc(_value_text(value, core_n))}</span></li>'
-
-
 def _plan_card(plan: str, billing: str, selected: bool, core_n: int) -> str:
     price = subs.plan_price(plan, billing)
     recommended = plan == subs.RECOMMENDED_PLAN
     rows = {key: row for key, _group, row in subs.FEATURES}
-    bullets = "".join(_bullet(key, rows[key][plan], core_n) for key in subs.HIGHLIGHTS)
+    bullets = "".join(
+        f'<li><span class="gc-plan-check">✓</span><span>{ui.esc(_value_text(rows[key][plan], core_n))}</span></li>'
+        for key in subs.HIGHLIGHTS
+        if rows[key][plan] is not False
+    )
     if plan == "free":
         billed = t("sub.billed.free")
         placeholder = ""

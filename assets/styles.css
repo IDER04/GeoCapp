@@ -752,7 +752,7 @@ hr { border-color: var(--line) !important; }
 /* ---------------- Subscriptions (prototype) ---------------- */
 .gc-plan {
   position: relative; display: flex; flex-direction: column; gap: 6px;
-  min-height: 470px; padding: 26px 24px 22px; margin-bottom: 10px;
+  min-height: 430px; padding: 26px 24px 22px; margin-bottom: 10px;
   background: linear-gradient(160deg, var(--glass-3), var(--glass-1));
   border: var(--glass-border); border-radius: var(--r-card);
   box-shadow: var(--shadow-1), var(--inner-hi);
@@ -786,7 +786,6 @@ hr { border-color: var(--line) !important; }
 .gc-plan-list li { display: flex; gap: 10px; align-items: flex-start; color: var(--ink-2); font-size: 0.82rem; line-height: 1.4; }
 .gc-plan-list.compact { margin-top: 4px; padding-top: 0; border-top: none; }
 .gc-plan-check { color: var(--green); font-weight: 700; flex: none; }
-.gc-plan-list li.off, .gc-plan-list li.off .gc-plan-check { color: var(--ink-3); }
 .gc-sel { padding: 22px 26px; }
 .gc-sel-grid { display: grid; grid-template-columns: 1fr 1.2fr 2fr; gap: 24px; }
 .gc-sel-name { font-family: var(--f-serif); font-size: 1.9rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.15; margin: 4px 0; }
