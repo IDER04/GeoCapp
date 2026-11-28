@@ -230,8 +230,3 @@ def render() -> None:
     st.toggle(t("sub.cmp.diff_only"), key=_DIFF)
     st.markdown(_comparison_table(core_n, bool(st.session_state[_DIFF]), selected), unsafe_allow_html=True)
     st.markdown(f'<div class="gc-small gc-cmp-note">{ui.esc(t("sub.cmp.draft"))}</div>', unsafe_allow_html=True)
-
-    ui.section_title(t("sub.faq.title"))
-    for index in (1, 2, 3):
-        with st.expander(t(f"sub.faq.q{index}")):
-            st.write(t(f"sub.faq.a{index}"))

@@ -30,6 +30,10 @@ ANNUAL_DISCOUNT = 0.20
 # All allowances are a DRAFT proposal, not existing restrictions.
 Value = bool | tuple[str, dict[str, Any]]
 FEATURES: tuple[tuple[str, str, dict[str, Value]], ...] = (
+    ("map", "base", {"free": True, "student": True, "pro": True}),
+    ("country_sheet", "base", {"free": True, "student": True, "pro": True}),
+    ("method", "base", {"free": True, "student": True, "pro": True}),
+    ("languages", "base", {"free": True, "student": True, "pro": True}),
     ("coverage", "data", {
         "free": ("coverage_core", {}),
         "student": ("coverage_plus", {}),
@@ -84,7 +88,7 @@ FEATURES: tuple[tuple[str, str, dict[str, Value]], ...] = (
 
 # Rows summarised as bullet points on each plan card.
 HIGHLIGHTS: tuple[str, ...] = ("coverage", "risk_analysis", "ai", "export")
-GROUPS: tuple[str, ...] = ("data", "risk", "tools", "ai")
+GROUPS: tuple[str, ...] = ("base", "data", "risk", "tools", "ai")
 
 
 def plan_price(plan: str, billing: str) -> dict[str, float]:

@@ -102,9 +102,55 @@ class TestPage(unittest.TestCase):
         self.assertNotEqual(monthly, annual)
         self.assertIn("facturés par an", annual)
 
-    def test_differences_only_hides_identical_rows(self):
-        at = self._run(sub_diff_only=True)
-        self.assertFalse(bool(at.exception))
+    def _rows(self, at) -> set[str]:
+        """Libellés des lignes de comparaison réellement rendues."""
+        html = next(w.value for w in at.markdown if "gc-cmp" in str(w.value) and "<table" in str(w.value))
+        return set(re.findall(r'<td class="gc-table-label">(.*?)</td>', html))
+
+    def test_comparison_toggle_filters_rows(self):
+        labels = i18n.STRINGS["fr"]
+        shared = {labels[f"sub.f.{k}"] for k, _g, row in subs.FEATURES if not subs.is_differing(row)}
+        differing = {labels[f"sub.f.{k}"] for k, _g, row in subs.FEATURES if subs.is_differing(row)}
+        self.assertTrue(shared and differing)
+
+        at = self._run()
+        self.assertFalse(at.toggle(key="sub_diff_only").value)
+        full = {r.replace("&#x27;", "'") for r in self._rows(at)}
+        self.assertEqual(full, shared | differing)
+
+        at.toggle(key="sub_diff_only").set_value(True).run()
+        filtered = {r.replace("&#x27;", "'") for r in self._rows(at)}
+        self.assertEqual(filtered, differing)
+        self.assertFalse(filtered & shared)
+
+        at.toggle(key="sub_diff_only").set_value(False).run()
+        self.assertEqual({r.replace("&#x27;", "'") for r in self._rows(at)}, shared | differing)
+
+    def test_faq_removed(self):
+        for lang in ("fr", "en"):
+            at = self._run(lang)
+            self.assertEqual(len(at.expander), 0)
+            self.assertNotIn("Questions fréquentes", self._text(at))
+            self.assertNotIn("Frequently asked", self._text(at))
+        self.assertFalse([k for k in i18n.STRINGS["fr"] if k.startswith("sub.faq")])
+
+    def test_summary_follows_selected_plan(self):
+        at = self._run()
+        for plan in subs.PLANS:
+            next(b for b in at.button if b.key == f"sub_pick_{plan}").click().run()
+            text = self._text(at)
+            self.assertIn(f'<div class="gc-sel-name">{i18n.STRINGS["fr"][f"sub.plan.{plan}"]}</div>', text)
+
+    def test_card_styling_classes(self):
+        at = self._run(sub_selected="student")
+        html = "\n".join(str(w.value) for w in at.markdown)
+        cards = re.findall(r'<div class="(gc-plan(?: [^"]*)?)">', html)
+        self.assertEqual(len(cards), 3)
+        free, student, pro = cards
+        self.assertIn("gc-dark", pro)
+        self.assertNotIn("gc-dark", student)
+        self.assertTrue({"recommended", "selected"} <= set(student.split()))
+        self.assertNotIn("selected", free)
 
     def test_continue_does_not_change_state_beyond_toast(self):
         at = self._run(sub_selected="pro")
