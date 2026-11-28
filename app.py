@@ -12,7 +12,7 @@ from geocapital import i18n, ui
 from geocapital.i18n import t
 
 # Codes de route internes (stables, jamais traduits) — libellés via i18n.t().
-PAGES = ["map", "country", "compare", "decoder", "analyst", "risk_lab", "portfolio", "progress", "sources"]
+PAGES = ["map", "country", "compare", "decoder", "analyst", "risk_lab", "portfolio", "progress", "subscriptions", "sources"]
 
 # Icônes Material (traits fins, monochromes) rendues par Streamlit dans les libellés.
 ICONS = {
@@ -24,6 +24,7 @@ ICONS = {
     "risk_lab": ":material/balance:",
     "portfolio": ":material/pie_chart:",
     "progress": ":material/trending_up:",
+    "subscriptions": ":material/workspace_premium:",
     "sources": ":material/menu_book:",
 }
 
@@ -169,6 +170,7 @@ def main() -> None:
         portfolio_page,
         progress_page,
         risk_lab_page,
+        subscriptions_page,
     )
 
     page = st.session_state.get("nav", "map")
@@ -182,6 +184,7 @@ def main() -> None:
         "risk_lab": risk_lab_page.render,
         "portfolio": portfolio_page.render,
         "progress": progress_page.render,
+        "subscriptions": subscriptions_page.render,
         "sources": methodology_page.render,
     }
     routes.get(page, map_page.render)()

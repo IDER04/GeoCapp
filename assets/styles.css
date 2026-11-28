@@ -748,3 +748,74 @@ hr { border-color: var(--line) !important; }
   .gc-timeline-item { grid-template-columns: 58px 14px 1fr; gap: 10px; }
   .gc-section-title { flex-direction: column; gap: 2px; }
 }
+
+/* ---------------- Subscriptions (prototype) ---------------- */
+.gc-plan {
+  position: relative; display: flex; flex-direction: column; gap: 6px;
+  min-height: 470px; padding: 26px 24px 22px; margin-bottom: 10px;
+  background: linear-gradient(160deg, var(--glass-3), var(--glass-1));
+  border: var(--glass-border); border-radius: var(--r-card);
+  box-shadow: var(--shadow-1), var(--inner-hi);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s var(--ease);
+  animation: gc-rise .5s var(--ease) both;
+}
+.gc-plan:hover { transform: translateY(-3px); box-shadow: var(--shadow-2), var(--inner-hi); }
+.gc-plan.gc-dark {
+  background: linear-gradient(150deg, #262626, #121212);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 56px rgba(17, 17, 17, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+.gc-plan.recommended { border: 1.5px solid var(--ink); }
+.gc-plan.selected { outline: 2px solid var(--ink); outline-offset: 3px; }
+.gc-plan.gc-dark.selected { outline-color: var(--ink-3); }
+.gc-plan-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 24px; }
+.gc-plan-top .gc-eyebrow { margin: 0; }
+.gc-plan-badge {
+  padding: 4px 10px; border-radius: 999px; background: var(--ink); color: var(--bg);
+  font-size: 0.64rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+}
+.gc-plan h4 { font-family: var(--f-serif); font-weight: 400; font-size: 2rem; letter-spacing: -0.025em; color: var(--ink); margin: 4px 0 0; }
+.gc-plan-tag { color: var(--ink-2); font-size: 0.84rem; margin: 0 0 10px; min-height: 2.6em; }
+.gc-plan-price { display: flex; align-items: baseline; gap: 8px; }
+.gc-plan-amount { font-size: 2.5rem; font-weight: 600; letter-spacing: -0.04em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; transition: opacity .2s ease; }
+.gc-plan-per { color: var(--ink-3); font-size: 0.8rem; }
+.gc-plan-billed { color: var(--ink-3); font-size: 0.74rem; line-height: 1.5; min-height: 3em; padding-top: 4px; }
+.gc-plan-billed .gc-chip { padding: 2px 8px; font-size: 0.64rem; margin-left: 4px; }
+.gc-plan-list { list-style: none; margin: 14px 0 0; padding: 14px 0 0; border-top: 1px solid var(--line); display: grid; gap: 9px; }
+.gc-plan-list li { display: flex; gap: 10px; align-items: flex-start; color: var(--ink-2); font-size: 0.82rem; line-height: 1.4; }
+.gc-plan-list.compact { margin-top: 4px; padding-top: 0; border-top: none; }
+.gc-plan-check { color: var(--green); font-weight: 700; flex: none; }
+.gc-plan-list li.off, .gc-plan-list li.off .gc-plan-check { color: var(--ink-3); }
+.gc-sel { padding: 22px 26px; }
+.gc-sel-grid { display: grid; grid-template-columns: 1fr 1.2fr 2fr; gap: 24px; }
+.gc-sel-name { font-family: var(--f-serif); font-size: 1.9rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1.15; margin: 4px 0; }
+.gc-sel-name small { font-family: var(--f-sans); font-size: 0.8rem; color: var(--ink-3); }
+
+.gc-cmp-wrap { overflow-x: auto; border-radius: var(--r-card); }
+.gc-cmp { min-width: 620px; }
+.gc-cmp th:not(:first-child), .gc-cmp td:not(:first-child) { text-align: center; }
+.gc-cmp td { vertical-align: middle; line-height: 1.4; }
+.gc-cmp th.rec, .gc-cmp td.rec { background: var(--tint); }
+.gc-cmp th.sel, .gc-cmp td.sel { background: var(--tint-strong); box-shadow: inset 0 0 0 0 transparent; }
+.gc-cmp-group td {
+  background: var(--tint); color: var(--ink-3) !important; font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; padding: 9px 15px !important;
+}
+.gc-cmp-yes { color: var(--green); font-weight: 700; }
+.gc-cmp-no { color: var(--ink-3); }
+.gc-cmp-note { margin-top: 10px; }
+
+@media (max-width: 1050px) {
+  .gc-plan { min-height: 0; }
+  .gc-sel-grid { grid-template-columns: 1fr 1fr; }
+  .gc-sel-grid > :last-child { grid-column: 1 / -1; }
+}
+@media (max-width: 680px) {
+  .gc-plan h4 { font-size: 1.7rem; }
+  .gc-plan-amount { font-size: 2.1rem; }
+  .gc-sel-grid { grid-template-columns: 1fr; gap: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-plan:hover { transform: none; }
+}
