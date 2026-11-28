@@ -25,8 +25,10 @@ TONE_COLORS = {
 }
 
 
-@st.cache_data(show_spinner=False)
 def _css() -> str:
+    # Lu à chaque exécution, volontairement sans cache : st.cache_data ne tient pas compte
+    # du contenu du fichier, donc un redéploiement (sans redémarrage du serveur) gardait
+    # l'ancienne feuille de style en mémoire. Le fichier est petit (~40 Ko).
     return ASSETS.read_text(encoding="utf-8")
 
 
